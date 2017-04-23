@@ -1,6 +1,22 @@
+'''
+Usage:
+
+directorPython convertScannerModel.py
+
+  directorPython scripts/convertScannedModel.py          \
+    data/object-meshes/turntable-scanner/robot.obj       \
+    data/object-meshes/turntable-scanner/mobil1_v1.obj   \
+    data/object-meshes/turntable-scanner/toothpaste.obj  \
+    data/object-meshes/turntable-scanner/phone.obj       \
+    --no-window \
+    --output-dir data/object-meshes/
+
+'''
+
 import os
 import sys
 import numpy as np
+import argparse
 from director import objectmodel as om
 from director import mainwindowapp
 from director import ioUtils
@@ -12,7 +28,13 @@ from director import vtkAll as vtk
 
 
 if __name__ == '__main__':
-    app = mainwindowapp.construct(globals())
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename', type=str, nargs='+', help='.obj file from scanner')
+    parser.add_argument('--output-dir', type=str, default='.',
+        help='output directory to write files (default is the current working dir)')
+    parser.add_argument('--no-window', action='store_true', help='Disable visualization window.')
+    args = parser.parse_args()
 
 
     imageViews = []
@@ -49,22 +71,33 @@ if __name__ == '__main__':
             #    showImage(actor.GetTexture().GetInput())
 
         polyData = filterUtils.appendPolyData([obj.polyData for obj in folder.children()])
-        vis.showPolyData(polyData, 'merged pieces', parent=folder, visible=False)
+        vis.showPolyData(polyData, baseName + ' merged', parent=folder, visible=False)
 
+        print '  total points:', polyData.GetNumberOfPoints()
+
+        # compute centroid and subtract from points to move the mesh to the origin
         origin = np.array(filterUtils.computeCentroid(polyData))
         t = transformUtils.frameFromPositionAndRPY(-origin, [0.0, 0.0, 0.0])
         for obj in folder.children():
             obj.setPolyData(filterUtils.transformPolyData(obj.polyData, t))
 
-        return folder.findChild('merged pieces').polyData
+        return folder.children()[-1].polyData
 
 
-    filename = sys.argv[1]
-    polyData = loadObjFile(filename)
 
-    outFile = os.path.splitext(os.path.basename(filename))[0] + '.vtp'
+    app = mainwindowapp.construct(globals())
 
-    print 'writing output:', outFile
-    ioUtils.writePolyData(polyData, outFile)
+    outDir = args.output_dir
+    if not os.path.isdir(outDir):
+        os.makedirs(outDir)
 
-    app.app.start()
+    for filename in args.filename:
+        print 'reading:', filename
+        polyData = loadObjFile(filename)
+        outFile = os.path.splitext(os.path.basename(filename))[0] + '.vtp'
+        outFile = os.path.join(outDir, outFile)
+        print 'writing:', outFile
+        ioUtils.writePolyData(polyData, outFile)
+
+    if not args.no_window:
+        app.app.start()

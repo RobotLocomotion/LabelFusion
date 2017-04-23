@@ -1,0 +1,1 @@
+export PYTHONPATH=$PYTHONPATH:$SPARTAN_SOURCE_DIR/src/CorlDev/modules

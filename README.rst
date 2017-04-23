@@ -12,3 +12,10 @@ If Dropbox is hosted on another computer, you can use sshfs to mount the data fr
     sshfs user@hostname:Dropbox/CORL2017 ./data
 
 
+Environment
+-----------
+
+Source the `setup_environment.sh` file.  This file appends CorlDev/modules
+to the `PYTHONPATH` so that Python scripts can import the corl module.
+The corl module contains reusable functions and utilities that are used by
+the scripts.

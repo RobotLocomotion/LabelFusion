@@ -19,3 +19,11 @@ Source the `setup_environment.sh` file.  This file appends CorlDev/modules
 to the `PYTHONPATH` so that Python scripts can import the corl module.
 The corl module contains reusable functions and utilities that are used by
 the scripts.
+
+
+Visualizing RGBD Data
+---------------------
+
+You can launch director with imageviewapp. You need to pass the :code:`-c` flag to director along with the config file::
+	
+	directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud

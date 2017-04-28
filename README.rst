@@ -26,4 +26,5 @@ Visualizing RGBD Data
 
 You can launch director with imageviewapp. You need to pass the :code:`-c` flag to director along with the config file::
 	
+	cds && cd apps/iiwa
 	directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud

@@ -66,6 +66,7 @@ Note that :code:`-f` option flips the blue/green, which is needed.
 Run on the log for some time, then click Pause, then click “Save” to save a .ply file.  The .ply file will take the lcm log filename +.ply.  It also writes a file named .posegraph (maybe in the current working dir).
 
 3. Convert ElasticFusion .ply output to .vtp
+----
 
 First, open the .ply file in Meshlab, and save it (this will convert to an ASCII .ply file)
 

@@ -62,10 +62,17 @@ def getCorlBaseDir():
 
 def getCorlRelativePath(path):
     return os.path.join(getCorlBaseDir(), path)
-
+    
 
 def getCorlDataDir():
     return getCorlRelativePath('data')
+
+def convertImageIDToPaddedString(n, num_characters=10):
+    """
+    Converts the integer n to a padded string with leading zeros
+    """
+    t = str(n)
+    return t.rjust(num_characters, '0')
 
 
 def evalFileAsString(filename):

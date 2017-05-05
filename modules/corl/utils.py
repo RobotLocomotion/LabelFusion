@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import yaml
 from director import visualization as vis
 from director import objectmodel as om
 from director import transformUtils
@@ -67,12 +68,28 @@ def getCorlRelativePath(path):
 def getCorlDataDir():
     return getCorlRelativePath('data')
 
-def convertImageIDToPaddedString(n, num_characters=10):
+def getObjectMeshFilename(objectName):
+    """
+    Returns the filename of mesh corresponding to this object.
+    Filename is relative to getCorlDataDir()
+    """
+    object_mesh_map_filename = getCorlBaseDir() + '/config/object_mesh_map.yaml'
+
+    stream = file(object_mesh_map_filename)
+    objectMeshMap = yaml.load(stream)
+
+    if objectName not in objectMeshMap:
+        raise ValueError('there is no mesh for ' + objectName)
+
+    return objectMeshMap[objectName]
+
+
+def convertImageIDToPaddedString(n, numCharacters=10):
     """
     Converts the integer n to a padded string with leading zeros
     """
     t = str(n)
-    return t.rjust(num_characters, '0')
+    return t.rjust(numCharacters, '0')
 
 
 def evalFileAsString(filename):

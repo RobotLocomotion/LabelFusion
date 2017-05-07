@@ -44,17 +44,29 @@ def loadAffordanceModel(affordanceManager, name, filename, pose):
              pose=pose, Filename=filename))
 
 
-def loadObjectMeshes(affordanceManager):
+def loadObjectMeshes(affordanceManager, filename):
+    """
+    Loads the object meshes from the registration_result.yaml file
+    :param affordanceManager:
+    :param filename: filename of registration_result.yaml, should be an absolute path
+    :return: None
+    """
 
-    objData = getResultsConfig()['object-registration']
-    dataDir = getCorlDataDir()
+    stream = file(filename)
+    registrationResult = yaml.load(stream)
 
-    for obj in objData:
+    for objName, data in registrationResult.iteritems():
+        objectMeshFilename = data['filename'] # should be relative to getCorlDataDir()
+        if len(objectMeshFilename) == 0:
+            objectMeshFilename = getObjectMeshFilename(objName)
+        else:
+            objectMeshFilename = os.path.join(getCorlDataDir(), objectMeshFilename)
+
         loadAffordanceModel(
             affordanceManager,
-            name=obj['name'],
-            filename=os.path.join(dataDir, obj['filename']),
-            pose=obj['pose'])
+            name=objName,
+            filename=objectMeshFilename,
+            pose=data['pose'])
 
 
 def getCorlBaseDir():
@@ -73,15 +85,15 @@ def getObjectMeshFilename(objectName):
     Returns the filename of mesh corresponding to this object.
     Filename is relative to getCorlDataDir()
     """
-    object_mesh_map_filename = getCorlBaseDir() + '/config/object_mesh_map.yaml'
+    objectMeshMapFilename = os.path.join(getCorlBaseDir(), 'config/object_mesh_map.yaml')
 
-    stream = file(object_mesh_map_filename)
+    stream = file(objectMeshMapFilename)
     objectMeshMap = yaml.load(stream)
 
     if objectName not in objectMeshMap:
         raise ValueError('there is no mesh for ' + objectName)
 
-    return objectMeshMap[objectName]
+    return os.path.join(getCorlBaseDir(), objectMeshMap[objectName])
 
 
 def convertImageIDToPaddedString(n, numCharacters=10):
@@ -102,17 +114,28 @@ def getResultsConfig():
     return evalFileAsString(filename)
 
 
-def loadElasticFustionReconstruction():
-    filename = os.path.join(getCorlDataDir(), getResultsConfig()['reconstruction'])
+def loadElasticFustionReconstruction(filename):
+    """
+    Loads reconstructed pointcloud into director view
+    :param filename:
+    :return:
+    """
     polyData = ioUtils.readPolyData(filename)
     polyData = filterUtils.transformPolyData(polyData, getDefaultCameraToWorld())
     obj = vis.showPolyData(polyData, 'reconstruction', colorByName='RGB')
     return obj
 
 
-def initCameraUpdateCallback(obj, publishCameraPoseFunction):
+def initCameraUpdateCallback(obj, publishCameraPoseFunction, filename):
+    """
 
-    filename = os.path.join(getCorlDataDir(), getResultsConfig()['camera-poses'])
+    :param obj:
+    :param publishCameraPoseFunction:
+    :param filename: Says where to find camera-poses from ElasticFusion
+    :return:
+    """
+
+    
     data = np.loadtxt(filename)
     poseTimes = np.array(data[:,0]*1e6, dtype=int)
     poses = np.array(data[:,1:])
@@ -146,3 +169,34 @@ def initCameraUpdateCallback(obj, publishCameraPoseFunction):
             obj.actor.SetUserTransform(t)
 
     obj.timer.callback = myUpdate
+
+def getFilenames(logFolder):
+    """
+    Parse some standard filenames into a dict given the logFolder
+    :param logFolder:
+    :return:
+    """
+    d = dict()
+    d['info'] = os.path.join(getCorlDataDir(), logFolder, "info.yaml")
+    d['cameraPoses'] = os.path.join(getCorlDataDir(), logFolder, "posegraph.posegraph")
+    d['registrationResult'] = os.path.join(getCorlDataDir(), logFolder, "registration_result.yaml")
+    d['reconstruction'] = os.path.join(getCorlDataDir(), logFolder, "reconstructed_pointcloud.vtp")
+    return d
+
+def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logFolder="logs/moving-camera"):
+    """
+    Setups the necessary callbacks for visualizing Corl data in director
+
+    :param logFolder: The name of folder relative to Corl data dir
+    :return:
+    """
+
+    filenames = getFilenames(logFolder)
+
+    # setup camera update callback. Sets pose of camera depending on time in lcmlog
+    initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
+
+    loadObjectMeshes(robotSystem.affordanceManager, filenames['registrationResult'])
+    loadElasticFustionReconstruction(filenames['reconstruction'])
+
+

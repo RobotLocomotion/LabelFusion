@@ -4,18 +4,30 @@ to png
 """
 import utils as CorlUtil
 import os
+
 # director imports
 import director.vtkAll as vtk
 from director import filterUtils
+from director import lcmUtils
+import bot_core as lcmbotcore
+
+
 
 class ImageCapture(object):
 
     def __init__(self, imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT"):
+                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=True):
         self.imageManager = imageManager
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName
         self.counter = 1
+
+        if setupCallback:
+            self.setupCallback()
+
+    def setupCallback(self):
+        lcmUtils.addSubscriber("OPENNI_FRAME", lcmbotcore.images_t(),
+                               self.onImageMessage())
 
     def saveImage(self, extension="rbg.png"):
         # construct filename where this image will be saved

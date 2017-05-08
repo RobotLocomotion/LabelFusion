@@ -184,23 +184,6 @@ def getFilenames(logFolder):
     d['images'] = os.path.join(getCorlDataDir(), logFolder, "images")
     return d
 
-def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logFolder="logs/moving-camera", globalsDict=None, extraInputs=None):
-    """
-    Setups the necessary callbacks for visualizing Corl data in director
-
-    :param logFolder: The name of folder relative to Corl data dir
-    :return:
-    """
-
-    filenames = getFilenames(logFolder)
-
-    # setup camera update callback. Sets pose of camera depending on time in lcmlog
-    initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
-
-    loadObjectMeshes(robotSystem.affordanceManager, filenames['registrationResult'])
-    loadElasticFustionReconstruction(filenames['reconstruction'])
-
-
 
 
 

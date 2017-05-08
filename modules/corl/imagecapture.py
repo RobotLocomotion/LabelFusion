@@ -19,7 +19,7 @@ import bot_core as lcmbotcore
 class ImageCapture(object):
 
     def __init__(self, imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False):
+                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=True):
         self.imageManager = imageManager
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName
@@ -33,7 +33,7 @@ class ImageCapture(object):
         lcmUtils.addSubscriber("OPENNI_FRAME", lcmbotcore.images_t(),
                                self.onImageMessage)
 
-    def saveImage(self, extension="rbg.png"):
+    def saveImage(self, extension="rgb.png"):
         # construct filename where this image will be saved
         baseFilename = CorlUtil.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)

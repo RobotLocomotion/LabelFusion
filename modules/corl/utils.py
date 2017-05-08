@@ -93,7 +93,7 @@ def getObjectMeshFilename(objectName):
     if objectName not in objectMeshMap:
         raise ValueError('there is no mesh for ' + objectName)
 
-    return os.path.join(getCorlBaseDir(), objectMeshMap[objectName])
+    return os.path.join(getCorlDataDir(), objectMeshMap[objectName])
 
 
 def convertImageIDToPaddedString(n, numCharacters=10):

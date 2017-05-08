@@ -178,10 +178,16 @@ def getFilenames(logFolder):
     """
     d = dict()
     d['info'] = os.path.join(getCorlDataDir(), logFolder, "info.yaml")
+
+    stream = file(d['info'])
+    infoYaml = yaml.load(stream)
+
+    d['lcmlog'] = os.path.join(getCorlDataDir(), logFolder, infoYaml['lcmlog'])
     d['cameraPoses'] = os.path.join(getCorlDataDir(), logFolder, "posegraph.posegraph")
     d['registrationResult'] = os.path.join(getCorlDataDir(), logFolder, "registration_result.yaml")
     d['reconstruction'] = os.path.join(getCorlDataDir(), logFolder, "reconstructed_pointcloud.vtp")
     d['images'] = os.path.join(getCorlDataDir(), logFolder, "images")
+    d['topLevelFolder'] = os.path.join(getCorlDataDir(), logFolder)
     return d
 
 

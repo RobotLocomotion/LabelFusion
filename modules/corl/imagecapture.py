@@ -9,6 +9,9 @@ import os
 import director.vtkAll as vtk
 from director import filterUtils
 from director import lcmUtils
+from director import cameraview
+
+# lcm imports
 import bot_core as lcmbotcore
 
 
@@ -16,7 +19,7 @@ import bot_core as lcmbotcore
 class ImageCapture(object):
 
     def __init__(self, imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=True):
+                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False):
         self.imageManager = imageManager
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName
@@ -74,3 +77,42 @@ class ImageCapture(object):
             return
 
         self.saveImage()
+
+
+    @staticmethod
+    def readFromLogFile(lcmLogFilename, fileSaveLocation, channelName="OPENNI_FRAME",
+                        cameraName="OPENNI_FRAME_LEFT"):
+        """
+        Reads from lcmlog located at filename. Goes through each
+        images_t() message on OPENNI_FRAME channel and saves it
+        as a png in fileSaveLocation
+        :param filename: Name of lcmlogfile
+        :return:
+        """
+
+        # first construct imageManager object
+        imageManager = cameraview.ImageManager()
+        imageManager.queue.addCameraStream(channelName, cameraName, lcmbotcore.images_t.LEFT)
+        imageManager.addImage(cameraName)
+
+        # open the lcm log
+        imageManager.queue.openLCMFile(lcmLogFilename)
+
+        imageCapture = ImageCapture(imageManager, fileSaveLocation,
+                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False)
+
+        while (imageManager.queue.readNextImagesMessage()):
+            print "imageManager read next image"
+            imageCapture.saveImage()
+
+        print "reached end of lcm log"
+        return
+
+def captureImages(logFolder):
+    corlPaths = CorlUtil.getFilenames(logFolder)
+    ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'])
+
+
+def test():
+    captureImages("logs/moving-camera")
+

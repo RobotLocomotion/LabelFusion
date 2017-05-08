@@ -21,13 +21,14 @@ class ImageCapture(object):
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName
         self.counter = 1
+        self.initialized = False
 
         if setupCallback:
             self.setupCallback()
 
     def setupCallback(self):
         lcmUtils.addSubscriber("OPENNI_FRAME", lcmbotcore.images_t(),
-                               self.onImageMessage())
+                               self.onImageMessage)
 
     def saveImage(self, extension="rbg.png"):
         # construct filename where this image will be saved
@@ -61,3 +62,15 @@ class ImageCapture(object):
         writer.SetInput(image)
         writer.SetFileName(filename)
         writer.Write()
+
+    def onImageMessage(self, msg):
+        """
+        Just a trigger to save message
+        :param msg:
+        :return:
+        """
+        if not self.initialized:
+            self.initialized = True
+            return
+
+        self.saveImage()

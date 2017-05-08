@@ -181,9 +181,10 @@ def getFilenames(logFolder):
     d['cameraPoses'] = os.path.join(getCorlDataDir(), logFolder, "posegraph.posegraph")
     d['registrationResult'] = os.path.join(getCorlDataDir(), logFolder, "registration_result.yaml")
     d['reconstruction'] = os.path.join(getCorlDataDir(), logFolder, "reconstructed_pointcloud.vtp")
+    d['images'] = os.path.join(getCorlDataDir(), logFolder, "images")
     return d
 
-def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logFolder="logs/moving-camera"):
+def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logFolder="logs/moving-camera", globalsDict=None, extraInputs=None):
     """
     Setups the necessary callbacks for visualizing Corl data in director
 
@@ -198,5 +199,10 @@ def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logF
 
     loadObjectMeshes(robotSystem.affordanceManager, filenames['registrationResult'])
     loadElasticFustionReconstruction(filenames['reconstruction'])
+
+
+
+
+
 
 

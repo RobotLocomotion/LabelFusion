@@ -1,16 +1,29 @@
 '''
 Usage:
 
-  drake-visualizer --script scripts/renderTrainingImages.py
+  drake-visualizer --script scripts/renderTrainingImages.py logFolder
 
 Loads director window with renderTrainingImages as a RenderTrainingImages object.
-Call `saveImagesTest()` method on it to create the labeled images 
+logFolder is optional. Call `renderAndSaveLabeledImages()` method on it to create the labeled images
 
-0000000001_labels.png and 0000000001_color_labels.png
+uid_labels.png and uid_color_labels.png
 
-in the data/logs/moving-camera/images folder.
+in the data/logFolder directory. 
+
+
+# For running headless
+app.mainWindow.hide()
+view.setParent(None)
+view.show()
+rti.renderAndSaveLabeledImages()
 '''
-
+import argparse
 import corl.rendertrainingimages as rendertrainingimages
-rendertrainingimages.RenderTrainingImages.makeDefault(globals())
+
+logFolder = "logs/moving-camera"
+if len(_argv) > 1:
+	logFolder = _argv[1]
+
+print "logFolder = ", logFolder
+rti = rendertrainingimages.RenderTrainingImages.makeDefault(globals())
 

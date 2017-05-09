@@ -1,9 +1,12 @@
 # filename can be empty, if so get the default one
+# These frames are with respect to world frame. Really we should be storing
+# these relative to the initial camera frame.
+frame: "defaultCameraToWorld"
+
 phone:
   filename: 'object-meshes/phone.vtp'
   pose: [[0.7606531401738793, -0.03765840618820415, -0.25154909742658227],
                [-0.3792756487669554, -0.39252408872388406, -0.16826477945296256, 0.8208299373314398]]
-
 robot:
   filename: 'object-meshes/robot.vtp'
   pose: [[0.7842449543284591, 0.11163584822030512, -0.18685480815812347],
@@ -13,6 +16,7 @@ toothpaste:
   filename: 'object-meshes/toothpaste.vtp'
   pose: [[0.6929176068341711, -0.12187048508851923, -0.20570028909384638],
            [0.5372201635849231, -0.5409129925293267, -0.5571220340038646, 0.3292759778334113]]
+
 oil_bottle:
   filename: 'object-meshes/mobil1_v1.vtp'
   pose: [[0.8339119515772663, -0.0007036806779457492, -0.13099183653456142],

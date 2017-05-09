@@ -111,7 +111,7 @@ class RenderTrainingImages(object):
 
 
     def saveImages(self, baseName):
-        self.captureColorImage(baseName + '_color.png')
+        self.captureColorImage(baseName + '_color_labels.png')
         self.captureLabelImage(baseName + '_labels.png')
 
 
@@ -161,9 +161,13 @@ class RenderTrainingImages(object):
             quat = pose[6], pose[3], pose[4], pose[5] # quat data from file is ordered as x, y, z, w
             self.poses.append((pos, quat))
 
-    def getCameraPose(self, utime):
+    def getCameraPoseAtUTime(self, utime):
         idx = np.searchsorted(self.poseTimes, utime, side='left')
-        return self.poses[idx]
+        if idx == len(self.poseTimes):
+            idx = len(self.poseTimes) - 1
+
+        (pos, quat) = self.poses[idx]
+        return transformUtils.transformFromPose(pos, quat)
 
 
     def loadObjectMeshes(self):
@@ -203,8 +207,19 @@ class RenderTrainingImages(object):
         if not os.path.exists(imageFilename):
             return False
 
+        utimeFile = open(baseName + "_utime.txt", 'r')
+        utime = int(utimeFile.read())
+
+        # update camera transform
+        cameraToCameraStart = self.getCameraPoseAtUTime(utime)
+        t = transformUtils.concatenateTransforms([cameraToCameraStart, cutils.getDefaultCameraToWorld()])
+        vis.updateFrame(t, 'camera pose')
+        setCameraTransform(self.globalsDict['view'].camera(), t)
+
+        cameraPose = self.globalsDict['om'].findObjectByName('camera pose')
+        cameraPose.setProperty('Visible', False)
+
         self.loadBackgroundImage(imageFilename)
-        self.updateObjectPoses(imageNumber)
         self.globalsDict['view'].forceRender() # render it again
 
         if saveLabeledImages:
@@ -212,34 +227,35 @@ class RenderTrainingImages(object):
 
         return True
 
-    def updateObjectPoses(self, imageNumber):
-        baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
-        utimeFile = open(baseName + "_utime.txt", 'r')
-        utime = (int) utimeFile.read()
 
-        (pos, quat) = self.getCameraPose(utime)
-        cameraToCameraStart = transformUtils.transformFromPose(pos,quat)
-        cameraStartToCameraCurrent = cameraToCameraStart.GetLinearInverse()
+    # def updateObjectPoses(self, imageNumber):
+    #     baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
+    #     utimeFile = open(baseName + "_utime.txt", 'r')
+    #     utime = int(utimeFile.read())
+    #
+    #     (pos, quat) = self.getCameraPose(utime)
+    #     cameraToCameraStart = transformUtils.transformFromPose(pos,quat)
+    #     cameraStartToCameraCurrent = cameraToCameraStart.GetLinearInverse()
+    #
+    #     # iterate through objects updating their transforms
+    #     for obj in om.findObjectByName('data files').children():
+    #         # objToWorldNew = objToWorld
+    #         objToWorld = self.objectToWorld[obj.getProperty('Name')]
+    #         objToWorldNew = transformUtils.concatneateTransforms([objToWorld, cameraStartToCameraCurrent])
+    #         obj.SetUserTransform(objToWorldNew)
 
-        # iterate through objects updating their transforms
-        for obj in om.findObjectByName('data files').children():
-            # objToWorldNew = objToWorld 
-            objToWorld = self.objectToWorld[obj.getProperty('Name')]
-            objToWorldNew = transformUtils.concatneateTransforms([objToWorld, cameraStartToCameraCurrent])
-            obj.SetUserTransform(objToWorldNew)
-
-    def renderAndSaveImages(self):
+    def renderAndSaveLabeledImages(self):
         imageNumber = 1
         while(self.setupImage(imageNumber, saveLabeledImages=True)):
             imageNumber += 1
-
         
 
     @staticmethod
-    def makeDefault(globalsDict):
+    def makeDefault(globalsDict, logFolder="logs/moving-camera"):
         pathDict = cutils.getFilenames("logs/moving-camera")
-        rtm = RenderTrainingImages(globalsDict, pathDict)
-        globalsDict['renderTrainingImages'] = rtm
+        rti = RenderTrainingImages(globalsDict, pathDict)
+        globalsDict['renderTrainingImages'] = rti
+        return rti
 
 
 

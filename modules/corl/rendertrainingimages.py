@@ -25,6 +25,7 @@ class RenderTrainingImages(object):
         self.globalsDict = globalsDict
         self.pathDict = pathDict
         self.storedColors = {}
+        self.objectToWorld = dict()
         self.initialize()
 
     def initialize(self):
@@ -160,6 +161,10 @@ class RenderTrainingImages(object):
             quat = pose[6], pose[3], pose[4], pose[5] # quat data from file is ordered as x, y, z, w
             self.poses.append((pos, quat))
 
+    def getCameraPose(self, utime):
+        idx = np.searchsorted(self.poseTimes, utime, side='left')
+        return self.poses[idx]
+
 
     def loadObjectMeshes(self):
         om = self.globalsDict['om']
@@ -184,8 +189,51 @@ class RenderTrainingImages(object):
             self.storedColors[objName] = color
 
             objToWorld = transformUtils.transformFromPose(*data['pose'])
+            self.objectToWorld[objName] = objToWorld
             #objToCamera = transformUtils.concatneateTransforms([objToWorld, cameraToWorld.GetLinearInverse()])
             obj.actor.SetUserTransform(objToWorld)
+
+    def setupImage(self, imageNumber, saveLabeledImages=False):
+        """
+        Loads the given imageNumber as background.
+        Also updates the poses of the objects to match the image
+        """
+        baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
+        imageFilename = baseName + "_rgb.png"
+        if not os.path.exists(imageFilename):
+            return False
+
+        self.loadBackgroundImage(imageFilename)
+        self.updateObjectPoses(imageNumber)
+        self.globalsDict['view'].forceRender() # render it again
+
+        if saveLabeledImages:
+            self.saveImages(baseName)
+
+        return True
+
+    def updateObjectPoses(self, imageNumber):
+        baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
+        utimeFile = open(baseName + "_utime.txt", 'r')
+        utime = (int) utimeFile.read()
+
+        (pos, quat) = self.getCameraPose(utime)
+        cameraToCameraStart = transformUtils.transformFromPose(pos,quat)
+        cameraStartToCameraCurrent = cameraToCameraStart.GetLinearInverse()
+
+        # iterate through objects updating their transforms
+        for obj in om.findObjectByName('data files').children():
+            # objToWorldNew = objToWorld 
+            objToWorld = self.objectToWorld[obj.getProperty('Name')]
+            objToWorldNew = transformUtils.concatneateTransforms([objToWorld, cameraStartToCameraCurrent])
+            obj.SetUserTransform(objToWorldNew)
+
+    def renderAndSaveImages(self):
+        imageNumber = 1
+        while(self.setupImage(imageNumber, saveLabeledImages=True)):
+            imageNumber += 1
+
+        
 
     @staticmethod
     def makeDefault(globalsDict):

@@ -1,0 +1,16 @@
+# mesh locations relative to CorlDev/data
+phone:
+  mesh: 'object-meshes/phone.vtp'
+  label: 1
+
+robot:
+  mesh: 'object-meshes/robot.vtp'
+  label: 2
+
+toothpaste:
+  mesh: 'object-meshes/toothpaste.vtp'
+  label: 3
+
+oil_bottle:
+  mesh: 'object-meshes/mobil1_v1.vtp'
+  label: 4

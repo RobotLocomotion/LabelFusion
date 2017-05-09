@@ -42,9 +42,8 @@ class RenderTrainingImages(object):
         self.loadCameraPoses()
         self.loadObjectMeshes()
 
-        uid = cutils.convertImageIDToPaddedString(1)
-        backgroundImageFilename = os.path.join(self.pathDict['images'],
-                                               uid+"_rgb.png")
+
+        backgroundImageFilename = cutils.getImageBasenameFromImageNumber(1, self.pathDict) + "_rgb.png"
 
         self.loadBackgroundImage(backgroundImageFilename)
         self.globalsDict['gridObj'].setProperty('Visible', False)
@@ -55,6 +54,7 @@ class RenderTrainingImages(object):
         cameraToWorld = cutils.getDefaultCameraToWorld()
         setCameraTransform(view.camera(), cameraToWorld)
         view.forceRender()
+        self.enableLighting()
 
 
     def disableLighting(self):
@@ -68,8 +68,9 @@ class RenderTrainingImages(object):
 
         view.renderer().TexturedBackgroundOff()
 
-        for i, obj in enumerate(om.findObjectByName('data files').children()):
-            objLabel = i + 1
+        for obj in om.findObjectByName('data files').children():
+            objName = obj.getProperty('Name')
+            objLabel = cutils.getObjectLabel(objName)
             obj.actor.GetProperty().LightingOff()
             self.storedColors[obj.getProperty('Name')] = list(obj.getProperty('Color'))
             obj.setProperty('Color', [objLabel / 255.0] * 3)
@@ -123,6 +124,13 @@ class RenderTrainingImages(object):
         self.captureColorImage(baseName + '_color.png')
         self.captureLabelImage(baseName + '_labels.png')
 
+
+    def saveImagesTest(self):
+        baseName = cutils.getImageBasenameFromImageNumber(1, self.pathDict)
+        self.saveImages(baseName)
+        self.enableLighting()
+
+
     def loadBackgroundImage(self, filename):
         view = self.globalsDict['view']
         img = ioUtils.readImage(filename)
@@ -131,7 +139,10 @@ class RenderTrainingImages(object):
         view.renderer().SetBackgroundTexture(tex)
         view.renderer().TexturedBackgroundOn()
 
+
+    # TODO(manuelli): Not sure what this does, was just copy and pasted
     def moveCameraAndRenderImages(self):
+
         view = self.globalsDict['view']
         imageCounter = 0
         cam = view.camera()
@@ -179,7 +190,9 @@ class RenderTrainingImages(object):
                 filename = cutils.getObjectMeshFilename(objName)
 
             polyData = ioUtils.readPolyData(filename)
-            obj = vis.showPolyData(polyData, name=objName, parent=folder, color=vis.getRandomColor())
+            color = vis.getRandomColor()
+            obj = vis.showPolyData(polyData, name=objName, parent=folder, color=color)
+            self.storedColors[objName] = color
 
             objToWorld = transformUtils.transformFromPose(*data['pose'])
             #objToCamera = transformUtils.concatneateTransforms([objToWorld, cameraToWorld.GetLinearInverse()])

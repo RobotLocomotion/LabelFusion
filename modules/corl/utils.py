@@ -80,20 +80,32 @@ def getCorlRelativePath(path):
 def getCorlDataDir():
     return getCorlRelativePath('data')
 
+objectDataFilename = os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
+objectData = yaml.load(file(objectDataFilename))
+
 def getObjectMeshFilename(objectName):
     """
     Returns the filename of mesh corresponding to this object.
     Filename is relative to getCorlDataDir()
     """
-    objectMeshMapFilename = os.path.join(getCorlBaseDir(), 'config/object_mesh_map.yaml')
 
-    stream = file(objectMeshMapFilename)
-    objectMeshMap = yaml.load(stream)
+    if objectName not in objectData:
+        raise ValueError('there is no data for ' + objectName)
 
-    if objectName not in objectMeshMap:
-        raise ValueError('there is no mesh for ' + objectName)
+    return os.path.join(getCorlDataDir(), objectData[objectName]['mesh'])
 
-    return os.path.join(getCorlDataDir(), objectMeshMap[objectName])
+
+def getObjectLabel(objectName):
+    """
+    Returns the object label specified in object_data.yaml
+    :param objectName:
+    :return:
+    """
+
+    if objectName not in objectData:
+        raise ValueError('there is no data for ' + objectName)
+
+    return objectData[objectName]['label']
 
 
 def convertImageIDToPaddedString(n, numCharacters=10):
@@ -102,6 +114,16 @@ def convertImageIDToPaddedString(n, numCharacters=10):
     """
     t = str(n)
     return t.rjust(numCharacters, '0')
+
+def getImageBasenameFromImageNumber(imageNum, pathDict):
+    """
+
+    :param imageNum:
+    :param pathDict: dict containing key 'images' with path to images folder
+    :return: full path to corresponding image, minus _rgb.png etc.
+    """
+    filename = convertImageIDToPaddedString(imageNum)
+    return os.path.join(pathDict['images'], filename)
 
 
 def evalFileAsString(filename):

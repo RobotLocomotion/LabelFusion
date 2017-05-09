@@ -3,10 +3,12 @@ Usage:
 
   drake-visualizer --script scripts/renderTrainingImages.py
 
-Outputs test_color.png and test_labels.png.  You can plot
-the label image with:
+Loads director window with renderTrainingImages as a RenderTrainingImages object.
+Call `saveImagesTest()` method on it to create the labeled images 
 
-  python scripts/plotLabels test_labels.png
+0000000001_labels.png and 0000000001_color_labels.png
+
+in the data/logs/moving-camera/images folder.
 '''
 
 import corl.rendertrainingimages as rendertrainingimages

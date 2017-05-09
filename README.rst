@@ -72,7 +72,31 @@ First, open the .ply file in Meshlab, and save it (this will convert to an ASCII
 
 Next, convert to .vtp (Pat will document)
 
+4. Extract Images from LCM log
+----
 
+Launch :code:`kuka_iiwa_app`. In the python console run::
+
+	corl.imagecapture.captureImages(logFolder)
+
+Where :code:`logFolder` is the relative path from :code:`data` for the top level folder of the log you are interested in. For example to run it for the moving-camera log we would use::
+
+	corl.imagecapture.captureImages("logs/moving-camera")
+
+This will save the images in "logs/moving-camera/images". The original images will be in the form :code:`uid_rbg.png`. Each image also has :code:`uid_utime.txt` which contains the utime associated with that image. Note that it will overwrite anything that is already there.
+
+5. Generate Labeled Images
+----
+
+The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Use::
+	
+	  drake-visualizer --script scripts/renderTrainingImages.py logFolder
+
+:code:`data/logs/logFolder` is the top level data directory it will use. Then grab the :code:`renderTrainingImages` object and execute::
+
+	renderTrainingImages.renderAndSaveLabeledImages()
+
+This will generate :code:`uid_labels.png` and :code:`uid_color_labels.png` which are the labeled images.
 
 ====
 Misc

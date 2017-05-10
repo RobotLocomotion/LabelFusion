@@ -228,22 +228,6 @@ class RenderTrainingImages(object):
         return True
 
 
-    # def updateObjectPoses(self, imageNumber):
-    #     baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
-    #     utimeFile = open(baseName + "_utime.txt", 'r')
-    #     utime = int(utimeFile.read())
-    #
-    #     (pos, quat) = self.getCameraPose(utime)
-    #     cameraToCameraStart = transformUtils.transformFromPose(pos,quat)
-    #     cameraStartToCameraCurrent = cameraToCameraStart.GetLinearInverse()
-    #
-    #     # iterate through objects updating their transforms
-    #     for obj in om.findObjectByName('data files').children():
-    #         # objToWorldNew = objToWorld
-    #         objToWorld = self.objectToWorld[obj.getProperty('Name')]
-    #         objToWorldNew = transformUtils.concatneateTransforms([objToWorld, cameraStartToCameraCurrent])
-    #         obj.SetUserTransform(objToWorldNew)
-
     def renderAndSaveLabeledImages(self):
         imageNumber = 1
         while(self.setupImage(imageNumber, saveLabeledImages=True)):

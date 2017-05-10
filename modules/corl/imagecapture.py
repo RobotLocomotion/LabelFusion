@@ -90,6 +90,10 @@ class ImageCapture(object):
         :return:
         """
 
+        # check if fileSaveLocation is an existing directory, if not create it.
+        if not os.path.isdir(fileSaveLocation):
+            os.makedirs(fileSaveLocation)
+
         # first construct imageManager object
         imageManager = cameraview.ImageManager()
         imageManager.queue.addCameraStream(channelName, cameraName, lcmbotcore.images_t.LEFT)

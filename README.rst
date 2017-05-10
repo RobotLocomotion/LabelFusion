@@ -31,6 +31,10 @@ ElasticFusion wants CUDA 7.5.
 
 Grab www.github.com/patmarion/ElasticFusion, and follow build instructions.  Pat's fork of ElasticFusion adds lcm bridge.
 
+Director
+--------
+
+Checkout the branch :code:`corl-master` from the repository :code:`github.com/manuelli/director.git`. This will serve as our internal director branch. The idea is that these changes will make their way back to director/master eventually, but that process shouldn't slow down our workflow.
 
 ====
 Pipeline

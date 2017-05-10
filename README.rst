@@ -70,8 +70,9 @@ Run on the log for some time, then click Pause, then click “Save” to save a 
 
 First, open the .ply file in Meshlab, and save it (this will convert to an ASCII .ply file)
 
-Next, convert to .vtp (Pat will document)
+Next, convert to .vtp using the command::
 
+  directorPython scripts/convertPlyToVtp.py /path/to/data.ply
 
 
 ====

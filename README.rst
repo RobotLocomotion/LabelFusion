@@ -78,8 +78,13 @@ Next, convert to .vtp using the command::
 
   directorPython scripts/convertPlyToVtp.py /path/to/data.ply
 
+4. Global Object Pose Fitting
+----
 
-4. Extract Images from LCM log
+WIP. Will need to run global registration algorithms here. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries.
+
+
+5. Extract Images from LCM log
 ----
 
 Launch :code:`kuka_iiwa_app`. In the python console run::
@@ -92,7 +97,8 @@ Where :code:`logFolder` is the relative path from :code:`data` for the top level
 
 This will save the images in "logs/moving-camera/images". The original images will be in the form :code:`uid_rbg.png`. Each image also has :code:`uid_utime.txt` which contains the utime associated with that image. Note that it will overwrite anything that is already there.
 
-5. Generate Labeled Images
+
+6. Generate Labeled Images
 ----
 
 The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Use::

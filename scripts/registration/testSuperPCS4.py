@@ -1,13 +1,19 @@
-from director.shallowCopy import shallowCopy
-from director import segmentation
+"""
+Usage:
+    drake-visualizer --script testSuper4PCS.py
+"""
 
-import os
+# system imports
 import subprocess
-
-
 import os
 import computeDistance
 
+# director imports
+from director.shallowCopy import shallowCopy
+from director import segmentation
+
+# corl imports
+import corl.utils as CorlUtils
 
 def applySubdivision(polyData, subdivisions=3):
     f = vtk.vtkLoopSubdivisionFilter()
@@ -97,14 +103,18 @@ def runSuperPCS4(modelName, sceneName):
     modelPointCloud = om.findObjectByName(modelName).polyData
     scenePointCloud = om.findObjectByName(sceneName).polyData
 
-    modelFile = 'model_data_for_pcs4.ply'
-    sceneFile = 'scene_data_for_pcs4.ply'
+    baseName = os.path.join(CorlUtils.getCorlDataDir(),
+                            'registration-output/robot-scene')
+    modelFile = os.path.join(baseName, 'model_data_for_pcs4.ply')
+    sceneFile = os.path.join(baseName, 'scene_data_for_pcs4.ply')
 
     ioUtils.writePolyData(modelPointCloud, modelFile)
     ioUtils.writePolyData(scenePointCloud, sceneFile)
 
-    registrationBin = '/home/pat/source/Super4PCS/build/Super4PCS'
-    outputFile = 'pcs4_mat_output.txt'
+    super4PCSBaseDir = CorlUtils.getSuper4PCSBaseDir()
+    registrationBin = os.path.join(super4PCSBaseDir, 'build/Super4PCS')
+    outputFile = os.path.join(CorlUtils.getCorlBaseDir(),
+                              'sandbox/pcs4_mat_output.txt')
     overlap = 0.9
     distance = 0.02
     timeout = 1000
@@ -155,9 +165,15 @@ def computeAlignmentScore(objA, objB, distanceThreshold=0.02):
     print 'LCP percent (%s):' % objA, lcpScore
 
 
-pointCloud = ioUtils.readPolyData('data/unaligned_full_pointcloud.vtp')
-robotMesh = ioUtils.readPolyData('data/robot_mesh.vtp')
-robotMeshPointcloud = ioUtils.readPolyData('data/robot_mesh_pointcloud.vtp')
+baseName = os.path.join(CorlUtils.getCorlDataDir(),
+                            'registration-output/robot-scene')
+pointCloudFile = os.path.join(baseName, 'robot_mesh.vtp')
+robotMeshFile = os.path.join(baseName, 'robot_mesh.vtp')
+robotMeshPointcloudFile = os.path.join(baseName, 'robot_mesh_pointcloud.vtp')
+
+pointCloud = ioUtils.readPolyData(pointCloudFile)
+robotMesh = ioUtils.readPolyData(robotMeshFile)
+robotMeshPointcloud = ioUtils.readPolyData(robotMeshPointcloudFile)
 
 
 
@@ -167,6 +183,9 @@ robotMeshPointcloud = ioUtils.readPolyData('data/robot_mesh_pointcloud.vtp')
 
 pointCloud = segmentation.applyVoxelGrid(pointCloud, leafSize=0.01)
 
+sceneTransform = transformUtils.frameFromPositionAndRPY([0,0,0],[0,0,90])
+pointCloud = filterUtils.transformPolyData(pointCloud, sceneTransform)
+
 #robotMeshPointcloud = shuffleAndShiftPoints(robotMeshPointcloud)
 #pointCloud = shuffleAndShiftPoints(pointCloud)
 
@@ -174,16 +193,16 @@ pointCloud = segmentation.applyVoxelGrid(pointCloud, leafSize=0.01)
 print pointCloud.GetNumberOfPoints()
 print robotMeshPointcloud.GetNumberOfPoints()
 
-vis.showPolyData(robotMeshPointcloud, 'model pointcloud')
-vis.showPolyData(pointCloud, 'scene pointcloud')
+sceneName = 'scene pointcloud'
+modelName = 'model pointcloud'
+
+vis.showPolyData(robotMeshPointcloud, modelName)
+vis.showPolyData(pointCloud, sceneName)
 
 
 view.resetCamera()
 view.forceRender()
 
-
-sceneName = 'scene pointcloud'
-modelName = 'model pointcloud'
 
 runSuperPCS4(modelName, sceneName)
 

@@ -85,6 +85,18 @@ We need environment variables in order for the scripts to be able to find the bi
 
 	drake-visualizer --script scripts/registration/testRegistration.py
 
+Fitting phone using GlobalRegistration tool
+
+1. Launch :code:`kuka_iiwa_app`.
+2. open measurement panel and enable.
+3. shift + click on center of phone.
+4. execute :code:`globalRegistration.testPhoneFit()`. WARNING THIS IS SLOW.
+
+This creates a cropped pointcloud of 8cm around your click point. Then it runs SuperPCS4 algorithm to fit phone mesh to this pointcloud. By default the phone mesh is downsampled.
+
+
+
+
 
 5. Extract Images from LCM log
 ----

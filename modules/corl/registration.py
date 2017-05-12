@@ -18,6 +18,25 @@ class GlobalRegistration(object):
 
     def __init__(self, view):
         self.view = view
+        self.objectToWorldTransform = dict()
+
+    def fitObjectToPointcloud(self, objectName, pointCloud=None,
+                              objectPolyData=None, filename=None):
+
+        if objectPolyData is None:
+            if filename is None:
+                filename = CorlUtils.getObjectMeshFilename(objectName)
+
+            objectPolyData = ioUtils.readPolyData(filename)
+
+        if pointCloud is None:
+            pointCloud = om.findObjectByName('reconstruction').polyData
+
+        sceneToModelTransform = SuperPCS4.run(pointCloud, objectPolyData)
+        objectToWorld = sceneToModelTransform.GetLinearInverse()
+        self.objectToWorldTransform[objectName] = objectToWorld
+        return objectToWorld
+
 
     def testSuperPCS4(self):
         """
@@ -59,7 +78,7 @@ class GlobalRegistration(object):
         self.view.resetCamera()
         self.view.forceRender()
 
-        sceneToModelTransform = SuperPCS4.runSuperPCS4(pointCloud, robotMeshPointcloud)
+        sceneToModelTransform = SuperPCS4.run(pointCloud, robotMeshPointcloud)
         GlobalRegistration.showAlignedPointcloud(pointCloud, sceneToModelTransform, sceneName + " aligned")
 
     @staticmethod
@@ -71,15 +90,15 @@ class GlobalRegistration(object):
 class SuperPCS4(object):
 
     @staticmethod
-    def runSuperPCS4(scenePointCloud, modelPointCloud):
+    def run(scenePointCloud, modelPointCloud):
         """
 
         :param scenePointCloud:
         :param modelPointCloud:
-        :return: transform from scenePointCloud --> modelPointCloud
+        :return: transform from scenePointCloud --> modelPointCloud. It is a vtkTransform
         """
-        baseName = os.path.join(CorlUtils.getCorlDataDir(),
-                                'registration-output/robot-scene')
+        baseName = os.path.join(CorlUtils.getCorlBaseDir(),
+                                'sandbox')
         modelFile = os.path.join(baseName, 'model_data_for_pcs4.ply')
         sceneFile = os.path.join(baseName, 'scene_data_for_pcs4.ply')
 

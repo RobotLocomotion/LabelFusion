@@ -1,6 +1,7 @@
 # sets up classes needed for Corl in director
 import utils as CorlUtils
 from imagecapture import ImageCapture
+import registration
 
 def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logFolder="logs/moving-camera", globalsDict=None, extraInputs=None):
     """
@@ -23,3 +24,5 @@ def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logF
     # add necessary classes to globalsDict
     globalsDict['imageCapture'] = imageCapture
 
+    globalRegistration = registration.GlobalRegistration(globalsDict['view'])
+    globalsDict['globalRegistration'] = globalRegistration

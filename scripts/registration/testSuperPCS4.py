@@ -91,7 +91,7 @@ def readSuperPCS4TransformFile(outputFile):
 
 
 def showAlignedData(objName, outputFile):
-
+    # this is transform from from scene --> model
     T = readSuperPCS4TransformFile(outputFile)
     polyData = om.findObjectByName(objName).polyData
     transformedPointCloud = filterUtils.transformPolyData(polyData, transformUtils.getTransformFromNumpy(T))

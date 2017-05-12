@@ -81,7 +81,9 @@ Next, convert to .vtp using the command::
 4. Global Object Pose Fitting
 ----
 
-WIP. Will need to run global registration algorithms here. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries.
+We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::
+
+	drake-visualizer --script scripts/registration/testRegistration.py
 
 
 5. Extract Images from LCM log

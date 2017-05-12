@@ -16,12 +16,13 @@ import utils as CorlUtils
 
 class GlobalRegistration(object):
 
-    def __init__(self, view):
+    def __init__(self, view, measurementPanel):
         self.view = view
         self.objectToWorldTransform = dict()
+        self.measurementPanel = measurementPanel
 
-    def fitObjectToPointcloud(self, objectName, pointCloud=None,
-                              objectPolyData=None, filename=None):
+    def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
+                              objectPolyData=None, filename=None, visualize=True):
 
         if objectPolyData is None:
             if filename is None:
@@ -29,13 +30,55 @@ class GlobalRegistration(object):
 
             objectPolyData = ioUtils.readPolyData(filename)
 
+
+        # downsample the object poly data
+        objectPolyDataForAlgorithm = objectPolyData
+        if downsampleObject:
+            objectPolyDataForAlgorithm = segmentation.applyVoxelGrid(objectPolyData,
+                                                         leafSize=0.002)
+
         if pointCloud is None:
             pointCloud = om.findObjectByName('reconstruction').polyData
 
-        sceneToModelTransform = SuperPCS4.run(pointCloud, objectPolyData)
+        sceneToModelTransform = SuperPCS4.run(pointCloud, objectPolyDataForAlgorithm)
         objectToWorld = sceneToModelTransform.GetLinearInverse()
         self.objectToWorldTransform[objectName] = objectToWorld
+
+        if visualize:
+            alignedObj = vis.updatePolyData(objectPolyData, objectName + ' aligned')
+            alignedObj.actor.SetUserTransform(objectToWorld)
+
         return objectToWorld
+
+
+    def cropPointCloud(self, point=None, pointCloud=None, radius=0.3,
+                       visualize=True):
+        """
+        Crop pointcloud using sphere around given point and radius
+        :param point: defaults to point chosen using measurement panel
+        :param pointCloud: defaults to 'reconstruction'
+        :return: cropped point cloud, polyData
+        """
+        if point is None:
+            if len(self.measurementPanel.pickPoints) == 0:
+                print "you haven't selected any points using measurement panel"
+                return
+
+            point = self.measurementPanel.pickPoints[-1]
+
+        if pointCloud is None:
+            pointCloud = om.findObjectByName('reconstruction').polyData
+
+        croppedPointCloud = segmentation.cropToSphere(pointCloud, point, radius=radius)
+        if visualize:
+            vis.updatePolyData(croppedPointCloud, 'cropped pointcloud')
+
+        return croppedPointCloud
+
+    def testPhoneFit(self):
+        croppedPointCloud = self.cropPointCloud(radius=0.08)
+        return self.fitObjectToPointcloud('phone', pointCloud=croppedPointCloud)
+
 
 
     def testSuperPCS4(self):
@@ -87,10 +130,14 @@ class GlobalRegistration(object):
         vis.showPolyData(alignedPointcloud, name)
 
 
+
+
+
+
 class SuperPCS4(object):
 
     @staticmethod
-    def run(scenePointCloud, modelPointCloud):
+    def run(scenePointCloud, modelPointCloud, overlap=0.9, distance=0.02, timeout=1000, numSamples=200):
         """
 
         :param scenePointCloud:
@@ -109,10 +156,9 @@ class SuperPCS4(object):
         registrationBin = os.path.join(super4PCSBaseDir, 'build/Super4PCS')
         outputFile = os.path.join(CorlUtils.getCorlBaseDir(),
                                   'sandbox/pcs4_mat_output.txt')
-        overlap = 0.9
-        distance = 0.02
-        timeout = 1000
-        numSamples = 200
+
+        print "number of scene points = ", scenePointCloud.GetNumberOfPoints()
+        print "number of model points = ", modelPointCloud.GetNumberOfPoints()
 
         registrationArgs = [
             registrationBin,

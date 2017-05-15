@@ -112,7 +112,7 @@ This will save the images in :code:`data/logFolder`. The original images will be
 
 The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Usage::
 
-  directorPython --script scripts/renderTrainingImages.py
+  directorPython scripts/renderTrainingImages.py --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg --logFolder logs/moving-camera
 
 Optionally you can pass :code:`--logFolder <logFolder>` on the command line where :code:`<logFolder>` is the path to the lcm log folder relative to the data folder.  For example :code:`--logFolder logs/moving-camera`. This will generate :code:`uid_labels.png` and :code:`uid_color_labels.png` which are the labeled images.
 

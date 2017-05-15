@@ -100,30 +100,21 @@ This creates a cropped pointcloud of 8cm around your click point. Then it runs S
 
 5. Extract Images from LCM log
 ----
+The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rgb images from the lcm log run::
 
-Launch :code:`kuka_iiwa_app`. In the python console run::
+	directorPython scripts/extractImagesFromLog.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
-	corl.imagecapture.captureImages(logFolder)
-
-Where :code:`logFolder` is the relative path from :code:`data` for the top level folder of the log you are interested in. For example to run it for the moving-camera log we would use::
-
-	corl.imagecapture.captureImages("logs/moving-camera")
-
-This will save the images in "logs/moving-camera/images". The original images will be in the form :code:`uid_rbg.png`. Each image also has :code:`uid_utime.txt` which contains the utime associated with that image. Note that it will overwrite anything that is already there.
+This will save the images in :code:`data/logFolder`. The original images will be in the form :code:`uid_rbg.png`. Each image also has :code:`uid_utime.txt` which contains the utime associated with that image. Note that it will overwrite anything that is already there.
 
 
 6. Generate Labeled Images
 ----
 
-The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Use::
-	
-	  drake-visualizer --script scripts/renderTrainingImages.py logFolder
+The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Usage::
 
-:code:`data/logs/logFolder` is the top level data directory it will use. Then grab the :code:`renderTrainingImages` object and execute::
+  directorPython --script scripts/renderTrainingImages.py
 
-	renderTrainingImages.renderAndSaveLabeledImages()
-
-This will generate :code:`uid_labels.png` and :code:`uid_color_labels.png` which are the labeled images.
+Optionally you can pass :code:`--logFolder <logFolder>` on the command line where :code:`<logFolder>` is the path to the lcm log folder relative to the data folder.  For example :code:`--logFolder logs/moving-camera`. This will generate :code:`uid_labels.png` and :code:`uid_color_labels.png` which are the labeled images.
 
 ====
 Misc

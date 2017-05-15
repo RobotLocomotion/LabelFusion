@@ -83,6 +83,9 @@ def getCorlDataDir():
 def getSuper4PCSBaseDir():
     return os.getenv("SUPER4PCS_BASE_DIR")
 
+def getGoICPBaseDir():
+    return os.getenv("GOICP_BASE_DIR")
+
 objectDataFilename = os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
 objectData = yaml.load(file(objectDataFilename))
 

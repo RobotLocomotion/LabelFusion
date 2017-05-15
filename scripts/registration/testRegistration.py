@@ -6,5 +6,6 @@ import corl.registration
 from corl.registration import GlobalRegistration
 
 
-globalRegistration = GlobalRegistration(view)
-globalRegistration.testSuperPCS4()
+globalRegistration = GlobalRegistration(view, measurementPanel)
+gr = globalRegistration
+# globalRegistration.testSuperPCS4()

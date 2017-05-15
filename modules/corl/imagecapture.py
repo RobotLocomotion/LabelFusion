@@ -46,9 +46,11 @@ class ImageCapture(object):
         image = self.imageManager.getImage(self.cameraName)
         utime = self.imageManager.getUtime(self.cameraName)
         image = filterUtils.flipImage(image)
+        print 'writing:', rgbFilename
         ImageCapture.writeImage(image, rgbFilename)
 
         # now save the utime
+        print 'writing:', utimeFilename
         text_file = open(utimeFilename, "w")
         text_file.write(str(utime))
         text_file.close()
@@ -105,8 +107,7 @@ class ImageCapture(object):
         imageCapture = ImageCapture(imageManager, fileSaveLocation,
                  cameraName = "OPENNI_FRAME_LEFT", setupCallback=False)
 
-        while (imageManager.queue.readNextImagesMessage()):
-            print "imageManager read next image"
+        while imageManager.queue.readNextImagesMessage():
             imageCapture.saveImage()
 
         print "reached end of lcm log"

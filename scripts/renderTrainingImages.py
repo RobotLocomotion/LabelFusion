@@ -1,29 +1,31 @@
 '''
 Usage:
 
-  drake-visualizer --script scripts/renderTrainingImages.py logFolder
+  directorPython --script scripts/renderTrainingImages.py
 
-Loads director window with renderTrainingImages as a RenderTrainingImages object.
-logFolder is optional. Call `renderAndSaveLabeledImages()` method on it to create the labeled images
-
-uid_labels.png and uid_color_labels.png
-
-in the data/logFolder directory. 
-
-
-# For running headless
-app.mainWindow.hide()
-view.setParent(None)
-view.show()
-rti.renderAndSaveLabeledImages()
+Optionally you can pass --logFolder <logFolder> on the command line
+where <logFolder> is the path to the lcm log folder relative to the
+data folder.  For example: --logFolder logs/moving-camera
 '''
+import sys
 import argparse
-import corl.rendertrainingimages as rendertrainingimages
+from director import mainwindowapp
+import corl.utils
+from corl.rendertrainingimages import RenderTrainingImages
 
-logFolder = "logs/moving-camera"
-if len(_argv) > 1:
-	logFolder = _argv[1]
 
-print "logFolder = ", logFolder
-rti = rendertrainingimages.RenderTrainingImages.makeDefault(globals())
+if __name__ == '__main__':
 
+    logFolder = "logs/moving-camera"
+    if len(sys.argv) > 1:
+	    logFolder = sys.argv[1]
+
+    app = mainwindowapp.construct()
+    app.view.setParent(None)
+    app.view.show()
+
+    print "logFolder = ", logFolder
+
+    pathDict = corl.utils.getFilenames(logFolder)
+    rti = RenderTrainingImages(app.view, app.viewOptions, pathDict)
+    rti.renderAndSaveLabeledImages()

@@ -9,20 +9,20 @@ from director import actionhandlers
 from director import screengrabberpanel as sgp
 from director import transformUtils
 from director import visualization as vis
+from director import objectmodel as om
 
-import utils as cutils
+from corl import utils as cutils
 import scipy.misc
 
 
 class RenderTrainingImages(object):
 
-    def __init__(self, globalsDict, pathDict):
+    def __init__(self, view, viewOptions, pathDict):
         """
-
-        :param globalsDict: globalsDict of all globals in director
         :param pathDict: dictionary storing all the relevant paths
         """
-        self.globalsDict = globalsDict
+        self.view = view
+        self.viewOptions = viewOptions
         self.pathDict = pathDict
         self.storedColors = {}
         self.objectToWorld = dict()
@@ -32,13 +32,12 @@ class RenderTrainingImages(object):
         self.loadCameraPoses()
         self.loadObjectMeshes()
 
-
         backgroundImageFilename = cutils.getImageBasenameFromImageNumber(1, self.pathDict) + "_rgb.png"
 
         self.loadBackgroundImage(backgroundImageFilename)
-        self.globalsDict['gridObj'].setProperty('Visible', False)
+        om.findObjectByName('grid').setProperty('Visible', False)
 
-        view = self.globalsDict['view']
+        view = self.view
         view.setFixedSize(640, 480)
         setCameraInstrinsicsAsus(view)
         cameraToWorld = cutils.getDefaultCameraToWorld()
@@ -48,9 +47,8 @@ class RenderTrainingImages(object):
 
 
     def disableLighting(self):
-        view = self.globalsDict['view']
-        viewOptions = self.globalsDict['viewOptions']
-        om = self.globalsDict['om']
+        view = self.view
+        viewOptions = self.viewOptions
 
         viewOptions.setProperty('Gradient background', False)
         viewOptions.setProperty('Orientation widget', False)
@@ -67,9 +65,8 @@ class RenderTrainingImages(object):
         view.forceRender()
 
     def enableLighting(self):
-        view = self.globalsDict['view']
-        viewOptions = self.globalsDict['viewOptions']
-        om = self.globalsDict['om']
+        view = self.view
+        viewOptions = self.viewOptions
 
         viewOptions.setProperty('Gradient background', False)
         viewOptions.setProperty('Orientation widget', False)
@@ -85,17 +82,17 @@ class RenderTrainingImages(object):
 
 
     def captureColorImage(self, filename):
-        view = self.globalsDict['view']
+        view = self.view
         self.enableLighting()
         print 'writing:', filename
-        im = sgp.saveScreenshot(view, filename, shouldWrite=True)
+        im = sgp.saveScreenshot(view, filename, shouldRender=False, shouldWrite=True)
         return im
 
 
     def captureLabelImage(self, filename):
-        view = self.globalsDict['view']
+        view = self.view
         self.disableLighting()
-        im = sgp.saveScreenshot(view, filename, shouldWrite=False)
+        im = sgp.saveScreenshot(view, filename, shouldRender=False, shouldWrite=False)
 
         if filename is not None:
             img = vnp.getNumpyFromVtk(im, 'ImageScalars')
@@ -105,6 +102,7 @@ class RenderTrainingImages(object):
             img = np.flipud(img)
 
             img = img[:,:,0]
+            print 'writing:', filename
             scipy.misc.imsave(filename, img)
 
         return im
@@ -122,35 +120,12 @@ class RenderTrainingImages(object):
 
 
     def loadBackgroundImage(self, filename):
-        view = self.globalsDict['view']
+        view = self.view
         img = ioUtils.readImage(filename)
         tex = vtk.vtkTexture()
         tex.SetInput(img)
         view.renderer().SetBackgroundTexture(tex)
         view.renderer().TexturedBackgroundOn()
-
-
-    # TODO(manuelli): Not sure what this does, was just copy and pasted
-    def moveCameraAndRenderImages(self):
-
-        view = self.globalsDict['view']
-        imageCounter = 0
-        cam = view.camera()
-        azSteps = 10
-        elSteps = 4
-
-        outDir = 'images'
-        if not os.path.isdir(outDir):
-            os.makedirs(outDir)
-
-        for _ in xrange(elSteps):
-            cam.Elevation(10)
-            for _ in xrange(azSteps):
-                cam.Azimuth(360.0/azSteps)
-
-                self.saveImages(os.path.join(outDir, 'scene_%05d' % imageCounter))
-                imageCounter += 1
-
 
     def loadCameraPoses(self):
         data = np.loadtxt(self.pathDict['cameraPoses'])
@@ -171,7 +146,6 @@ class RenderTrainingImages(object):
 
 
     def loadObjectMeshes(self):
-        om = self.globalsDict['om']
         objData = cutils.getResultsConfig()['object-registration']
         dataDir = cutils.getCorlDataDir()
 
@@ -214,13 +188,13 @@ class RenderTrainingImages(object):
         cameraToCameraStart = self.getCameraPoseAtUTime(utime)
         t = transformUtils.concatenateTransforms([cameraToCameraStart, cutils.getDefaultCameraToWorld()])
         vis.updateFrame(t, 'camera pose')
-        setCameraTransform(self.globalsDict['view'].camera(), t)
+        setCameraTransform(self.view.camera(), t)
 
-        cameraPose = self.globalsDict['om'].findObjectByName('camera pose')
+        cameraPose = om.findObjectByName('camera pose')
         cameraPose.setProperty('Visible', False)
 
         self.loadBackgroundImage(imageFilename)
-        self.globalsDict['view'].forceRender() # render it again
+        self.view.forceRender() # render it again
 
         if saveLabeledImages:
             self.saveImages(baseName)
@@ -232,15 +206,6 @@ class RenderTrainingImages(object):
         imageNumber = 1
         while(self.setupImage(imageNumber, saveLabeledImages=True)):
             imageNumber += 1
-        
-
-    @staticmethod
-    def makeDefault(globalsDict, logFolder="logs/moving-camera"):
-        pathDict = cutils.getFilenames("logs/moving-camera")
-        rti = RenderTrainingImages(globalsDict, pathDict)
-        globalsDict['renderTrainingImages'] = rti
-        return rti
-
 
 
 def getCameraTransform(camera):

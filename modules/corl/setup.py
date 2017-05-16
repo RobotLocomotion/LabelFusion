@@ -25,11 +25,10 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     # setup camera update callback. Sets pose of camera depending on time in lcmlog
     CorlUtils.initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
 
-    CorlUtils.loadObjectMeshes(affordanceManager, filenames['registrationResult'])
-
-
     # check if we have already figured out a transform for this or not
     firstFrameToWorldTransform = CorlUtils.getFirstFrameToWorldTransform(filenames['transforms'])
+
+    CorlUtils.loadObjectMeshes(affordanceManager, filenames['registrationResult'], firstFrameToWorldTransform)
 
     # firstFrameToWorldTransform = vtk.vtkTransform()
     CorlUtils.loadElasticFustionReconstruction(filenames['reconstruction'], transform=firstFrameToWorldTransform)
@@ -41,6 +40,7 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
 
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
                                                          globalsDict['measurementPanel'],
-                                                         logFolder=logFolder)
+                                                         logFolder=logFolder,
+                                                         firstFrameToWorldTransform=firstFrameToWorldTransform)
     globalsDict['globalRegistration'] = globalRegistration
     globalsDict['gr'] = globalRegistration # hack for easy access

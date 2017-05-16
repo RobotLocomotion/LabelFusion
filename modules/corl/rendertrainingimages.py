@@ -186,7 +186,8 @@ class RenderTrainingImages(object):
 
         # update camera transform
         cameraToCameraStart = self.getCameraPoseAtUTime(utime)
-        t = transformUtils.concatenateTransforms([cameraToCameraStart, cutils.getDefaultCameraToWorld()])
+        # t = transformUtils.concatenateTransforms([cameraToCameraStart, cutils.getDefaultCameraToWorld()])
+        t = cameraToCameraStart
         vis.updateFrame(t, 'camera pose')
         setCameraTransform(self.view.camera(), t)
 

@@ -45,15 +45,17 @@ def loadAffordanceModel(affordanceManager, name, filename, pose):
              pose=pose, Filename=filename))
 
 
-def loadObjectMeshes(affordanceManager, filename):
+def loadObjectMeshes(affordanceManager, registrationResultFilename,
+                     firstFrameToWorldTransform):
     """
     Loads the object meshes from the registration_result.yaml file
     :param affordanceManager:
-    :param filename: filename of registration_result.yaml, should be an absolute path
+    :param registrationResultFilename: filename of registration_result.yaml, should be an absolute path
+    :param transformsFilename: filename of transforms.yaml where firstFrameToWorld transform is.
     :return: None
     """
 
-    stream = file(filename)
+    stream = file(registrationResultFilename)
     registrationResult = yaml.load(stream)
 
     for objName, data in registrationResult.iteritems():
@@ -63,11 +65,17 @@ def loadObjectMeshes(affordanceManager, filename):
         else:
             objectMeshFilename = os.path.join(getCorlDataDir(), objectMeshFilename)
 
+        # figure out object pose in world frame
+        # we have stored object pose in first camera frame
+        objectToFirstFrame = transformUtils.transformFromPose(data['pose'][0], data['pose'][1])
+        objectToWorld = transformUtils.concatenateTransforms([objectToFirstFrame, firstFrameToWorldTransform])
+        pose = transformUtils.poseFromTransform(objectToWorld)
+
         loadAffordanceModel(
             affordanceManager,
             name=objName,
             filename=objectMeshFilename,
-            pose=data['pose'])
+            pose=pose)
 
 
 def getCorlBaseDir():

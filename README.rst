@@ -122,7 +122,7 @@ Director with Corl Modules
 -----
 There is a standalone app for launching a director with corl modules::
 
-	directorPython corlApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+	directorPython scripts/corlApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
 The :code:`--logFolder` option specifies which logFolder to use relative to Corl data directory.
 

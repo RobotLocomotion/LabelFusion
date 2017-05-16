@@ -21,12 +21,16 @@ import utils as CorlUtils
 
 class GlobalRegistration(object):
 
-    def __init__(self, view, measurementPanel, logFolder=None):
+    def __init__(self, view, measurementPanel, logFolder=None,
+                 firstFrameToWorldTransform=None):
         self.view = view
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
         self.logFolder = logFolder
         self.initializeFields()
+
+        assert firstFrameToWorldTransform is not None
+        self.firstFrameToWorldTransform = firstFrameToWorldTransform
 
     def initializeFields(self):
         self.aboveTablePolyData = None

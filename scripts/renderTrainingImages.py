@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser = drcargs.getGlobalArgParser().getParser()
     parser.add_argument('--logFolder', type=str, dest='logFolder',
                         help='location of top level folder for this log, relative to CorlDev/data')
+    parser.add_argument('-debugCorl', action='store_true')
     args = parser.parse_args()
 
     app = mainwindowapp.construct()
@@ -29,4 +30,8 @@ if __name__ == '__main__':
 
     pathDict = corl.utils.getFilenames(args.logFolder)
     rti = RenderTrainingImages(app.view, app.viewOptions, pathDict)
-    rti.renderAndSaveLabeledImages()
+    if args.debugCorl:
+        globals().update(rti=rti)
+        app.app.start()
+    else:
+        rti.renderAndSaveLabeledImages()

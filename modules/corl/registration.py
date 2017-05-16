@@ -13,6 +13,7 @@ from director import segmentation
 from director import visualization as vis
 from director import vtkNumpy as vnp
 from director import vtkAll as vtk
+from director.debugVis import DebugData
 
 #corl imports
 import utils as CorlUtils
@@ -23,6 +24,7 @@ class GlobalRegistration(object):
         self.view = view
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
+
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
                               objectPolyData=None, filename=None, visualize=True,
@@ -79,11 +81,63 @@ class GlobalRegistration(object):
 
         return croppedPointCloud
 
+    def segmentTable(self, scenePolyData=None, searchRadius=0.3, visualize=True):
+        """
+        This requires two clicks using measurement panel. One on the table, one above the table on one of the objects. Call them point0, point1. Then we will attempt to fit a plane that passes through point0 with approximate normal point1 - point0
+        :param scenePolyData:
+        :param searchRadius:
+        :return:
+        """
 
-    def testPhoneFit(self):
+        if scenePolyData is None:
+            scenePolyData = om.findObjectByName('reconstruction').polyData
+
+        assert (len(self.measurementPanel.pickPoints) >= 2)
+        pointOnTable = self.measurementPanel.pickPoints[0]
+        pointAboveTable = self.measurementPanel.pickPoints[1]
+        expectedNormal= pointAboveTable - pointOnTable
+        expectedNormal = expectedNormal/np.linalg.norm(expectedNormal)
+
+        polyData, normal = segmentation.applyPlaneFit(scenePolyData, searchOrigin=pointOnTable, searchRadius=searchRadius, expectedNormal=expectedNormal)
+
+
+        # get points above plane
+        thickness = 0.02
+        abovePolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [thickness / 2.0, np.inf])
+        belowPolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [-np.inf, -thickness / 2.0])
+
+        if visualize:
+            parent = om.getOrCreateContainer('global reconstruction')
+            vis.showPolyData(abovePolyData, 'above table segmentation', color=[0, 1, 0],
+                             parent=parent)
+
+            arrowLength = 0.3
+            headRadius = 0.02
+            d = DebugData()
+            d.addArrow(pointOnTable, pointOnTable + arrowLength*expectedNormal,
+                       headRadius=headRadius)
+            vis.showPolyData(d.getPolyData(), 'expected normal', color=[1, 0, 0],
+                             parent=parent)
+
+            d = DebugData()
+            d.addArrow(pointOnTable, pointOnTable + arrowLength * normal,
+                       headRadius=headRadius)
+            vis.showPolyData(d.getPolyData(), 'computed normal', color=[0, 1, 0],
+                             parent=parent)
+
+
+        return polyData, normal
+
+
+    def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)
-        return self.fitObjectToPointcloud('phone', pointCloud=croppedPointCloud, algorithm="GoICP")
 
+        if useStoredPointcloud:
+            filename = os.path.join(CorlUtils.getCorlDataDir(),
+                                    'sandbox/phone_crop.vtp')
+            croppedPointCloud = ioUtils.readPolyData(filename)
+
+        return self.fitObjectToPointcloud('phone', pointCloud=croppedPointCloud, algorithm=algorithm)
 
 
     def test(self, algorithm="GoICP"):
@@ -137,43 +191,6 @@ class GlobalRegistration(object):
         :return:
         """
         self.test(algorithm="Super4PCS")
-        # baseName = os.path.join(CorlUtils.getCorlDataDir(),
-        #                         'registration-output/robot-scene')
-        # pointCloudFile = os.path.join(baseName, 'robot_mesh.vtp')
-        # robotMeshFile = os.path.join(baseName, 'robot_mesh.vtp')
-        # robotMeshPointcloudFile = os.path.join(baseName, 'robot_mesh_pointcloud.vtp')
-        #
-        # pointCloud = ioUtils.readPolyData(pointCloudFile)
-        # robotMesh = ioUtils.readPolyData(robotMeshFile)
-        # robotMeshPointcloud = ioUtils.readPolyData(robotMeshPointcloudFile)
-        #
-        # # PCS4 algorithm performs very differently if you remove the origin point
-        # # pointCloud = removeOriginPoints(pointCloud)
-        #
-        #
-        # pointCloud = segmentation.applyVoxelGrid(pointCloud, leafSize=0.01)
-        #
-        # sceneTransform = transformUtils.frameFromPositionAndRPY([0, 0, 0], [0, 0, 90])
-        # pointCloud = filterUtils.transformPolyData(pointCloud, sceneTransform)
-        #
-        # # robotMeshPointcloud = shuffleAndShiftPoints(robotMeshPointcloud)
-        # # pointCloud = shuffleAndShiftPoints(pointCloud)
-        #
-        #
-        # print pointCloud.GetNumberOfPoints()
-        # print robotMeshPointcloud.GetNumberOfPoints()
-        #
-        # sceneName = 'scene pointcloud'
-        # modelName = 'model pointcloud'
-        #
-        # vis.showPolyData(robotMeshPointcloud, modelName)
-        # vis.showPolyData(pointCloud, sceneName)
-        #
-        # self.view.resetCamera()
-        # self.view.forceRender()
-        #
-        # sceneToModelTransform = Super4PCS.run(pointCloud, robotMeshPointcloud)
-        # GlobalRegistration.showAlignedPointcloud(pointCloud, sceneToModelTransform, sceneName + " aligned")
 
 
     def testGoICP(self):
@@ -189,13 +206,23 @@ class GlobalRegistration(object):
         vis.updatePolyData(alignedPointcloud, name, **kwargs)
 
     @staticmethod
-    def runRegistration(algorithm, scenePointCloud, modelPointCloud, **kwargs):
+    def runRegistration(algorithm, scenePointCloud, modelPointCloud,
+                        visualize=True, **kwargs):
         assert algorithm in ["GoICP", "Super4PCS"]
         if (algorithm == "GoICP"):
             sceneToModelTransform = GoICP.run(scenePointCloud, modelPointCloud, **kwargs)
         elif algorithm == "Super4PCS":
             sceneToModelTransform = Super4PCS.run(scenePointCloud, modelPointCloud,
                                                   **kwargs)
+
+
+        if visualize:
+            alignedModelPointCloud = filterUtils.transformPolyData(modelPointCloud,
+                                                                   sceneToModelTransform.GetLinearInverse())
+            parent = om.getOrCreateContainer('registration')
+            vis.updatePolyData(scenePointCloud, 'scene pointcloud', parent=parent)
+            vis.updatePolyData(alignedModelPointCloud, 'aligned model pointcloud',
+                               parent=parent, color=[1,0,0])
 
         return sceneToModelTransform
 
@@ -365,7 +392,9 @@ class GoICP(object):
         GRUtils.writePointsFile(scenePointCloud, scenePointCloudFile)
 
         goICPBaseDir = CorlUtils.getGoICPBaseDir()
-        goICPConfigFile = os.path.join(goICPBaseDir, 'demo/config.txt')
+        # goICPConfigFile = os.path.join(goICPBaseDir, 'demo/config.txt')
+        goICPConfigFile = os.path.join(CorlUtils.getCorlBaseDir(),
+                                       'config/go_icp_config.txt')
         goICPBin = os.path.join(goICPBaseDir, 'build/GoICP')
 
 
@@ -402,11 +431,16 @@ class GoICP(object):
 
         sceneToModelTransform = transformUtils.getTransformFromNumpy(T)
 
-        transformedPointCloud = filterUtils.transformPolyData(scenePointCloud, transformUtils.getTransformFromNumpy(T))
 
-        vis.showPolyData(modelPointCloud, 'model pointcloud ', color=[0,1,0])
-        vis.showPolyData(transformedPointCloud, 'transformed pointcloud', color=[0,0,1])
-        vis.showPolyData(scenePointCloud, 'scene pointcloud goicp', color=[0,1,1])
+        if True:
+            parent = om.getOrCreateContainer('Go-ICP')
+            transformedPointCloud = filterUtils.transformPolyData(scenePointCloud, transformUtils.getTransformFromNumpy(T))
+
+            vis.showPolyData(modelPointCloud, 'model pointcloud ', color=[0,1,0],
+                             parent=parent)
+            vis.showPolyData(transformedPointCloud, 'aligned model pointcloud', color=[1,0,0], parent=parent)
+            vis.showPolyData(scenePointCloud, 'scene pointcloud goicp', color=[0,1,1],
+                             parent=parent)
 
         return sceneToModelTransform
 

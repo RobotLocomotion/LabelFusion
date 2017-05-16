@@ -96,8 +96,6 @@ This creates a cropped pointcloud of 8cm around your click point. Then it runs S
 
 
 
-
-
 5. Extract Images from LCM log
 ----
 The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rgb images from the lcm log run::
@@ -119,6 +117,14 @@ Optionally you can pass :code:`--logFolder <logFolder>` on the command line wher
 ====
 Misc
 ====
+
+Director with Corl Modules
+-----
+There is a standalone app for launching a director with corl modules::
+
+	directorPython corlApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+
+The :code:`--logFolder` option specifies which logFolder to use relative to Corl data directory.
 
 Visualizing RGBD Data
 ---------------------

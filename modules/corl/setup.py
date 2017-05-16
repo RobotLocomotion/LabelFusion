@@ -27,3 +27,4 @@ def setupCorlDirector(robotSystem, openniDepthPointCloud, setCameraToWorld, logF
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
                                                          globalsDict['measurementPanel'])
     globalsDict['globalRegistration'] = globalRegistration
+    globalsDict['gr'] = globalRegistration # hack for easy access

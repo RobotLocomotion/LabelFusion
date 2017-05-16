@@ -1,7 +1,7 @@
 # Config file for GO-ICP
 
 # Mean Squared Error (MSE) convergence threshold
-MSEThresh=0.1
+MSEThresh=0.01
 
 # Smallest rotation value along dimension X of rotation cube (radians)
 rotMinX=-3.1416

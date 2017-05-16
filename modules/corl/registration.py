@@ -3,6 +3,7 @@ import os
 import subprocess
 import numpy as np
 import time
+import yaml
 
 # director imports
 from director import transformUtils
@@ -20,11 +21,20 @@ import utils as CorlUtils
 
 class GlobalRegistration(object):
 
-    def __init__(self, view, measurementPanel):
+    def __init__(self, view, measurementPanel, logFolder=None):
         self.view = view
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
+        self.logFolder = logFolder
+        self.initializeFields()
 
+    def initializeFields(self):
+        self.aboveTablePolyData = None
+
+        if self.logFolder is None:
+            self.logFolder = "logs/scratch"
+
+        self.pathDict = CorlUtils.getFilenames(self.logFolder)
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
                               objectPolyData=None, filename=None, visualize=True,
@@ -106,6 +116,8 @@ class GlobalRegistration(object):
         abovePolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [thickness / 2.0, np.inf])
         belowPolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [-np.inf, -thickness / 2.0])
 
+        self.aboveTablePolyData = abovePolyData
+
         if visualize:
             parent = om.getOrCreateContainer('global reconstruction')
             vis.showPolyData(abovePolyData, 'above table segmentation', color=[0, 1, 0],
@@ -126,15 +138,53 @@ class GlobalRegistration(object):
                              parent=parent)
 
 
-        return polyData, normal
+        returnData = dict()
+        returnData['polyData'] = polyData
+        returnData['normal'] = normal
+        returnData['pointOnTable'] = pointOnTable
+        return returnData
 
+    def rotateReconstructionToStandardOrientation(self, pointCloud=None, savePoseToFile=True, filename=None):
+        """
+        Rotates the reconstruction to right side up and saves the transform to a file
+        :param pointcloud:
+        :return:
+        """
+
+        if pointCloud is None:
+            pointCloud = om.findObjectByName('reconstruction').polyData
+
+        returnData = self.segmentTable(scenePolyData=pointCloud, visualize=False)
+
+        normal = returnData['normal']
+        polyData = returnData['polyData']
+        # get transform that rotates normal --> [0,0,1]
+        origin = returnData['pointOnTable'] - 0.5 * normal
+        pointCloudToWorldTransform = transformUtils.getTransformFromOriginAndNormal(origin, normal).GetLinearInverse()
+
+        rotatedPolyData = filterUtils.transformPolyData(polyData, pointCloudToWorldTransform)
+
+        parent = om.getOrCreateContainer('segmentation')
+        vis.updatePolyData(rotatedPolyData, 'reconstruction rotated', colorByName='RGB', parent=parent)
+
+        if savePoseToFile:
+            if filename is None:
+                assert self.pathDict is not None
+                filename = self.pathDict['transforms']
+
+            pose = transformUtils.poseFromTransform(pointCloudToWorldTransform)
+            d = dict()
+            d['pointCloudToWorld'] = pose
+            CorlUtils.saveDictToYaml(d, filename)
+
+        return pointCloudToWorldTransform
 
     def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)
 
         if useStoredPointcloud:
             filename = os.path.join(CorlUtils.getCorlDataDir(),
-                                    'sandbox/phone_crop.vtp')
+                                    'sandbox/phone_crop_no_table.vtp')
             croppedPointCloud = ioUtils.readPolyData(filename)
 
         return self.fitObjectToPointcloud('phone', pointCloud=croppedPointCloud, algorithm=algorithm)

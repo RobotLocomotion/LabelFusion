@@ -40,8 +40,9 @@ class RenderTrainingImages(object):
         view = self.view
         view.setFixedSize(640, 480)
         setCameraInstrinsicsAsus(view)
-        cameraToWorld = cutils.getDefaultCameraToWorld()
-        setCameraTransform(view.camera(), cameraToWorld)
+        # cameraToWorld = cutils.getDefaultCameraToWorld()
+        # setCameraTransform(view.camera(), cameraToWorld)
+        setCameraTransform(view.camera(), vtk.vtkTransform())
         view.forceRender()
         self.enableLighting()
 
@@ -146,13 +147,8 @@ class RenderTrainingImages(object):
 
 
     def loadObjectMeshes(self):
-        objData = cutils.getResultsConfig()['object-registration']
-        dataDir = cutils.getCorlDataDir()
-
         stream = file(self.pathDict['registrationResult'])
         registrationResult = yaml.load(stream)
-
-        cameraToWorld = cutils.getDefaultCameraToWorld()
 
         folder = om.getOrCreateContainer('data files')
         for objName, data in registrationResult.iteritems():
@@ -168,7 +164,6 @@ class RenderTrainingImages(object):
 
             objToWorld = transformUtils.transformFromPose(*data['pose'])
             self.objectToWorld[objName] = objToWorld
-            #objToCamera = transformUtils.concatneateTransforms([objToWorld, cameraToWorld.GetLinearInverse()])
             obj.actor.SetUserTransform(objToWorld)
 
     def setupImage(self, imageNumber, saveLabeledImages=False):
@@ -186,7 +181,6 @@ class RenderTrainingImages(object):
 
         # update camera transform
         cameraToCameraStart = self.getCameraPoseAtUTime(utime)
-        # t = transformUtils.concatenateTransforms([cameraToCameraStart, cutils.getDefaultCameraToWorld()])
         t = cameraToCameraStart
         vis.updateFrame(t, 'camera pose')
         setCameraTransform(self.view.camera(), t)

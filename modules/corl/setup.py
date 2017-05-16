@@ -1,4 +1,7 @@
 # sets up classes needed for Corl in director
+
+import os
+
 import utils as CorlUtils
 from imagecapture import ImageCapture
 import registration
@@ -23,20 +26,22 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     filenames = CorlUtils.getFilenames(logFolder)
 
     # setup camera update callback. Sets pose of camera depending on time in lcmlog
-    CorlUtils.initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
+    if os.path.isfile(filenames['cameraPoses']):
+        CorlUtils.initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
 
     # check if we have already figured out a transform for this or not
     firstFrameToWorldTransform = CorlUtils.getFirstFrameToWorldTransform(filenames['transforms'])
 
-    CorlUtils.loadObjectMeshes(affordanceManager, filenames['registrationResult'], firstFrameToWorldTransform)
+    # only load these files in info.yaml exists
+    if os.path.isfile(filenames['registrationResult']):
+        CorlUtils.loadObjectMeshes(affordanceManager, filenames['registrationResult'], firstFrameToWorldTransform)
+
+        imageCapture = ImageCapture(globalsDict['imageManager'], filenames['images'])
+        globalsDict['imageCapture'] = imageCapture
 
     # firstFrameToWorldTransform = vtk.vtkTransform()
     CorlUtils.loadElasticFustionReconstruction(filenames['reconstruction'], transform=firstFrameToWorldTransform)
 
-    imageCapture = ImageCapture(globalsDict['imageManager'], filenames['images'])
-
-    # add necessary classes to globalsDict
-    globalsDict['imageCapture'] = imageCapture
 
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
                                                          globalsDict['measurementPanel'],

@@ -95,7 +95,8 @@ class GlobalRegistration(object):
 
         return croppedPointCloud
 
-    def segmentTable(self, scenePolyData=None, searchRadius=0.3, visualize=True):
+    def segmentTable(self, scenePolyData=None, searchRadius=0.3, visualize=True,
+                     thickness=0.02):
         """
         This requires two clicks using measurement panel. One on the table, one above the table on one of the objects. Call them point0, point1. Then we will attempt to fit a plane that passes through point0 with approximate normal point1 - point0
         :param scenePolyData:
@@ -116,7 +117,6 @@ class GlobalRegistration(object):
 
 
         # get points above plane
-        thickness = 0.02
         abovePolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [thickness / 2.0, np.inf])
         belowPolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [-np.inf, -thickness / 2.0])
 

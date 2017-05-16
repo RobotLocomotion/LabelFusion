@@ -6,6 +6,7 @@ from director import objectmodel as om
 from director import transformUtils
 from director import ioUtils
 from director import filterUtils
+from director import vtkAll as vtk
 
 
 def initRobotKinematicsCameraFrame():
@@ -75,6 +76,9 @@ def getCorlBaseDir():
 
 def getCorlRelativePath(path):
     return os.path.join(getCorlBaseDir(), path)
+
+def getCorlDataRelativePath(path):
+    return os.path.join(getCorlDataDir(), path)
     
 
 def getCorlDataDir():
@@ -142,14 +146,18 @@ def getResultsConfig():
     return evalFileAsString(filename)
 
 
-def loadElasticFustionReconstruction(filename):
+def loadElasticFustionReconstruction(filename, transform=None):
     """
     Loads reconstructed pointcloud into director view
     :param filename:
     :return:
     """
+
+    if transform is None:
+        transform = getDefaultCameraToWorld()
+
     polyData = ioUtils.readPolyData(filename)
-    polyData = filterUtils.transformPolyData(polyData, getDefaultCameraToWorld())
+    polyData = filterUtils.transformPolyData(polyData, transform)
     obj = vis.showPolyData(polyData, 'reconstruction', colorByName='RGB')
     return obj
 
@@ -197,6 +205,18 @@ def initCameraUpdateCallback(obj, publishCameraPoseFunction, filename):
             obj.actor.SetUserTransform(t)
 
     obj.timer.callback = myUpdate
+
+def getFirstFrameToWorldTransform(transformsFile):
+    if os.path.isfile(transformsFile):
+        print("using user specified transform")
+        stream = file(transformsFile)
+        transformYaml = yaml.load(stream)
+        pose = transformYaml['firstFrameToWorld']
+        transform = transformUtils.transformFromPose(pose[0], pose[1])
+        return transform
+    else:
+        return vtk.vtkTransform()
+
 
 def getFilenames(logFolder):
     """

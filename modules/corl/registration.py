@@ -172,9 +172,9 @@ class GlobalRegistration(object):
                 assert self.pathDict is not None
                 filename = self.pathDict['transforms']
 
-            pose = transformUtils.poseFromTransform(pointCloudToWorldTransform)
+            (pos, quat) = transformUtils.poseFromTransform(pointCloudToWorldTransform)
             d = dict()
-            d['pointCloudToWorld'] = pose
+            d['firstFrameToWorld'] = [pos.tolist(), quat.tolist()]
             CorlUtils.saveDictToYaml(d, filename)
 
         return pointCloudToWorldTransform

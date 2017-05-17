@@ -15,15 +15,20 @@ from director import visualization as vis
 from director import vtkNumpy as vnp
 from director import vtkAll as vtk
 from director.debugVis import DebugData
+from director.shallowCopy import shallowCopy
+
 
 #corl imports
-import utils as CorlUtils
+from corl import utils as CorlUtils
+from corl import objectalignmenttool
+from objectalignmenttool import ObjectAlignmentTool
 
 class GlobalRegistration(object):
 
-    def __init__(self, view, measurementPanel, logFolder=None,
+    def __init__(self, view, cameraView, measurementPanel, logFolder=None,
                  firstFrameToWorldTransform=None):
         self.view = view
+        self.cameraView = cameraView
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
         self.logFolder = logFolder
@@ -39,6 +44,9 @@ class GlobalRegistration(object):
             self.logFolder = "logs/scratch"
 
         self.pathDict = CorlUtils.getFilenames(self.logFolder)
+        self.objectData = CorlUtils.getObjectDataYamlFile()
+        self.objectAlignmentResults = dict() # stores results of object alignment tool
+
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
                               objectPolyData=None, filename=None, visualize=True,
@@ -182,6 +190,48 @@ class GlobalRegistration(object):
             CorlUtils.saveDictToYaml(d, filename)
 
         return pointCloudToWorldTransform
+
+
+    def launchObjectAlignment(self, objectName, useAboveTablePointcloud=True):
+        """
+        Launches the object alignment tool.
+        :param objectName:
+        :param useAboveTablePointcloud:
+        :return:
+        """
+        pointCloud = self.aboveTablePolyData
+        objectPolyData = CorlUtils.getObjectPolyData(objectName)
+        resultsDict = dict()
+        self.objectAlignmentResults[objectName] = resultsDict
+        parent = om.getOrCreateContainer('global registration')
+
+        def onFinishAlignment():
+            """
+            this is a callback that objectAlignmentTool will call when it finishes
+            :param d:
+            :return:
+            """
+            resultsDict['modelToFirstFrameTransform'] = transformUtils.concatenateTransforms([resultsDict['modelToSceneTransform'], self.firstFrameToWorldTransform.GetLinearInverse()])
+
+            vis.updatePolyData(resultsDict['alignedModel'], objectName + ' aligned', parent=parent)
+
+
+        objectAlignmentTool = ObjectAlignmentTool(self.cameraView, modelPolyData=objectPolyData, pointCloud=pointCloud, resultsDict=resultsDict,
+                                                  callback=onFinishAlignment)
+
+    def saveRegistrationResults(self, filename=None):
+        registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
+
+        for objectName, data in self.objectAlignmentResults.iteritems():
+            pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
+            registrationResultDict[objectName]['pose'] = pose
+
+
+        if filename is None:
+            filename = self.pathDict['registrationResult']
+
+        CorlUtils.saveDictToYaml(registrationResultDict, filename)
+
 
     def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)
@@ -336,6 +386,16 @@ class GlobalRegistrationUtils(object):
     def getSandboxDir():
         return os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox')
 
+    @staticmethod
+    def removeFile(filename):
+        if os.path.isfile(filename):
+            os.remove(filename)
+
+    @staticmethod
+    def getSandboxRelativePath(filename):
+        baseName = GlobalRegistrationUtils.getSandboxDir()
+        return os.path.join(baseName, filename)
+
 
 class Super4PCS(object):
     """
@@ -403,6 +463,7 @@ class Super4PCS(object):
         T = np.array([np.fromstring(l, sep=' ') for l in data[2:6]])
         transform = transformUtils.getTransformFromNumpy(T)
         return transform
+
 
 
 class GoICP(object):
@@ -500,3 +561,58 @@ class GoICP(object):
 
 
 
+class FastGlobalRegistration(object):
+
+    @staticmethod
+    def run(scenePointCloud, modelPointCloud):
+        GRUtils = GlobalRegistrationUtils
+        GRUtils.removeFile('model_features.bin')
+        GRUtils.removeFile('scene_features.bin')
+        GRUtils.removeFile('features.bin')
+
+        FGR = FastGlobalRegistration
+        FGR.computeFeatures(scenePointCloud, 'scene')
+        FGR.computeFeatures(modelPointCloud, 'model')
+
+        print 'run registration...'
+        FGRBaseDir = CorlUtils.getGRBaseDir()
+        FGRBin = os.path.join(FGRBaseDir, 'build/FastGlobalRegistration/FastGlobalRegistration')
+
+        goICPArgs = [
+            goICPBin,
+            modelPointCloudFile,
+            scenePointCloudFile,
+            str(numDownsampledPoints),
+            goICPConfigFile,
+            outputFile]
+
+        subprocess.check_call(['bash', 'runFGR.sh'])
+
+        showTransformedData(sceneName)
+
+        print 'done.'
+
+    @staticmethod
+    def computeFeatures(polyData, name):
+        pd = segmentation.applyVoxelGrid(pd, leafSize=0.005)
+        print 'compute normals...'
+        pd = segmentation.normalEstimation(pd, searchRadius=0.05, useVoxelGrid=False, voxelGridLeafSize=0.01)
+
+        print 'compute features...'
+        FastGlobalRegistration.computePointFeatureHistograms(pd, searchRadius=0.10)
+        newName = name + '_features.bin'
+        FastGlobalRegistration.renameFeaturesFile(name)
+
+    @staticmethod
+    def computePointFeatureHistograms(polyData, searchRadius=0.10):
+        f = vtk.vtkPCLFPFHEstimation()
+        f.SetInput(polyData)
+        f.SetSearchRadius(searchRadius)
+        f.Update()
+        return shallowCopy(f.GetOutput())
+
+    @staticmethod
+    def renameFeaturesFile(newName):
+        assert os.path.isfile('features.bin')
+        newName = GlobalRegistrationUtils.getSandboxRelativePath(newName)
+        os.rename('features.bin', newName)

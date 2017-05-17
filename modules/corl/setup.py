@@ -10,6 +10,8 @@ from director import lcmframe
 from director import lcmUtils
 from director import vtkAll as vtk
 
+from corl import objectalignmenttool
+
 
 def setCameraToWorld(cameraToWorld):
     cameraToWorldMsg = lcmframe.rigidTransformMessageFromFrame(cameraToWorld)
@@ -26,8 +28,8 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     filenames = CorlUtils.getFilenames(logFolder)
 
     # setup camera update callback. Sets pose of camera depending on time in lcmlog
-    if os.path.isfile(filenames['cameraPoses']):
-        CorlUtils.initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
+    # if os.path.isfile(filenames['cameraPoses']):
+    #     CorlUtils.initCameraUpdateCallback(openniDepthPointCloud, setCameraToWorld, filename=filenames['cameraPoses'])
 
     # check if we have already figured out a transform for this or not
     firstFrameToWorldTransform = CorlUtils.getFirstFrameToWorldTransform(filenames['transforms'])
@@ -44,8 +46,20 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
 
 
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
+                                                         globalsDict['cameraView'],
                                                          globalsDict['measurementPanel'],
                                                          logFolder=logFolder,
                                                          firstFrameToWorldTransform=firstFrameToWorldTransform)
     globalsDict['globalRegistration'] = globalRegistration
     globalsDict['gr'] = globalRegistration # hack for easy access
+
+    objectAlignmentTool = objectalignmenttool.ObjectAlignmentToolWrapper.makeAlignmentTool(globalsDict['cameraView'], filenames, objectName="oil_bottle")
+
+    globalsDict['objectAlignmentTool'] = objectAlignmentTool
+    globalsDict['oat'] = objectAlignmentTool
+
+def testStartup(affordanceManager, openniDepthPointCloud, logFolder="logs/moving-camera", globalsDict=None):
+    objectData = CorlUtils.getObjectDataYamlFile()
+
+    for objectName, data in objectData.iteritems():
+        CorlUtils.loadObjectMesh(affordanceManager, objectName, visName=objectName)

@@ -1,16 +1,48 @@
-# mesh locations relative to CorlDev/data
-phone:
-  mesh: 'object-meshes/phone.vtp'
-  label: 1
-
-robot:
-  mesh: 'object-meshes/robot.vtp'
-  label: 2
-
-toothpaste:
-  mesh: 'object-meshes/toothpaste.vtp'
-  label: 3
-
 oil_bottle:
-  mesh: 'object-meshes/mobil1_v1.vtp'
+  bounds:
+    max:
+    - 0.05415166914463043
+    - 0.13123932480812073
+    - 0.034988414496183395
+    min:
+    - -0.05790764465928078
+    - -0.09968897700309753
+    - -0.03511811047792435
   label: 4
+  mesh: object-meshes/oil_bottle_aligned.vtp
+phone:
+  bounds:
+    max:
+    - 0.0221136212348938
+    - 0.08269286900758743
+    - 0.020763415843248367
+    min:
+    - -0.02938918210566044
+    - -0.08218197524547577
+    - -0.02114463411271572
+  label: 1
+  mesh: object-meshes/phone_aligned.vtp
+robot:
+  bounds:
+    max:
+    - 0.010814337059855461
+    - 0.04696997255086899
+    - 0.024559328332543373
+    min:
+    - -0.013642566278576851
+    - -0.04466225951910019
+    - -0.024891866371035576
+  label: 2
+  mesh: object-meshes/robot_aligned.vtp
+toothpaste:
+  bounds:
+    max:
+    - 0.02211664244532585
+    - 0.09281925857067108
+    - 0.01733185350894928
+    min:
+    - -0.01985318213701248
+    - -0.09553340077400208
+    - -0.01681172475218773
+  label: 3
+  mesh: object-meshes/toothpaste_aligned.vtp

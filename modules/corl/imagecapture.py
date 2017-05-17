@@ -19,7 +19,7 @@ import bot_core as lcmbotcore
 class ImageCapture(object):
 
     def __init__(self, imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=True):
+                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False):
         self.imageManager = imageManager
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName

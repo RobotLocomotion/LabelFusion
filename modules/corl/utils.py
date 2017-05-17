@@ -39,10 +39,12 @@ def printObjectPose(name):
     print (pos.tolist(), quat.tolist())
 
 
-def loadObjectMesh(affordanceManager, objectName):
+def loadObjectMesh(affordanceManager, objectName, visName=None):
+    if visName is None:
+        visName = objectName + "_raw"
     filename = getObjectMeshFilename(objectName)
     pose = [[0,0,0],[1,0,0,0]]
-    return loadAffordanceModel(affordanceManager, objectName + " raw",
+    return loadAffordanceModel(affordanceManager, visName,
                         filename, pose)
 
 
@@ -113,6 +115,10 @@ def getObjectDataYamlFile():
     stream = file(getObjectDataFilename())
     return yaml.load(stream)
 
+def getDictFromYamlFilename(filename):
+    stream = file(filename)
+    return yaml.load(stream)
+
 objectDataFilename = os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
 objectData = yaml.load(file(objectDataFilename))
 
@@ -127,6 +133,9 @@ def getObjectMeshFilename(objectName):
 
     return os.path.join(getCorlDataDir(), objectData[objectName]['mesh'])
 
+def getObjectPolyData(objectName):
+    filename = getObjectMeshFilename(objectName)
+    return ioUtils.readPolyData(filename)
 
 def getObjectLabel(objectName):
     """
@@ -266,21 +275,34 @@ def saveDictToYaml(data, filename):
     with open(filename, 'w') as outfile:
         yaml.dump(data, outfile, default_flow_style=False)
 
+def saveObjectPolyData(objectName):
+    visObj = om.findObjectByName(objectName)
+    filename = os.path.join(getCorlDataDir(),'object-meshes',objectName + '_aligned.vtp')
+    polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+    ioUtils.writePolyData(polyData, filename)
+
+# def computeObjectMeshBoundingBox(saveToFile=False):
+#     """
+#     For each object in our dataset compute a bounding box.
+#     If saveToFile=True then save these results to the object_data.yaml file.
+#     :param saveToFile:
+#     :return:
+#     """
+#     objectData = getObjectDataYamlFile()
+#     for objectName, data in objectData.iteritems():
+#         meshFilename = getObjectMeshFilename(objectName)
+#         polyData = ioUtils.readPolyData(meshFilename)
+#         (xmin, xmax, ymin, ymax, zmin, zmax) = polyData.GetBounds()
+#         data['bounds'] = dict()
+#         data['bounds']['min'] = [xmin, ymin, zmin]
+#         data['bounds']['max'] = [xmax, ymax, zmax]
+#
+#
+#     if saveToFile:
+#         filename = getObjectDataFilename()
+#         saveDictToYaml(objectData, filename)
+#
+#     return objectData
 
 
-def computeObjectMeshBoundingBox(saveToFile=False):
-    objectData = getObjectDataYamlFile()
-    for objectName, data in objectData.iteritems():
-        meshFilename = getObjectMeshFilename(objectName)
-        polyData = ioUtils.readPolyData(meshFilename)
-        (xmin, xmax, ymin, ymax, zmin, zmax) = polyData.GetBounds()
-        data['bounds'] = dict()
-        data['bounds']['min'] = [xmin, ymin, zmin]
-        data['bounds']['max'] = [xmax, ymax, zmax]
 
-
-    if saveToFile:
-        filename = getObjectDataFilename()
-        saveDictToYaml(objectData, filename)
-
-    return objectData

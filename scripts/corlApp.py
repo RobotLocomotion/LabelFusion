@@ -73,11 +73,17 @@ if __name__ == '__main__':
     globals().update(**fields.globalsDict)
     globals().update(**myObjects)
 
-    # add custom code here
+    # # add custom code here
     corl.setup.setupCorlDirector(affordanceManager,
                                  openniDepthPointCloud,
                                  logFolder=args.logFolder,
                                  globalsDict=globals())
+
+
+    # corl.setup.testStartup(affordanceManager,
+    #                              openniDepthPointCloud,
+    #                              logFolder=args.logFolder,
+    #                              globalsDict=globals())
 
     # show the main window and start the app
     fields.app.start()

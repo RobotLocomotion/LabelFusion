@@ -32,13 +32,15 @@ class GlobalRegistration(object):
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
         self.logFolder = logFolder
-        self.initializeFields()
-
         assert firstFrameToWorldTransform is not None
         self.firstFrameToWorldTransform = firstFrameToWorldTransform
 
+        self.initializeFields()
+
+
     def initializeFields(self):
-        self.aboveTablePolyData = None
+        self.visFolder = om.getOrCreateContainer('global registration')
+
 
         if self.logFolder is None:
             self.logFolder = "logs/scratch"
@@ -47,6 +49,14 @@ class GlobalRegistration(object):
         self.objectData = CorlUtils.getObjectDataYamlFile()
         self.objectAlignmentResults = dict() # stores results of object alignment tool
         self.objectAlignmentTool = None
+
+        # load the above table poly data if it exists
+        self.aboveTablePolyData = None
+        if os.path.isfile(self.pathDict['aboveTablePointcloud']):
+            print "loading above table pointcloud"
+            polyData = ioUtils.readPolyData(self.pathDict['aboveTablePointcloud'])
+            self.aboveTablePolyData = filterUtils.transformPolyData(polyData, self.firstFrameToWorldTransform)
+            vis.updatePolyData(self.aboveTablePolyData, 'above table pointcloud', parent=self.visFolder, colorByName='RGB')
 
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
@@ -105,7 +115,7 @@ class GlobalRegistration(object):
         return croppedPointCloud
 
     def segmentTable(self, scenePolyData=None, searchRadius=0.3, visualize=True,
-                     thickness=0.02):
+                     thickness=0.01):
         """
         This requires two clicks using measurement panel. One on the table, one above the table on one of the objects. Call them point0, point1. Then we will attempt to fit a plane that passes through point0 with approximate normal point1 - point0
         :param scenePolyData:
@@ -132,9 +142,8 @@ class GlobalRegistration(object):
         self.aboveTablePolyData = abovePolyData
 
         if visualize:
-            parent = om.getOrCreateContainer('global reconstruction')
             vis.showPolyData(abovePolyData, 'above table segmentation', color=[0, 1, 0],
-                             parent=parent)
+                             parent=self.visFolder)
 
             arrowLength = 0.3
             headRadius = 0.02
@@ -142,13 +151,13 @@ class GlobalRegistration(object):
             d.addArrow(pointOnTable, pointOnTable + arrowLength*expectedNormal,
                        headRadius=headRadius)
             vis.showPolyData(d.getPolyData(), 'expected normal', color=[1, 0, 0],
-                             parent=parent)
+                             parent=self.visFolder)
 
             d = DebugData()
             d.addArrow(pointOnTable, pointOnTable + arrowLength * normal,
                        headRadius=headRadius)
             vis.showPolyData(d.getPolyData(), 'computed normal', color=[0, 1, 0],
-                             parent=parent)
+                             parent=self.visFolder)
 
 
         returnData = dict()
@@ -156,6 +165,11 @@ class GlobalRegistration(object):
         returnData['normal'] = normal
         returnData['pointOnTable'] = pointOnTable
         return returnData
+
+    def saveAboveTablePolyData(self):
+        aboveTablePolyDataRaw = filterUtils.transformPolyData(self.aboveTablePolyData, self.firstFrameToWorldTransform.GetLinearInverse())
+
+        ioUtils.writePolyData(aboveTablePolyDataRaw, self.pathDict['aboveTablePointcloud'])
 
     def rotateReconstructionToStandardOrientation(self, pointCloud=None, savePoseToFile=True, filename=None):
         """

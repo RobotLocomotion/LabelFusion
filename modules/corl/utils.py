@@ -266,6 +266,7 @@ def getFilenames(logFolder):
     d['cameraPoses'] = os.path.join(getCorlDataDir(), logFolder, "posegraph.posegraph")
     d['registrationResult'] = os.path.join(getCorlDataDir(), logFolder, "registration_result.yaml")
     d['reconstruction'] = os.path.join(getCorlDataDir(), logFolder, "reconstructed_pointcloud.vtp")
+    d['aboveTablePointcloud'] = os.path.join(getCorlDataDir(), logFolder, "above_table_pointcloud.vtp")
     d['images'] = os.path.join(getCorlDataDir(), logFolder, "images")
     d['topLevelFolder'] = os.path.join(getCorlDataDir(), logFolder)
     d['transforms'] = os.path.join(getCorlDataDir(), logFolder, 'transforms.yaml')

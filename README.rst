@@ -81,19 +81,29 @@ Next, convert to .vtp using the command::
 4. Global Object Pose Fitting
 ----
 
-We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::
+The class that handles segmentation and registration is in :code:`modules/corl/registration.py` and :code:`modules/corl/objectalignmenttool.py`. Launch the standard :code:`corlApp` to run it::
 
-	drake-visualizer --script scripts/registration/testRegistration.py
+	directorPython scripts/corlApp.py --logFolder logs/test --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
-Fitting phone using GlobalRegistration tool
+The :code:`GlobalRegistration` object is in the global namespace as :code:`globalRegistration`. Run::
 
-1. Launch :code:`kuka_iiwa_app`.
-2. open measurement panel and enable.
-3. shift + click on center of phone.
-4. execute :code:`globalRegistration.testPhoneFit()`. WARNING THIS IS SLOW.
+	globalRegistration.launchObjectAlignment(<objectName>)
 
-This creates a cropped pointcloud of 8cm around your click point. Then it runs SuperPCS4 algorithm to fit phone mesh to this pointcloud. By default the phone mesh is downsampled.
+where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches a new window. Click the same three points in model and on pointcloud. Using :code:`shift + click` to do this. After you do this the affordance should appear in main window using the transform that was just computed.
 
+.. commented out below
+.. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::
+
+.. 	drake-visualizer --script scripts/registration/testRegistration.py
+
+.. Fitting phone using GlobalRegistration tool
+
+.. 1. Launch :code:`kuka_iiwa_app`.
+.. 2. open measurement panel and enable.
+.. 3. shift + click on center of phone.
+.. 4. execute :code:`globalRegistration.testPhoneFit()`. WARNING THIS IS SLOW.
+
+.. This creates a cropped pointcloud of 8cm around your click point. Then it runs SuperPCS4 algorithm to fit phone mesh to this pointcloud. By default the phone mesh is downsampled.
 
 
 5. Extract Images from LCM log

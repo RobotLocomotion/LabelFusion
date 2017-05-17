@@ -46,6 +46,7 @@ class GlobalRegistration(object):
         self.pathDict = CorlUtils.getFilenames(self.logFolder)
         self.objectData = CorlUtils.getObjectDataYamlFile()
         self.objectAlignmentResults = dict() # stores results of object alignment tool
+        self.objectAlignmentTool = None
 
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
@@ -199,7 +200,15 @@ class GlobalRegistration(object):
         :param useAboveTablePointcloud:
         :return:
         """
-        pointCloud = self.aboveTablePolyData
+
+        if self.objectAlignmentTool is not None:
+            self.objectAlignmentTool.picker.stop()
+            self.objectAlignmentTool.scenePicker.stop()
+            self.objectAlignmentTool.widget.close()
+
+
+        # pointCloud = self.aboveTablePolyData
+        pointCloud = om.findObjectByName('reconstruction').polyData
         objectPolyData = CorlUtils.getObjectPolyData(objectName)
         resultsDict = dict()
         self.objectAlignmentResults[objectName] = resultsDict
@@ -216,7 +225,7 @@ class GlobalRegistration(object):
             vis.updatePolyData(resultsDict['alignedModel'], objectName + ' aligned', parent=parent)
 
 
-        objectAlignmentTool = ObjectAlignmentTool(self.cameraView, modelPolyData=objectPolyData, pointCloud=pointCloud, resultsDict=resultsDict,
+        self.objectAlignmentTool = ObjectAlignmentTool(self.cameraView, modelPolyData=objectPolyData, pointCloud=pointCloud, resultsDict=resultsDict,
                                                   callback=onFinishAlignment)
 
     def saveRegistrationResults(self, filename=None):

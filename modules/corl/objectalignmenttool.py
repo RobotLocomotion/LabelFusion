@@ -145,7 +145,7 @@ class ObjectAlignmentTool(object):
         applogic.resetCamera(viewDirection=[0,1,0], view=self.view)
         applogic.setCameraTerrainModeEnabled(self.view, True)
 
-        self.scebeViewBehaviors = viewbehaviors.ViewBehaviors(self.sceneView)
+        self.sceneViewBehaviors = viewbehaviors.ViewBehaviors(self.sceneView)
         applogic.resetCamera(viewDirection=[0, 1, 0], view=self.sceneView)
         applogic.setCameraTerrainModeEnabled(self.sceneView, True)
 

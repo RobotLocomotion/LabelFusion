@@ -53,10 +53,6 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     globalsDict['globalRegistration'] = globalRegistration
     globalsDict['gr'] = globalRegistration # hack for easy access
 
-    objectAlignmentTool = objectalignmenttool.ObjectAlignmentToolWrapper.makeAlignmentTool(globalsDict['cameraView'], filenames, objectName="oil_bottle")
-
-    globalsDict['objectAlignmentTool'] = objectAlignmentTool
-    globalsDict['oat'] = objectAlignmentTool
 
 def testStartup(affordanceManager, openniDepthPointCloud, logFolder="logs/moving-camera", globalsDict=None):
     objectData = CorlUtils.getObjectDataYamlFile()

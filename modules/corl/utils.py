@@ -39,6 +39,13 @@ def printObjectPose(name):
     print (pos.tolist(), quat.tolist())
 
 
+def loadObjectMesh(affordanceManager, objectName):
+    filename = getObjectMeshFilename(objectName)
+    pose = [[0,0,0],[1,0,0,0]]
+    return loadAffordanceModel(affordanceManager, objectName + " raw",
+                        filename, pose)
+
+
 def loadAffordanceModel(affordanceManager, name, filename, pose):
     return affordanceManager.newAffordanceFromDescription(
         dict(classname='MeshAffordanceItem', Name=name,
@@ -81,13 +88,11 @@ def loadObjectMeshes(affordanceManager, registrationResultFilename,
 def getCorlBaseDir():
     return os.path.join(os.environ['SPARTAN_SOURCE_DIR'], 'src/CorlDev')
 
-
 def getCorlRelativePath(path):
     return os.path.join(getCorlBaseDir(), path)
 
 def getCorlDataRelativePath(path):
     return os.path.join(getCorlDataDir(), path)
-    
 
 def getCorlDataDir():
     return getCorlRelativePath('data')
@@ -97,6 +102,16 @@ def getSuper4PCSBaseDir():
 
 def getGoICPBaseDir():
     return os.getenv("GOICP_BASE_DIR")
+
+def getGRBaseDir():
+    return os.getenv('FGR_BASE_DIR')
+
+def getObjectDataFilename():
+    return os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
+
+def getObjectDataYamlFile():
+    stream = file(getObjectDataFilename())
+    return yaml.load(stream)
 
 objectDataFilename = os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
 objectData = yaml.load(file(objectDataFilename))
@@ -253,6 +268,19 @@ def saveDictToYaml(data, filename):
 
 
 
+def computeObjectMeshBoundingBox(saveToFile=False):
+    objectData = getObjectDataYamlFile()
+    for objectName, data in objectData.iteritems():
+        meshFilename = getObjectMeshFilename(objectName)
+        polyData = ioUtils.readPolyData(meshFilename)
+        (xmin, xmax, ymin, ymax, zmin, zmax) = polyData.GetBounds()
+        data['bounds'] = dict()
+        data['bounds']['min'] = [xmin, ymin, zmin]
+        data['bounds']['max'] = [xmax, ymax, zmax]
 
 
+    if saveToFile:
+        filename = getObjectDataFilename()
+        saveDictToYaml(objectData, filename)
 
+    return objectData

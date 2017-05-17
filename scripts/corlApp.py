@@ -11,7 +11,7 @@ import PythonQt
 from PythonQt import QtCore, QtGui
 
 import corl.setup
-
+import corl.utils
 
 def initImageManager():
     imageManager = cameraview.ImageManager()
@@ -66,9 +66,10 @@ if __name__ == '__main__':
     myObjects['openniDepthPointCloud'] = openniDepthPointCloud
     myObjects['cameraView'] = cameraView
     myObjects['affordanceManager'] = affordanceManager
+    myObjects['CorlUtils'] = corl.utils
 
     # these lines are used to update the globals for the interactive python console
-    globals().update(**dict(fields))
+    fields.globalsDict.update(**dict(fields))
     globals().update(**fields.globalsDict)
     globals().update(**myObjects)
 

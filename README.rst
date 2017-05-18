@@ -24,24 +24,53 @@ to the `PYTHONPATH` so that Python scripts can import the corl module.
 The corl module contains reusable functions and utilities that are used by
 the scripts.
 
-ElasticFusion
-----
-
-ElasticFusion wants CUDA 7.5.
-
-Grab www.github.com/patmarion/ElasticFusion, and follow build instructions.  Pat's fork of ElasticFusion adds lcm bridge.
-
 Director
 --------
 
 Checkout the branch :code:`corl-master` from the repository :code:`github.com/manuelli/director.git`. This will serve as our internal director branch. The idea is that these changes will make their way back to director/master eventually, but that process shouldn't slow down our workflow.
 
-====
+
+ElasticFusion
+-------------
+
+- Install CUDA (we have verified that ElasticFusion works on CUDA 7.5 and 8.0)
+- Install ElasticFusion::
+
+	git clone git@github.com:peteflorence/ElasticFusion.git
+	cd ElasticFusion
+	./build.sh
+
+The build script is great, but if it doesn't work, follow the build instructions in the README.md.
+
+SegNet
+------
+
+- Install SegNet scripts::
+
+	cd /
+	git clone git@github.com:peteflorence/SegNet-Tutorial.git
+	mv SegNet-Tutorial SegNet && cd SegNet
+	git checkout pf-moving-camera
+
+- Install caffe-segnet inside of SegNet and test, and install Python bindings::
+
+	git clone git@github.com:alexgkendall/caffe-segnet.git
+	cp Makefile.config.example Makefile.config
+	# Adjust Makefile.config (for example, if using Anaconda Python, or if cuDNN is desired)
+	make all
+	make test
+	make runtest
+	make pycaffe
+
+These are the key commands, but if you need full instructions, see http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html and http://caffe.berkeleyvision.org/installation.html.  (Note that caffe-segnet is particular distribution of segnet, you do not need to separately install caffe.)
+
+
+========
 Pipeline
-====
+========
 
 1. Collect RGBD data
-----
+--------------------
 In first terminal, :code:`use_spartan` and then launch:
 
 - :code:`kuka_iiwa_procman`
@@ -57,7 +86,7 @@ In second terminal, :code:`use_spartan` and then:
 Your data should now be saved as :code:`lcmlog-*`
 
 2. Run RGBD data through ElasticFusion
-----
+--------------------------------------
 
 Navigate to ElasticFusion executable (in :code:`ElasticFusion/GUI/build`) and then run::
 
@@ -70,7 +99,7 @@ Note that :code:`-f` option flips the blue/green, which is needed.
 Run on the log for some time, then click Pause, then click “Save” to save a .ply file.  The .ply file will take the lcm log filename +.ply.  Close the program (click X in top left of window) and that will save the .posegraph.  NOTE: do not ctrl+C to exit -- this will not save the .posegraph!
 
 3. Convert ElasticFusion .ply output to .vtp
-----
+--------------------------------------------
 
 First, open the .ply file in Meshlab, and save it (this will convert to an ASCII .ply file)
 
@@ -79,7 +108,7 @@ Next, convert to .vtp using the command::
   directorPython scripts/convertPlyToVtp.py /path/to/data.ply
 
 4. Global Object Pose Fitting
-----
+-----------------------------
 
 The class that handles segmentation and registration is in :code:`modules/corl/registration.py` and :code:`modules/corl/objectalignmenttool.py`. Launch the standard :code:`corlApp` to run it::
 
@@ -109,7 +138,7 @@ where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches 
 
 
 5. Extract Images from LCM log
-----
+------------------------------
 The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rgb images from the lcm log run::
 
 	directorPython scripts/extractImagesFromLog.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
@@ -118,7 +147,7 @@ This will save the images in :code:`data/logFolder`. The original images will be
 
 
 6. Generate Labeled Images
-----
+--------------------------
 
 The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Usage::
 
@@ -131,7 +160,7 @@ Misc
 ====
 
 Director with Corl Modules
------
+--------------------------
 There is a standalone app for launching a director with corl modules::
 
 	directorPython scripts/corlApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg

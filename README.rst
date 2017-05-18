@@ -85,7 +85,26 @@ In second terminal, :code:`use_spartan` and then:
 
 Your data should now be saved as :code:`lcmlog-*`
 
-2. Run RGBD data through ElasticFusion
+2. Trim RGBD data
+-----------------
+
+In one terminal, open a viewer for the data::
+
+	cds && cd apps/iiwa
+	directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud
+
+In another terminal, play the log with a GUI. (Replace :code:`mylog.lcmlog` with name of log)::
+
+	lcm-logplayer-gui mylog.lcmlog
+
+Use the log player to scroll and find when you want to start and stop your log, then trim it with, for example::
+
+	bot-lcm-logfilter -s 2.3 -e 25.2 mylog.lcmlog trimmedlog.lcmlog
+
+Where 2.3 and 25.2 are example start / stop times (in seconds) from the original log.
+
+
+3. Run RGBD data through ElasticFusion
 --------------------------------------
 
 Navigate to ElasticFusion executable (in :code:`ElasticFusion/GUI/build`) and then run::
@@ -99,7 +118,7 @@ When ElasticFusion is done running, the two key files it will save are:
 - :code:`*.posegraph`
 - :code:`*.ply`
 
-3. Convert ElasticFusion .ply output to .vtp
+4. Convert ElasticFusion .ply output to .vtp
 --------------------------------------------
 
 First, open the .ply file in Meshlab, and save it (this will convert to an ASCII .ply file)
@@ -108,7 +127,7 @@ Next, convert to .vtp using the command::
 
   directorPython scripts/convertPlyToVtp.py /path/to/data.ply
 
-4. Global Object Pose Fitting
+5. Global Object Pose Fitting
 -----------------------------
 
 The class that handles segmentation and registration is in :code:`modules/corl/registration.py` and :code:`modules/corl/objectalignmenttool.py`. Launch the standard :code:`corlApp` to run it::
@@ -138,7 +157,7 @@ where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches 
 .. This creates a cropped pointcloud of 8cm around your click point. Then it runs SuperPCS4 algorithm to fit phone mesh to this pointcloud. By default the phone mesh is downsampled.
 
 
-5. Extract Images from LCM log
+6. Extract Images from LCM log
 ------------------------------
 The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rgb images from the lcm log run::
 
@@ -147,7 +166,7 @@ The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rg
 This will save the images in :code:`data/logFolder`. The original images will be in the form :code:`uid_rbg.png`. Each image also has :code:`uid_utime.txt` which contains the utime associated with that image. Note that it will overwrite anything that is already there.
 
 
-6. Generate Labeled Images
+7. Generate Labeled Images
 --------------------------
 
 The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Usage::

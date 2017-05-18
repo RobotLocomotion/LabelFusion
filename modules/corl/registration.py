@@ -253,8 +253,8 @@ class GlobalRegistration(object):
             self.objectAlignmentTool.widget.close()
 
 
-        # pointCloud = self.aboveTablePolyData
-        pointCloud = om.findObjectByName('reconstruction').polyData
+        pointCloud = self.aboveTablePolyData
+        # pointCloud = om.findObjectByName('reconstruction').polyData
         objectPolyData = CorlUtils.getObjectPolyData(objectName)
         resultsDict = dict()
         self.objectAlignmentResults[objectName] = resultsDict
@@ -349,11 +349,22 @@ class GlobalRegistration(object):
 
 
     def saveRegistrationResults(self, filename=None):
-        registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
+        registrationResultDict = dict()
+        if os.path.isfile(self.pathDict['registrationResult']):
+            registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
+
 
         for objectName, data in self.objectAlignmentResults.iteritems():
             pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
-            registrationResultDict[objectName]['pose'] = pose
+            poseAsList = [pose[0].tolist(), pose[1].tolist()]
+            d = dict()
+            if objectName in registrationResultDict:
+                d = registrationResultDict[objectName]
+            else:
+                registrationResultDict[objectName] = d
+                d['filename'] = ''
+
+            d['pose'] = poseAsList
 
 
         if filename is None:

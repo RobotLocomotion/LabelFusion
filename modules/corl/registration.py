@@ -16,6 +16,7 @@ from director import vtkNumpy as vnp
 from director import vtkAll as vtk
 from director.debugVis import DebugData
 from director.shallowCopy import shallowCopy
+from director.fieldcontainer import FieldContainer
 
 
 #corl imports
@@ -57,6 +58,37 @@ class GlobalRegistration(object):
             polyData = ioUtils.readPolyData(self.pathDict['aboveTablePointcloud'])
             self.aboveTablePolyData = filterUtils.transformPolyData(polyData, self.firstFrameToWorldTransform)
             vis.updatePolyData(self.aboveTablePolyData, 'above table pointcloud', parent=self.visFolder, colorByName='RGB')
+
+        self.storedObjects = dict()
+        self.loadStoredObjects()
+
+
+    def loadStoredObjects(self):
+        if not os.path.isfile(self.pathDict['registrationResult']):
+            return
+
+        stream = file(self.pathDict['registrationResult'])
+        registrationResult = yaml.load(stream)
+
+        for objName, data in registrationResult.iteritems():
+            objectMeshFilename = data['filename']  # should be relative to getCorlDataDir()
+            if len(objectMeshFilename) == 0:
+                objectMeshFilename = CorlUtils.getObjectMeshFilename(objName)
+            else:
+                objectMeshFilename = os.path.join(CorlUtils.getCorlDataDir(), objectMeshFilename)
+
+            objectToFirstFrame = transformUtils.transformFromPose(data['pose'][0], data['pose'][1])
+            objectToWorld = transformUtils.concatenateTransforms([objectToFirstFrame, self.firstFrameToWorldTransform])
+
+            polyData = ioUtils.readPolyData(objectMeshFilename)
+            polyDataWorld = filterUtils.transformPolyData(polyData, objectToWorld)
+
+
+            d = dict()
+            d['transform'] = objectToWorld
+            d['polyData'] = polyDataWorld
+            self.storedObjects[objName] = d
+
 
 
     def fitObjectToPointcloud(self, objectName, pointCloud=None, downsampleObject=True,
@@ -242,6 +274,80 @@ class GlobalRegistration(object):
         self.objectAlignmentTool = ObjectAlignmentTool(self.cameraView, modelPolyData=objectPolyData, pointCloud=pointCloud, resultsDict=resultsDict,
                                                   callback=onFinishAlignment)
 
+    @staticmethod
+    def cropPointCloudToModelBoundingBox(pointCloud, objectPointCloud,
+                                         scaleFactor=1.5):
+        print "cropping pointcloud to box"
+        # f = segmentation.makePolyDataFields(objectPointCloud)
+        f = GlobalRegistrationUtils.getOrientedBoundingBox(objectPointCloud)
+
+
+        croppedPointCloud = segmentation.cropToBox(pointCloud, f.frame,
+                                                   scaleFactor*np.array(f.dims))
+        return croppedPointCloud
+
+
+
+
+    @staticmethod
+    def cropPointCloudToModel(pointCloud, objectPointCloud, distanceThreshold=0.02,
+                              visualize=True, applyEuclideanClustering=True):
+        """
+        Crops pointCloud to just the points withing distanceThreshold of
+        objectPointCloud
+
+        :param pointCloud:
+        :param objectPointCloud:
+        :param distanceThreshold:
+        :return: cropped pointcloud
+        """
+        GRUtils = GlobalRegistrationUtils
+        pointCloud = GlobalRegistration.cropPointCloudToModelBoundingBox(pointCloud, objectPointCloud, scaleFactor=1.5)
+        arrayName = 'distance_to_mesh'
+        print "computing point to point distance"
+        dists = GRUtils.computePointToPointDistance(pointCloud, objectPointCloud)
+        vnp.addNumpyToVtk(pointCloud, dists, arrayName)
+        polyData = filterUtils.thresholdPoints(pointCloud, arrayName, [0.0, distanceThreshold])
+
+        # this stuff may be unecessary
+        if applyEuclideanClustering:
+            # polyData = segmentation.applyVoxelGrid(polyData, leafSize=0.01)
+            polyData = segmentation.applyEuclideanClustering(polyData, clusterTolerance=0.04)
+            polyData = segmentation.thresholdPoints(polyData, 'cluster_labels', [1, 1])
+
+        if visualize:
+            parent = om.getOrCreateContainer('global registration')
+            vis.updatePolyData(polyData, 'cropped pointcloud', color=[0,1,0],
+                               parent=parent)
+
+        return polyData
+
+    def cropPointCloudUsingAlignedObject(self, objectName='oil_bottle', pointCloud=None):
+        """
+        Crops the aboveTablePolyData within a radius of the fitted model
+        :param objectName:
+        :return:
+        """
+
+        if pointCloud is None:
+            pointCloud = self.aboveTablePolyData
+
+        assert pointCloud is not None
+
+        alignedModel = None
+        if objectName in self.objectAlignmentResults:
+            alignedModel = self.objectAlignmentResults[objectName]['alignedModel']
+
+        else:
+            assert objectName in self.storedObjects
+            alignedModel = self.storedObjects[objectName]['polyData']
+
+
+        croppedPointCloud = GlobalRegistration.cropPointCloudToModel(pointCloud, alignedModel, visualize=True)
+
+        return croppedPointCloud
+
+
     def saveRegistrationResults(self, filename=None):
         registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
 
@@ -353,6 +459,9 @@ class GlobalRegistration(object):
 
         return sceneToModelTransform
 
+
+
+
 class GlobalRegistrationUtils(object):
     """
     A collection of useful utilities for global registration
@@ -418,6 +527,79 @@ class GlobalRegistrationUtils(object):
     def getSandboxRelativePath(filename):
         baseName = GlobalRegistrationUtils.getSandboxDir()
         return os.path.join(baseName, filename)
+
+    @staticmethod
+    def computePointToSurfaceDistance(pointsPolyData, meshPolyData):
+
+        cl = vtk.vtkCellLocator()
+        cl.SetDataSet(meshPolyData)
+        cl.BuildLocator()
+
+        points = vnp.getNumpyFromVtk(pointsPolyData, 'Points')
+        dists = np.zeros(len(points))
+
+        closestPoint = np.zeros(3)
+        closestPointDist = vtk.mutable(0.0)
+        cellId = vtk.mutable(0)
+        subId = vtk.mutable(0)
+
+        for i in xrange(len(points)):
+            cl.FindClosestPoint(points[i], closestPoint, cellId, subId, closestPointDist)
+            dists[i] = closestPointDist
+
+        return np.sqrt(dists)
+
+    @staticmethod
+    def computePointToPointDistance(pointsPolyData, searchPolyData):
+
+        cl = vtk.vtkPointLocator()
+        cl.SetDataSet(searchPolyData)
+        cl.BuildLocator()
+
+        points = vnp.getNumpyFromVtk(pointsPolyData, 'Points')
+        searchPoints = vnp.getNumpyFromVtk(searchPolyData, 'Points')
+        closestPoints = np.zeros((len(points), 3))
+
+        for i in xrange(len(points)):
+            ptId = cl.FindClosestPoint(points[i])
+            closestPoints[i] = searchPoints[ptId]
+
+        return np.linalg.norm(closestPoints - points, axis=1)
+
+    @staticmethod
+    def getOrientedBoundingBox(pd):
+        mesh = pd
+        origin, edges, wireframe = segmentation.getOrientedBoundingBox(mesh)
+
+        edgeLengths = np.array([np.linalg.norm(edge) for edge in edges])
+        axes = [edge / np.linalg.norm(edge) for edge in edges]
+
+        # find axis nearest to the +/- up vector
+        upVector = [0, 0, 1]
+        dotProducts = [np.abs(np.dot(axe, upVector)) for axe in axes]
+        zAxisIndex = np.argmax(dotProducts)
+
+        # re-index axes and edge lengths so that the found axis is the z axis
+        axesInds = [(zAxisIndex + 1) % 3, (zAxisIndex + 2) % 3, zAxisIndex]
+        axes = [axes[i] for i in axesInds]
+        edgeLengths = [edgeLengths[i] for i in axesInds]
+
+        # flip if necessary so that z axis points toward up
+        if np.dot(axes[2], upVector) < 0:
+            axes[1] = -axes[1]
+            axes[2] = -axes[2]
+
+        boxCenter = segmentation.computeCentroid(wireframe)
+
+        t = transformUtils.getTransformFromAxes(axes[0], axes[1], axes[2])
+        t.PostMultiply()
+        t.Translate(boxCenter)
+
+        pd = filterUtils.transformPolyData(pd, t.GetLinearInverse())
+        wireframe = filterUtils.transformPolyData(wireframe, t.GetLinearInverse())
+
+        return FieldContainer(points=pd, box=wireframe, frame=t, dims=edgeLengths, axes=axes)
+
 
 
 class Super4PCS(object):

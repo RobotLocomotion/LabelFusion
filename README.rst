@@ -89,7 +89,9 @@ The :code:`GlobalRegistration` object is in the global namespace as :code:`globa
 
 	globalRegistration.launchObjectAlignment(<objectName>)
 
-where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches a new window. Click the same three points in model and on pointcloud. Using :code:`shift + click` to do this. After you do this the affordance should appear in main window using the transform that was just computed.
+where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches a new window. Click the same three points in model and on pointcloud. Using :code:`shift + click` to do this. After you do this the affordance should appear in main window using the transform that was just computed. You can crop the pointcloud using the alignments we just got by calling::
+
+	globalRegistration.cropPointCloudUsingAlignedObject(objectName=<objectName>)
 
 .. commented out below
 .. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::

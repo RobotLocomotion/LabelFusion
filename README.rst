@@ -90,13 +90,14 @@ Your data should now be saved as :code:`lcmlog-*`
 
 Navigate to ElasticFusion executable (in :code:`ElasticFusion/GUI/build`) and then run::
 
-	./ElasticFusion -l ~/Desktop/moving-camera.lcmlog  -f | tee moving-camera.lcmlog.mylog
+	./ElasticFusion -l ~/Desktop/moving-camera.lcmlog  -f
 	
-Where :code:`~Desktop/moving-camera.lcmlog` is the full path to RGBD lcm data
+Where :code:`~Desktop/moving-camera.lcmlog` is the full path to RGBD lcm data.  Note that :code:`-f` option flips the blue/green, which is needed.
 
-Note that :code:`-f` option flips the blue/green, which is needed.
+When ElasticFusion is done running, the two key files it will save are:
 
-Run on the log for some time, then click Pause, then click “Save” to save a .ply file.  The .ply file will take the lcm log filename +.ply.  Close the program (click X in top left of window) and that will save the .posegraph.  NOTE: do not ctrl+C to exit -- this will not save the .posegraph!
+- :code:`*.posegraph`
+- :code:`*.ply`
 
 3. Convert ElasticFusion .ply output to .vtp
 --------------------------------------------

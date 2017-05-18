@@ -85,8 +85,8 @@ In second terminal, :code:`use_spartan` and then:
 
 Your data should now be saved as :code:`lcmlog-*`
 
-2. Trim RGBD data
------------------
+2. Trim RGBD data and prepare for processing scripts.
+-----------------------------------------------------
 
 In one terminal, open a viewer for the data::
 
@@ -103,15 +103,29 @@ Use the log player to scroll and find when you want to start and stop your log, 
 
 Where 2.3 and 25.2 are example start / stop times (in seconds) from the original log.
 
+To prepare this data for processing, put the trimmed log in a folder, such as with the following hierarchy::
+
+	path-do-data/logs/
+		log-1/
+			trimmedlog.lcmlog
+			info.yaml
+
+Where info.yaml is a two-line file that has for example this form::
+
+	lcmlog: "trimmedlog.lcmlog"
+	objects: ["phone","robot","toothpaste","oil_bottle"]
+
+The first line identifies the log to be used, and the second identifies which objects are in the scene.  (Meshes for these objects should be set up as specified above.)
+
 
 3. Run RGBD data through ElasticFusion
 --------------------------------------
 
-Navigate to ElasticFusion executable (in :code:`ElasticFusion/GUI/build`) and then run::
+Navigate to ElasticFusion executable (in :code:`ElasticFusion/GUI/build`) and then run, for example::
 
-	./ElasticFusion -l ~/Desktop/moving-camera.lcmlog  -f
+	./ElasticFusion -l path-to-data/logs/log-1/trimmedlog.lcmlog  -f
 	
-Where :code:`~Desktop/moving-camera.lcmlog` is the full path to RGBD lcm data.  Note that :code:`-f` option flips the blue/green, which is needed.
+Where :code:`path-to-data/logs/log-1/trimmedlog.lcmlog` is the full path to RGBD lcm data.  Note that :code:`-f` option flips the blue/green, which is needed.
 
 When ElasticFusion is done running, the two key files it will save are:
 

@@ -148,13 +148,47 @@ The class that handles segmentation and registration is in :code:`modules/corl/r
 
 	directorPython scripts/corlApp.py --logFolder logs/test --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
-The :code:`GlobalRegistration` object is in the global namespace as :code:`globalRegistration`. Run::
+The :code:`GlobalRegistration` object is in the global namespace as :code:`globalRegistration`, or :code:`gr` for short. The first step is to align the reconstructed point cloud so it is right-side-up:
 
-	globalRegistration.launchObjectAlignment(<objectName>)
+- Open measurement panel (View -> Measurement Panel), then check Enabled in measurement panel
+- Use (shift + click) and click two points: first on the surface of the table, then on a point above the table
+- Open Director terminal with F8 and run::
+
+	gr.rotateReconstructionToStandardOrientation()
+
+- Close the corlApp application (ctrl + c) and reopen
+
+The second step is to segment the pointcloud above the table
+
+- Open measurement panel (View -> Measurement Panel), then check Enabled in measurement panel
+- Use (shift + click) and click two points: first on the surface of the table, then on a point above the table
+- Open Director terminal with F8 and run::
+	
+	gr.segmentTable()
+	gr.saveAboveTablePolyData()
+
+- Close the corlApp application (ctrl + c) and reopen
+
+Now, we are ready to align each object.  Press F8 in the app to open Director's Python terminal and run::
+
+	gr.launchObjectAlignment(<objectName>)
 
 where :code:`<objectName>` is a string like :code:`"oil_bottle"`. This launches a new window. Click the same three points in model and on pointcloud. Using :code:`shift + click` to do this. After you do this the affordance should appear in main window using the transform that was just computed. You can crop the pointcloud using the alignments we just got by calling::
 
-	globalRegistration.cropPointCloudUsingAlignedObject(objectName=<objectName>)
+	gr.cropPointCloudUsingAlignedObject(objectName=<objectName>)
+
+Later we will document how to do ICP.
+
+When you are done with an object's registration, run::	
+
+	gr.saveRegistrationResults()
+
+Issues:
+
+- the aligned object not currently movable
+- oil bottle and oil bottle aligned should become one
+- red spheres disappear when doing second object alignment
+
 
 .. commented out below
 .. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::

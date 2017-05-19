@@ -382,10 +382,12 @@ class GlobalRegistration(object):
         modelToSceneTransform = sceneToModelTransform.GetLinearInverse()
         alignedModel = filterUtils.transformPolyData(modelPointcloud, modelToSceneTransform)
 
-        parent = om.getOrCreateContainer('ICP')
-        vis.showPolyData(alignedModel, 'aligned model', color=[1,0,0], parent=parent)
+        # this was for visualizing pre/post ICP
+        #parent = om.getOrCreateContainer('ICP')
+        #vis.showPolyData(alignedModel, 'aligned model', color=[1,0,0], parent=parent)
 
-
+        concatenatedTransform = transformUtils.concatenateTransforms([visObj.actor.GetUserTransform(), modelToSceneTransform])
+        visObj.actor.SetUserTransform(concatenatedTransform)
 
     def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)

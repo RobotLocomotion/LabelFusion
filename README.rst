@@ -141,6 +141,10 @@ Next, convert to .vtp using the command::
 
   directorPython scripts/convertPlyToVtp.py /path/to/data.ply
 
+Now rename::
+
+	mv *.vtp reconstructed_pointcloud.vtp
+
 5. Global Object Pose Fitting
 -----------------------------
 

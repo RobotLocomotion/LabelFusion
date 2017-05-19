@@ -193,8 +193,6 @@ When you are done with an object's registration, run::
 
 Issues:
 
-- the aligned object not currently movable
-- oil bottle and oil bottle aligned should become one
 - red spheres disappear when doing second object alignment
 
 

@@ -372,6 +372,20 @@ class GlobalRegistration(object):
 
         CorlUtils.saveDictToYaml(registrationResultDict, filename)
 
+    def testICP(self, objectName):
+        visObj = om.findObjectByName(objectName)
+        scenePointcloud = om.findObjectByName('cropped pointcloud').polyData
+        modelPointcloud = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+
+        sceneToModelTransform = segmentation.applyICP(scenePointcloud, modelPointcloud)
+
+        modelToSceneTransform = sceneToModelTransform.GetLinearInverse()
+        alignedModel = filterUtils.transformPolyData(modelPointcloud, modelToSceneTransform)
+
+        parent = om.getOrCreateContainer('ICP')
+        vis.showPolyData(alignedModel, 'aligned model', color=[1,0,0], parent=parent)
+
+
 
     def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)

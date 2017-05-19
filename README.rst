@@ -132,6 +132,10 @@ When ElasticFusion is done running, the two key files it will save are:
 - :code:`*.posegraph`
 - :code:`*.ply`
 
+Rename::
+
+	mv *.posegraph posegraph.posegraph
+
 4. Convert ElasticFusion .ply output to .vtp
 --------------------------------------------
 

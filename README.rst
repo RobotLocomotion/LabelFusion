@@ -6,7 +6,7 @@ Data folder
 -----------
 
 Create a symlink from the shared MIT Dropbox `CORL217` folder to `spartan/src/CorlDev/data`.
-For example::
+For example.  (Make sure that ./data doesn't exist before calling this command, or the linking will be nested)::
 
     ln -s $HOME/Dropbox/CORL2017 ./data
 

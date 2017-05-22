@@ -131,6 +131,9 @@ class ObjectAlignmentTool(object):
         self.scenePicker.annotationFunc = self.onScenePickPoints
         self.scenePicker.start()
 
+        # workaround bug in PointPicker implementation
+        for name in [self.picker.annotationName, self.scenePicker.annotationName]:
+            om.removeFromObjectModel(om.findObjectByName(name))
 
         self.widget = QtGui.QWidget()
         layout = QtGui.QHBoxLayout(self.widget)

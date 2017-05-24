@@ -48,8 +48,8 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
                                                          globalsDict['cameraView'],
                                                          globalsDict['measurementPanel'],
-                                                         logFolder=logFolder,
-                                                         firstFrameToWorldTransform=firstFrameToWorldTransform)
+                                                         globalsDict['affordanceManager'],
+                                                         logFolder=logFolder,                                                         firstFrameToWorldTransform=firstFrameToWorldTransform)
     globalsDict['globalRegistration'] = globalRegistration
     globalsDict['gr'] = globalRegistration # hack for easy access
 

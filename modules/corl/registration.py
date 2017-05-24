@@ -26,12 +26,14 @@ from objectalignmenttool import ObjectAlignmentTool
 
 class GlobalRegistration(object):
 
-    def __init__(self, view, cameraView, measurementPanel, logFolder=None,
+    def __init__(self, view, cameraView, measurementPanel, affordanceManager,
+                 logFolder=None,
                  firstFrameToWorldTransform=None):
         self.view = view
         self.cameraView = cameraView
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
+        self.affordanceManager = affordanceManager
         self.logFolder = logFolder
         assert firstFrameToWorldTransform is not None
         self.firstFrameToWorldTransform = firstFrameToWorldTransform
@@ -147,7 +149,7 @@ class GlobalRegistration(object):
         return croppedPointCloud
 
     def segmentTable(self, scenePolyData=None, searchRadius=0.3, visualize=True,
-                     thickness=0.01):
+                     thickness=0.01, pointOnTable=None, pointAboveTable=None):
         """
         This requires two clicks using measurement panel. One on the table, one above the table on one of the objects. Call them point0, point1. Then we will attempt to fit a plane that passes through point0 with approximate normal point1 - point0
         :param scenePolyData:
@@ -158,9 +160,13 @@ class GlobalRegistration(object):
         if scenePolyData is None:
             scenePolyData = om.findObjectByName('reconstruction').polyData
 
-        assert (len(self.measurementPanel.pickPoints) >= 2)
-        pointOnTable = self.measurementPanel.pickPoints[0]
-        pointAboveTable = self.measurementPanel.pickPoints[1]
+
+        if pointOnTable is None:
+            assert (len(self.measurementPanel.pickPoints) >= 2)
+            pointOnTable = self.measurementPanel.pickPoints[0]
+            pointAboveTable = self.measurementPanel.pickPoints[1]
+
+
         expectedNormal= pointAboveTable - pointOnTable
         expectedNormal = expectedNormal/np.linalg.norm(expectedNormal)
 
@@ -173,10 +179,11 @@ class GlobalRegistration(object):
 
         self.aboveTablePolyData = abovePolyData
 
+
+        # some debugging visualization
         if visualize:
             vis.showPolyData(abovePolyData, 'above table segmentation', color=[0, 1, 0],
                              parent=self.visFolder)
-
             arrowLength = 0.3
             headRadius = 0.02
             d = DebugData()
@@ -193,6 +200,7 @@ class GlobalRegistration(object):
 
 
         returnData = dict()
+        returnData['abovePolyData'] = abovePolyData
         returnData['polyData'] = polyData
         returnData['normal'] = normal
         returnData['pointOnTable'] = pointOnTable
@@ -224,7 +232,7 @@ class GlobalRegistration(object):
         rotatedPolyData = filterUtils.transformPolyData(polyData, pointCloudToWorldTransform)
 
         parent = om.getOrCreateContainer('segmentation')
-        vis.updatePolyData(rotatedPolyData, 'reconstruction rotated', colorByName='RGB', parent=parent)
+        vis.updatePolyData(rotatedPolyData, 'reconstruction', colorByName='RGB', parent=parent)
 
         if savePoseToFile:
             if filename is None:
@@ -237,6 +245,25 @@ class GlobalRegistration(object):
             CorlUtils.saveDictToYaml(d, filename)
 
         return pointCloudToWorldTransform
+
+    def rotateAndSegmentPointCloud(self):
+        print "rotating and pointcloud"
+        firstFrameToWorld = self.rotateReconstructionToStandardOrientation()
+        self.firstFrameToWorldTransform = firstFrameToWorld
+
+        pointOnTable = np.array(firstFrameToWorld.TransformPoint(self.measurementPanel.pickPoints[0]))
+        pointAboveTable = np.array(firstFrameToWorld.TransformPoint(self.measurementPanel.pickPoints[1]))
+
+        print "segmenting table"
+        d = self.segmentTable(pointOnTable=pointOnTable, pointAboveTable=pointAboveTable,
+                          visualize=False)
+
+        vis.updatePolyData(d['abovePolyData'], 'above table segmentation', colorByName='RGB', parent=self.visFolder)
+
+
+        print "saving segmentation"
+        self.saveAboveTablePolyData()
+        self.initializeFields()
 
 
     def launchObjectAlignment(self, objectName, useAboveTablePointcloud=True):
@@ -268,7 +295,22 @@ class GlobalRegistration(object):
             """
             resultsDict['modelToFirstFrameTransform'] = transformUtils.concatenateTransforms([resultsDict['modelToSceneTransform'], self.firstFrameToWorldTransform.GetLinearInverse()])
 
-            vis.updatePolyData(resultsDict['alignedModel'], objectName + ' aligned', parent=parent)
+
+            modelToWorld = resultsDict['modelToSceneTransform']
+
+
+            visObj = om.findObjectByName(objectName)
+            if visObj is not None:
+                # this means object already being visualized
+                visObj.getChildFrame().copyFrame(modelToWorld)
+            else:
+                # object not being visualized, we need to load it
+                pose = transformUtils.poseFromTransform(modelToWorld)
+                CorlUtils.loadObjectMesh(self.affordanceManager, objectName,
+                                         visName=objectName, pose=pose)
+
+            print "cropping and running ICP"
+            self.ICPWithCropBasedOnModel(objectName=objectName)
 
 
         self.objectAlignmentTool = ObjectAlignmentTool(self.cameraView, modelPolyData=objectPolyData, pointCloud=pointCloud, resultsDict=resultsDict,
@@ -353,9 +395,14 @@ class GlobalRegistration(object):
         if os.path.isfile(self.pathDict['registrationResult']):
             registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
 
+        affordanceFolder = om.getOrCreateContainer('affordances')
+        affordanceList = affordanceFolder.children()
 
-        for objectName, data in self.objectAlignmentResults.iteritems():
-            pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
+        for affordance in affordanceList:
+            objectName = affordance.getProperty('Name')
+            modelToWorld = affordance.getChildFrame().transform
+            modelToFirstFrame = transformUtils.concatenateTransforms([modelToWorld, self.firstFrameToWorldTransform.GetLinearInverse()])
+            pose = transformUtils.poseFromTransform(modelToFirstFrame)
             poseAsList = [pose[0].tolist(), pose[1].tolist()]
             d = dict()
             if objectName in registrationResultDict:
@@ -366,28 +413,46 @@ class GlobalRegistration(object):
 
             d['pose'] = poseAsList
 
+        # for objectName, data in self.objectAlignmentResults.iteritems():
+        #     pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
+        #     poseAsList = [pose[0].tolist(), pose[1].tolist()]
+        #     d = dict()
+        #     if objectName in registrationResultDict:
+        #         d = registrationResultDict[objectName]
+        #     else:
+        #         registrationResultDict[objectName] = d
+        #         d['filename'] = ''
+        #
+        #     d['pose'] = poseAsList
+
 
         if filename is None:
             filename = self.pathDict['registrationResult']
 
         CorlUtils.saveDictToYaml(registrationResultDict, filename)
 
-    def testICP(self, objectName):
+    def ICPWithCropBasedOnModel(self, objectName='oil_bottle', scenePointCloud=None):
+        if scenePointCloud is None:
+            scenePointCloud = self.aboveTablePolyData
+
+        croppedPointcloud = self.cropPointCloudUsingAlignedObject(objectName, pointCloud=scenePointCloud)
+
+        self.testICP(objectName, scenePointCloud=croppedPointcloud)
+
+    def testICP(self, objectName, scenePointCloud=None):
+        print "running ICP"
         visObj = om.findObjectByName(objectName)
-        scenePointcloud = om.findObjectByName('cropped pointcloud').polyData
+        if scenePointCloud is None:
+            scenePointCloud = om.findObjectByName('cropped pointcloud').polyData
         modelPointcloud = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
 
-        sceneToModelTransform = segmentation.applyICP(scenePointcloud, modelPointcloud)
+        sceneToModelTransform = segmentation.applyICP(scenePointCloud, modelPointcloud)
 
         modelToSceneTransform = sceneToModelTransform.GetLinearInverse()
-        alignedModel = filterUtils.transformPolyData(modelPointcloud, modelToSceneTransform)
-
-        # this was for visualizing pre/post ICP
-        #parent = om.getOrCreateContainer('ICP')
-        #vis.showPolyData(alignedModel, 'aligned model', color=[1,0,0], parent=parent)
-
         concatenatedTransform = transformUtils.concatenateTransforms([visObj.actor.GetUserTransform(), modelToSceneTransform])
-        visObj.actor.SetUserTransform(concatenatedTransform)
+        visObj.getChildFrame().copyFrame(concatenatedTransform)
+
+        print "ICP finished"
 
     def testPhoneFit(self, useStoredPointcloud=True, algorithm="GoICP"):
         croppedPointCloud = self.cropPointCloud(radius=0.08)

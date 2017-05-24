@@ -140,7 +140,8 @@ class ObjectAlignmentTool(object):
         # layout.addWidget(self.cameraView.view)
         layout.addWidget(self.sceneView)
         layout.addWidget(self.view)
-        self.widget.resize(800, 400)
+        # self.widget.resize(800, 400)
+        self.widget.showMaximized()
         self.widget.setWindowTitle('Camera Alignment Tool')
         self.widget.show()
 

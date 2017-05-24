@@ -39,11 +39,13 @@ def printObjectPose(name):
     print (pos.tolist(), quat.tolist())
 
 
-def loadObjectMesh(affordanceManager, objectName, visName=None):
+def loadObjectMesh(affordanceManager, objectName, visName=None, pose=None):
     if visName is None:
         visName = objectName + "_raw"
     filename = getObjectMeshFilename(objectName)
-    pose = [[0,0,0],[1,0,0,0]]
+
+    if pose is None:
+        pose = [[0,0,0],[1,0,0,0]]
     return loadAffordanceModel(affordanceManager, visName,
                         filename, pose)
 

@@ -34,7 +34,7 @@ dataMap = yaml.safe_load(f)
 lcmlog_filename = dataMap["lcmlog"]
 
 # call ElasticFusion
-os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
+#os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
 
 # rename posegraph
 # TODO: give error if multiple posegraph files
@@ -72,8 +72,8 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
     		outfile.write(line)
 
 # convert to vtp
-os.system("directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "/home/peteflo/spartan/src/CorlDev/data/logs/pipeline-test/converted_to_ascii_modified_header.ply")
+os.system("directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "./converted_to_ascii_modified_header.ply")
 
 # clean up and rename
-os.system("rm *.ply")
+#os.system("rm *.ply")
 os.system("mv converted_to_ascii_modified_header.vtp reconstructed_pointcloud.vtp")

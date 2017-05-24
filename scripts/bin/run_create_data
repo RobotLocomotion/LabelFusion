@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Creating training images from alignment..."
+
+current_dir=${PWD##*/}
+
+echo "First extracting images..."
+
+directorPython $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/extractImagesFromLog.py --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg --logFolder logs/$current_dir
+
+echo "Now rendering training images"
+
+directorPython $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/renderTrainingImages.py --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg --logFolder logs/$current_dir
+
+echo "Done."

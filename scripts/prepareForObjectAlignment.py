@@ -7,6 +7,13 @@ import yaml
 # ------------------------------
 path_to_spartan = os.environ['SPARTAN_SOURCE_DIR']
 
+# Check if needs to run
+if os.path.isfile("./reconstructed_pointcloud.vtp"):
+	if os.path.isfile("./posegraph.posegraph"):
+		print "Already have outputs of this step, don't need to run again!"
+		quit()
+
+
 ######################
 # Run Elastic Fusion #
 ######################

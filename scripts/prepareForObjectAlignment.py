@@ -5,8 +5,7 @@ import yaml
 # Run this script from the log folder from which you want to process data
 
 # ------------------------------
-path_to_spartan = "/home/peteflo/spartan"
-
+path_to_spartan = os.environ['SPARTAN_SOURCE_DIR']
 
 ######################
 # Run Elastic Fusion #
@@ -23,7 +22,7 @@ f = open(yaml_path)
 dataMap = yaml.safe_load(f)
 lcmlog_filename = dataMap["lcmlog"]
 
-#os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
+os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
 
 # TODO: give error if multiple posegraph files
 os.system("mv " + lcmlog_filename + ".posegraph posegraph.posegraph")
@@ -56,6 +55,5 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
     			continue
     		outfile.write(line)
 
-
-print "directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "/home/peteflo/spartan/src/CorlDev/data/logs/pipeline-test/converted_to_ascii.ply"
 os.system("directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "/home/peteflo/spartan/src/CorlDev/data/logs/pipeline-test/converted_to_ascii_modified_header.ply")
+os.system("mv converted_to_ascii_modified_header.vtp reconstructed_pointcloud.vtp")

@@ -21,9 +21,9 @@ if os.path.isfile("./reconstructed_pointcloud.vtp"):
 # later, I want to try automatically install ElasticFusion
 # or at least check for it
 # for now, just need to specify ElasticFusion executable location
-path_to_ElasticFusion_executable = "/home/peteflo/ElasticFusion/GUI/build/ElasticFusion"
+path_to_ElasticFusion_executable = os.environ['ELASTIC_FUSION_EXECUTABLE']
 if not (os.path.isfile(path_to_ElasticFusion_executable)):
-	print "You need to install ElasticFusion and change the path to the executable in scripts/prepareForObjectAlignment.py"
+	print "You need to install ElasticFusion and change the path to the executable in CorlDev/setup_environment.sh"
 	quit()
 
 

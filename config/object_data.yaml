@@ -8,7 +8,7 @@ oil_bottle:
     - -0.05790764465928078
     - -0.09968897700309753
     - -0.03511811047792435
-  label: 4
+  label: 1
   mesh: object-meshes/oil_bottle_aligned.vtp
 phone:
   bounds:
@@ -20,7 +20,7 @@ phone:
     - -0.02938918210566044
     - -0.08218197524547577
     - -0.02114463411271572
-  label: 1
+  label: 2
   mesh: object-meshes/phone_handheld.vtp
 robot:
   bounds:
@@ -32,7 +32,7 @@ robot:
     - -0.013642566278576851
     - -0.04466225951910019
     - -0.024891866371035576
-  label: 2
+  label: 3
   mesh: object-meshes/robot_handheld.vtp
 toothpaste:
   bounds:
@@ -44,5 +44,8 @@ toothpaste:
     - -0.01985318213701248
     - -0.09553340077400208
     - -0.01681172475218773
-  label: 3
+  label: 4
   mesh: object-meshes/toothpaste_aligned.vtp
+tissue_box:
+  label: 5
+  mesh: object-meshes/tissue_box_subdivision.vtp

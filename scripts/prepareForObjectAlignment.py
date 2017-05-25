@@ -34,7 +34,7 @@ dataMap = yaml.safe_load(f)
 lcmlog_filename = dataMap["lcmlog"]
 
 # call ElasticFusion
-os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
+#os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + " -f")
 
 # rename posegraph
 # TODO: give error if multiple posegraph files
@@ -58,9 +58,22 @@ os.system(path_to_ply + "/ply2ascii <./" + ply_binary_filename + "> ./converted_
 
 # change header to be compatible with Director
 # TODO: make so Director accepts other header?
+line_elements_vertex = ""
 with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
-    with open(path_to_spartan + "/src/CorlDev/scripts/correct_ply_header.txt") as infile:
+    with open("./converted_to_ascii.ply") as infile:
+        counter = 0
         for line in infile:
+            counter +=1
+            if counter == 3:
+                line_elements_vertex = line
+                break
+    with open(path_to_spartan + "/src/CorlDev/scripts/correct_ply_header.txt") as infile:
+        counter = 0
+        for line in infile:
+            counter += 1
+            if counter == 4:
+                outfile.write(line_elements_vertex)
+                continue
             outfile.write(line)
     with open("./converted_to_ascii.ply") as infile:
     	num_skip = 14
@@ -75,5 +88,5 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
 os.system("directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "./converted_to_ascii_modified_header.ply")
 
 # clean up and rename
-os.system("rm *.ply *.freiburg")
+# os.system("rm *.ply *.freiburg")
 os.system("mv converted_to_ascii_modified_header.vtp reconstructed_pointcloud.vtp")

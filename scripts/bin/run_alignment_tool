@@ -3,7 +3,9 @@
 echo "Opening object alignment tool..."
 
 current_dir=${PWD##*/}
+cd ..
+up_dir=${PWD##*/}
 
-directorPython $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/corlApp.py --logFolder logs/$current_dir --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+directorPython $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/corlApp.py --logFolder $up_dir/$current_dir --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
 echo "Done."

@@ -405,26 +405,12 @@ class GlobalRegistration(object):
             pose = transformUtils.poseFromTransform(modelToFirstFrame)
             poseAsList = [pose[0].tolist(), pose[1].tolist()]
             d = dict()
-            if objectName in registrationResultDict:
-                d = registrationResultDict[objectName]
-            else:
-                registrationResultDict[objectName] = d
-                d['filename'] = ''
+            meshFilename = affordance.getProperty('Filename')
+            relPathToDataDir = os.path.relpath(meshFilename, CorlUtils.getCorlDataDir())
 
+            d['filename'] = relPathToDataDir
             d['pose'] = poseAsList
-
-        # for objectName, data in self.objectAlignmentResults.iteritems():
-        #     pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
-        #     poseAsList = [pose[0].tolist(), pose[1].tolist()]
-        #     d = dict()
-        #     if objectName in registrationResultDict:
-        #         d = registrationResultDict[objectName]
-        #     else:
-        #         registrationResultDict[objectName] = d
-        #         d['filename'] = ''
-        #
-        #     d['pose'] = poseAsList
-
+            registrationResultDict[objectName] = d
 
         if filename is None:
             filename = self.pathDict['registrationResult']

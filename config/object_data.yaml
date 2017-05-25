@@ -21,7 +21,7 @@ phone:
     - -0.08218197524547577
     - -0.02114463411271572
   label: 1
-  mesh: object-meshes/phone_aligned.vtp
+  mesh: object-meshes/phone_handheld.vtp
 robot:
   bounds:
     max:
@@ -33,7 +33,7 @@ robot:
     - -0.04466225951910019
     - -0.024891866371035576
   label: 2
-  mesh: object-meshes/robot_aligned.vtp
+  mesh: object-meshes/robot_handheld.vtp
 toothpaste:
   bounds:
     max:

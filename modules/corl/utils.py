@@ -285,7 +285,7 @@ def saveObjectPolyData(objectName):
     polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
     ioUtils.writePolyData(polyData, filename)
 
-def loadHandheldScannerMesh(affordanceManager, filename='robot_small.obj', name='robot_handheld'):
+def loadHandheldScannerMesh(affordanceManager, filename='oil_bottle.obj', name='oil_bottle', scaleDown=True):
     filename = os.path.join(getCorlDataDir(),'object-meshes/handheld-scanner', filename)
     print filename
     pose = [[0,0,0],[1,0,0,0]]
@@ -294,8 +294,14 @@ def loadHandheldScannerMesh(affordanceManager, filename='robot_small.obj', name=
     center = visObj.polyData.GetCenter()
     translation = -np.array(center)
     t.Translate(translation)
-    visObj.getChildFrame().copyFrame(t)
-    centerObject(visObj)
+    scale = 0.001
+    t.Scale(scale, scale, scale)
+    polyData = filterUtils.transformPolyData(visObj.polyData, t)
+
+    om.removeFromObjectModel(visObj)
+
+    scaledVisObj = vis.showPolyData(polyData, name+'_small')
+    vis.addChildFrame(scaledVisObj)
 
 def centerObject(visObj):
     polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
@@ -305,12 +311,17 @@ def centerObject(visObj):
     newVisObj = vis.showPolyData(polyData, name)
     vis.addChildFrame(newVisObj)
 
-def saveObject(visObj, filename=None):
+def saveObject(visObj, filename=None, overwrite=False, pathToDir='handheld-scanner'):
     if filename is None:
         filename = visObj.getProperty('Name') + '.vtp'
 
-    filename = os.path.join(getCorlDataDir(),'object-meshes', filename)
+    filename = os.path.join(getCorlDataDir(),'object-meshes', pathToDir, filename)
     polyData = visObj.polyData
+
+    if not overwrite:
+        if os.path.exists(filename):
+            raise ValueError('file already exists, not overwriting')
+            return
 
     userTransform = visObj.actor.GetUserTransform()
     if userTransform is not None:

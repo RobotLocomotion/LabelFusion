@@ -284,28 +284,30 @@ def saveObjectPolyData(objectName):
     polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
     ioUtils.writePolyData(polyData, filename)
 
-# def computeObjectMeshBoundingBox(saveToFile=False):
-#     """
-#     For each object in our dataset compute a bounding box.
-#     If saveToFile=True then save these results to the object_data.yaml file.
-#     :param saveToFile:
-#     :return:
-#     """
-#     objectData = getObjectDataYamlFile()
-#     for objectName, data in objectData.iteritems():
-#         meshFilename = getObjectMeshFilename(objectName)
-#         polyData = ioUtils.readPolyData(meshFilename)
-#         (xmin, xmax, ymin, ymax, zmin, zmax) = polyData.GetBounds()
-#         data['bounds'] = dict()
-#         data['bounds']['min'] = [xmin, ymin, zmin]
-#         data['bounds']['max'] = [xmax, ymax, zmax]
-#
-#
-#     if saveToFile:
-#         filename = getObjectDataFilename()
-#         saveDictToYaml(objectData, filename)
-#
-#     return objectData
+def loadHandheldScannerMesh(affordanceManager, filename='robot_small.obj', name='robot_handheld'):
+    filename = os.path.join(getCorlDataDir(),'object-meshes/handheld-scanner', filename)
+    print filename
+    pose = [[0,0,0],[1,0,0,0]]
+    visObj = loadAffordanceModel(affordanceManager, name, filename, pose)
+    t = visObj.getChildFrame().transform
+    center = visObj.polyData.GetCenter()
+    translation = -np.array(center)
+    t.Translate(translation)
+    visObj.getChildFrame().copyFrame(t)
+    centerObject(visObj)
 
+def centerObject(visObj):
+    polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+    name = visObj.getProperty('Name')
 
+    om.removeFromObjectModel(visObj)
+    newVisObj = vis.showPolyData(polyData, name)
+    vis.addChildFrame(newVisObj)
 
+def saveObject(visObj, filename=None):
+    if filename is None:
+        filename = visObj.getProperty('Name') + '.vtp'
+
+    filename = os.path.join(getCorlDataDir(),'object-meshes', filename)
+    polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+    ioUtils.writePolyData(polyData, filename)

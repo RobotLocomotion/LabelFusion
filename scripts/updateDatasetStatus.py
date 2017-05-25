@@ -38,7 +38,7 @@ for folder in folders:
     rows.append([path_to_folder])
 
     for subdir, dirs, files in os.walk(path_to_folder):
-        for dir in dirs:
+        for dir in sorted(dirs):
             fullpath = os.path.join(subdir, dir)
             path_after_data =  os.path.relpath(fullpath, path_to_data)
             print path_after_data

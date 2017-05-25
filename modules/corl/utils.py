@@ -7,7 +7,8 @@ from director import transformUtils
 from director import ioUtils
 from director import filterUtils
 from director import vtkAll as vtk
-
+from director.debugVis import DebugData
+from director import segmentation
 
 def initRobotKinematicsCameraFrame():
     endEffectorToWorld = robotSystem.robotStateModel.getLinkFrame('iiwa_link_ee')
@@ -309,5 +310,25 @@ def saveObject(visObj, filename=None):
         filename = visObj.getProperty('Name') + '.vtp'
 
     filename = os.path.join(getCorlDataDir(),'object-meshes', filename)
-    polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+    polyData = visObj.polyData
+
+    userTransform = visObj.actor.GetUserTransform()
+    if userTransform is not None:
+        polyData = filterUtils.transformPolyData(polyData, visObj.actor.GetUserTransform())
+
     ioUtils.writePolyData(polyData, filename)
+
+def loadCube(subdivisions=30):
+    d = DebugData()
+    dim = np.array([0.11,0.11,0.12])
+    center = np.array([0,0,0])
+    d.addCube(dim, center, subdivisions=subdivisions)
+    polyData = d.getPolyData()
+    visObj = vis.showPolyData(polyData, 'tissue_box_subdivision')
+    print "number of points = ", polyData.GetNumberOfPoints()
+
+    sampledPolyData = segmentation.applyVoxelGrid(polyData, leafSize=0.0001)
+    visObj2 = vis.showPolyData(sampledPolyData, 'voxel grid', color=[0,1,0])
+
+    print "voxel number of points ", sampledPolyData.GetNumberOfPoints()
+    return (visObj, visObj2)

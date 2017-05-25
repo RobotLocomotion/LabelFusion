@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Updating dataset status..."
+
+python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/updateDatasetStatus.py
+
+echo "Done."

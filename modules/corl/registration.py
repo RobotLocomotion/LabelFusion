@@ -405,26 +405,12 @@ class GlobalRegistration(object):
             pose = transformUtils.poseFromTransform(modelToFirstFrame)
             poseAsList = [pose[0].tolist(), pose[1].tolist()]
             d = dict()
-            if objectName in registrationResultDict:
-                d = registrationResultDict[objectName]
-            else:
-                registrationResultDict[objectName] = d
-                d['filename'] = ''
+            meshFilename = affordance.getProperty('Filename')
+            relPathToDataDir = os.path.relpath(meshFilename, CorlUtils.getCorlDataDir())
 
+            d['filename'] = relPathToDataDir
             d['pose'] = poseAsList
-
-        # for objectName, data in self.objectAlignmentResults.iteritems():
-        #     pose = transformUtils.poseFromTransform(data['modelToFirstFrameTransform'])
-        #     poseAsList = [pose[0].tolist(), pose[1].tolist()]
-        #     d = dict()
-        #     if objectName in registrationResultDict:
-        #         d = registrationResultDict[objectName]
-        #     else:
-        #         registrationResultDict[objectName] = d
-        #         d['filename'] = ''
-        #
-        #     d['pose'] = poseAsList
-
+            registrationResultDict[objectName] = d
 
         if filename is None:
             filename = self.pathDict['registrationResult']
@@ -439,12 +425,15 @@ class GlobalRegistration(object):
 
         self.testICP(objectName, scenePointCloud=croppedPointcloud)
 
-    def testICP(self, objectName, scenePointCloud=None):
+    def testICP(self, objectName, scenePointCloud=None, applyVoxelGrid=True):
         print "running ICP"
         visObj = om.findObjectByName(objectName)
         if scenePointCloud is None:
             scenePointCloud = om.findObjectByName('cropped pointcloud').polyData
         modelPointcloud = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+
+        if applyVoxelGrid:
+            modelPointcloud = segmentation.applyVoxelGrid(modelPointcloud, leafSize=0.0005)
 
         sceneToModelTransform = segmentation.applyICP(scenePointCloud, modelPointcloud)
 

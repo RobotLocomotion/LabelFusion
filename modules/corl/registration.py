@@ -425,12 +425,15 @@ class GlobalRegistration(object):
 
         self.testICP(objectName, scenePointCloud=croppedPointcloud)
 
-    def testICP(self, objectName, scenePointCloud=None):
+    def testICP(self, objectName, scenePointCloud=None, applyVoxelGrid=True):
         print "running ICP"
         visObj = om.findObjectByName(objectName)
         if scenePointCloud is None:
             scenePointCloud = om.findObjectByName('cropped pointcloud').polyData
         modelPointcloud = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
+
+        if applyVoxelGrid:
+            modelPointcloud = segmentation.applyVoxelGrid(modelPointcloud, leafSize=0.0005)
 
         sceneToModelTransform = segmentation.applyICP(scenePointCloud, modelPointcloud)
 

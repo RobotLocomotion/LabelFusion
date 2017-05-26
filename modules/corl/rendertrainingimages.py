@@ -156,6 +156,8 @@ class RenderTrainingImages(object):
             filename = data['filename']
             if len(filename) == 0:
                 filename = cutils.getObjectMeshFilename(objName)
+            else:
+                filename = os.path.join(cutils.getCorlDataDir(), filename)
 
             polyData = ioUtils.readPolyData(filename)
             color = vis.getRandomColor()

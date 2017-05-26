@@ -1,6 +1,7 @@
 import os
 import yaml
 import csv
+import re
 
 # Instructions:
 # Run this script from anywhere
@@ -12,25 +13,54 @@ path_to_output   = path_to_spartan + "/src/CorlDev/data/dataset_status.csv"
 
 # folders in /data/logs to track
 
-folders = ["logs", "logs_test", "logs_labeled"]
+folders = ["logs_test", "logs_labeled"]
 
 rows = []
 
 rows.append(["Name", "run_trim", "run_prep", "run_alignment_tool", "run_create_data"])
 
+total_labeled_imgs = 0
+
+color_labels_pattern = re.compile("color_labels.png")
+
+def countNumberColorLabels(fullpath):
+    global total_labeled_imgs
+    counter = 0
+    for filename in sorted(os.listdir(fullpath)):
+        if color_labels_pattern.search(filename) is not None:
+            counter += 1
+            total_labeled_imgs += 1
+    return counter
+
+def readComment(fullpath):
+    yaml_path = fullpath + "/info.yaml"
+    if not os.path.isfile(os.path.join(yaml_path)):
+        return ""
+    f = open(yaml_path)
+    dataMap = yaml.safe_load(f)
+    if "comment" in dataMap:
+        return dataMap["comment"]
+    else:
+        return ""
+
 def checkIfExistsAndAppend(row, fullpath, file_to_check):
     if file_to_check == "images":
         if os.path.isfile(os.path.join(fullpath, "images/0000000001_color_labels.png")):
             row.append("x")
+            row.append("imgs")
+            n = countNumberColorLabels(os.path.join(fullpath, "images"))
+            nstr = '%05d' % n
+            row.append(nstr)
         else:
             row.append("_")
-        return row
+            row.append("imgs")
+            row.append("-----")
+        return
             
     if os.path.isfile(os.path.join(fullpath, file_to_check)):
         row.append("x")
     else:
         row.append("_")
-    return row
 
 for folder in folders:
     print "Now scanning folder: data/" + folder
@@ -50,6 +80,9 @@ for folder in folders:
             checkIfExistsAndAppend(row, fullpath, "reconstructed_pointcloud.vtp")
             checkIfExistsAndAppend(row, fullpath, "registration_result.yaml")
             checkIfExistsAndAppend(row, fullpath, "images")
+            
+            row.append(readComment(fullpath))
+
             rows.append(row)
 
 
@@ -62,3 +95,4 @@ with open(path_to_output, 'wb') as csvfile:
     for row in rows:
         spamwriter.writerow(row)
 
+    spamwriter.writerow(["You have " + str(total_labeled_imgs) + " total labeled imgs"])

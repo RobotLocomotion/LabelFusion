@@ -11,6 +11,7 @@ from director import lcmUtils
 from director import vtkAll as vtk
 
 from corl import objectalignmenttool
+from corl import datacollection
 
 
 def setCameraToWorld(cameraToWorld):
@@ -42,7 +43,7 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
         globalsDict['imageCapture'] = imageCapture
 
     # firstFrameToWorldTransform = vtk.vtkTransform()
-    CorlUtils.loadElasticFustionReconstruction(filenames['reconstruction'], transform=firstFrameToWorldTransform)
+    CorlUtils.loadElasticFusionReconstruction(filenames['reconstruction'], transform=firstFrameToWorldTransform)
 
 
     globalRegistration = registration.GlobalRegistration(globalsDict['view'],
@@ -54,8 +55,24 @@ def setupCorlDirector(affordanceManager, openniDepthPointCloud, logFolder="logs/
     globalsDict['gr'] = globalRegistration # hack for easy access
 
 
-def testStartup(affordanceManager, openniDepthPointCloud, logFolder="logs/moving-camera", globalsDict=None):
+def testStartup(robotSystem, affordanceManager, openniDepthPointCloud, logFolder="logs/moving-camera", globalsDict=None):
     objectData = CorlUtils.getObjectDataYamlFile()
 
     for objectName, data in objectData.iteritems():
         CorlUtils.loadObjectMesh(affordanceManager, objectName, visName=objectName)
+
+def test(globalsDict):
+    robotSystem = globalsDict['robotSystem']
+    openniDepthPointCloud = globalsDict['openniDepthPointCloud']
+    measurementPanel = globalsDict['measurementPanel']
+    imageManager = globalsDict['imageManager']
+
+
+
+    CorlUtils.setupKukaMountedCameraCallback(globalsDict['robotSystem'])
+    dataCollectionHelper = datacollection.DataCollectionHelper(robotSystem, openniDepthPointCloud)
+    globalsDict['dch'] = dataCollectionHelper
+
+    dataCollection = datacollection.DataCollection(robotSystem, openniDepthPointCloud, measurementPanel, imageManager)
+
+    globalsDict['dc'] = dataCollection

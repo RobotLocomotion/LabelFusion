@@ -2,9 +2,11 @@ import os
 import yaml
 import csv
 import re
+import sys
 
 # Instructions:
 # Run this script from anywhere
+# Use "-o" as an arg to record objects in each dataset
 
 # ------------------------------
 path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
@@ -12,15 +14,18 @@ path_to_data     = path_to_spartan + "/src/CorlDev/data"
 path_to_output   = path_to_spartan + "/src/CorlDev/data/dataset_status.csv"
 
 # folders in /data/logs to track
-
 folders = ["logs_test", "logs_labeled"]
 
+# record objects?
+record_objects = False
+if len(sys.argv) > 1:
+    if sys.argv[1] == "-o":
+        record_objects = True
+
+
 rows = []
-
 rows.append(["Name", "run_trim", "run_prep", "run_alignment_tool", "run_create_data"])
-
 total_labeled_imgs = 0
-
 color_labels_pattern = re.compile("color_labels.png")
 
 def countNumberColorLabels(fullpath):
@@ -35,13 +40,24 @@ def countNumberColorLabels(fullpath):
 def readComment(fullpath):
     yaml_path = fullpath + "/info.yaml"
     if not os.path.isfile(os.path.join(yaml_path)):
-        return ""
-    f = open(yaml_path)
-    dataMap = yaml.safe_load(f)
-    if "comment" in dataMap:
-        return dataMap["comment"]
+        comment = " "
     else:
-        return ""
+        f = open(yaml_path)
+        dataMap = yaml.safe_load(f)
+        if "comment" in dataMap:
+            comment = dataMap["comment"]
+        else:
+            comment = " "
+    return comment.ljust(25)[:25]
+
+def recordObjects(fullpath):
+    list_of_objects = []
+    if os.path.isfile(fullpath):
+        f = open(fullpath)
+        dataMap = yaml.safe_load(f)
+        for k in sorted(dataMap):
+            list_of_objects.append(k)
+    return list_of_objects
 
 def checkIfExistsAndAppend(row, fullpath, file_to_check):
     if file_to_check == "images":
@@ -63,7 +79,6 @@ def checkIfExistsAndAppend(row, fullpath, file_to_check):
         row.append("_")
 
 for folder in folders:
-    print "Now scanning folder: data/" + folder
     path_to_folder = path_to_data + "/" + folder 
     rows.append([path_to_folder])
 
@@ -71,10 +86,10 @@ for folder in folders:
         for dir in sorted(dirs):
             fullpath = os.path.join(subdir, dir)
             path_after_data =  os.path.relpath(fullpath, path_to_data)
-            print path_after_data
             
             row = []
-            row.append(path_after_data) # name
+            print_name_length = 23
+            row.append(path_after_data.ljust(print_name_length, "_")[:print_name_length]) # name
 
             checkIfExistsAndAppend(row, fullpath, "trimmed_log.lcmlog")
             checkIfExistsAndAppend(row, fullpath, "reconstructed_pointcloud.vtp")
@@ -82,6 +97,9 @@ for folder in folders:
             checkIfExistsAndAppend(row, fullpath, "images")
             
             row.append(readComment(fullpath))
+
+            if record_objects:
+                row.append(recordObjects(os.path.join(fullpath, "registration_result.yaml")))
 
             rows.append(row)
 
@@ -96,3 +114,5 @@ with open(path_to_output, 'wb') as csvfile:
         spamwriter.writerow(row)
 
     spamwriter.writerow(["You have " + str(total_labeled_imgs) + " total labeled imgs"])
+
+os.system("cat " + path_to_output)

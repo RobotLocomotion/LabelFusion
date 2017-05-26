@@ -52,3 +52,7 @@ tissue_box:
 blue_funnel:
   label: 6
   mesh: object-meshes/blue_funnel.stl
+
+drill:
+  label: 7
+  mesh: object-meshes/handheld-scanner/drill_decimated_mesh.vtp

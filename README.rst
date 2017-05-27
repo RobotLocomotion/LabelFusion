@@ -74,9 +74,12 @@ Navigate to :code:`/SegNet/MovingCamera/`
 
 Copy all the data you want to use (created by :code:`run_create_data` from different datasets) into :code:`./train`
 
-Next remove the color labels (or change the scripts to ignore)::
+Use a different subdirectory inside :code:`/train/` for each log, i.e.:
 
-	cd train && rm *color_labels.png && cd ..
+::
+
+        /train/log-1
+        /train/log-2
 
 Then resize all of the training images to a better size for training::
 

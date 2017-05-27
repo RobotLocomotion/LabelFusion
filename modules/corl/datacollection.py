@@ -15,6 +15,7 @@ from director import lcmframe
 from corl import utils as CorlUtils
 from corl.cameraposes import CameraPoses
 from corl.registration import GlobalRegistrationUtils as GRUtils
+from corl.camerafrustumvisualizer import CameraFrustumVisualizer
 
 
 class DataCollectionHelper(object):
@@ -68,18 +69,36 @@ class DataCollection(object):
         self.imageManager = imageManager
         self.visFolder = om.getOrCreateContainer('data collection')
         self.cameraName = 'OPENNI_FRAME_LEFT'
+        self.savedTransformFilename = os.path.join(CorlUtils.getCorlDataDir(), 'sandbox',
+                                                   'reconstruction_robot_frame.yaml')
+        self.loadSavedData()
+
+    def loadSavedData(self):
+        d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        if 'table frame' not in d:
+            return
+        (pos, quat) = d['table frame']
+        t = transformUtils.transformFromPose(pos, quat)
+        self.tableFrame = vis.updateFrame(t, 'table frame', scale=0.15)
 
     def spawnTableFrame(self):
-        pointOnTable = self.measurementPanel.pickPoints[0]
-        pointAboveTable = self.measurementPanel.pickPoints[1]
+        pointOnCloseTableEdge = self.measurementPanel.pickPoints[0]
+        pointOnTable = self.measurementPanel.pickPoints[1]
+        pointAboveTable = self.measurementPanel.pickPoints[2]
         scenePolyData = self.openniDepthPointCloud.polyData
         d = GRUtils.segmentTable(scenePolyData=scenePolyData, searchRadius=0.3, visualize=False, thickness=0.01, pointOnTable=pointOnTable, pointAboveTable=pointAboveTable)
 
 
         origin = d['pointOnTable']
         normal = d['normal']
-        frame = transformUtils.getTransformFromOriginAndNormal(origin, normal)
-        self.tableFrame = vis.showFrame(frame, 'table frame', parent=self.visFolder, scale=0.1)
+
+
+        yaxis = -normal
+        zaxis = pointOnTable - pointOnCloseTableEdge
+        xaxis = np.cross(yaxis, zaxis)
+        # frame = transformUtils.getTransformFromOriginAndNormal(origin, normal)
+        frame = transformUtils.getTransformFromAxesAndOrigin(xaxis, yaxis, zaxis, origin)
+        self.tableFrame = vis.updateFrame(frame, 'table frame', parent=self.visFolder, scale=0.15)
 
 
     def testCameraFrustrum(self):
@@ -88,66 +107,25 @@ class DataCollection(object):
                                                                self.cameraName,
                                                                frame)
 
-class CameraFrustumVisualizer(object):
+    def makeTestFrame(self, rotateX=-40, rotateY=0, translateZ=-0.8):
+        t = transformUtils.copyFrame(self.tableFrame.transform)
+        t.PreMultiply()
+        t.RotateX(rotateX)
+        t.RotateY(rotateY)
+        t.Translate((0,0,translateZ))
 
-    def __init__(self, imageManager, cameraName, frame,
-                 visFolder=None, name=None):
-        self.cameraName = cameraName
-        self.imageManager = imageManager
-        self.rayLength = 2.0
-        self.frame = frame
+        name = 'frustum test'
+        if om.findObjectByName(name) is None:
+            frame = vis.updateFrame(t, 'test', scale=0.15)
+            cameraFrustum = CameraFrustumVisualizer(self.imageManager, self.cameraName, frame)
+            cameraFrustum.visObj.setProperty('Visible', True)
+        else:
+            frame = vis.updateFrame(t, 'test', scale=0.15)
 
-        if visFolder is None:
-            self.visFolder = om.getOrCreateContainer('camera frustrum')
 
-        if name is None:
-            self.name = self.frame.getProperty('Name') + ' camera frustrum'
+    def saveTableFrame(self):
+        d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        (pos, quat) = transformUtils.poseFromTransform(self.tableFrame.transform)
+        d['table frame'] = [pos.tolist(), quat.tolist()]
+        CorlUtils.saveDictToYaml(d, self.savedTransformFilename)
 
-        self.frame.connectFrameModified(self.update)
-        self.update(self.frame)
-
-    def getCameraFrustumRays(self, cameraToLocal):
-        '''
-        Returns (cameraPositions, rays)
-        cameraPosition is in world frame.
-        rays are four unit length vectors in world frame that point in the
-        direction of the camera frustum edges
-        '''
-
-        cameraPos = np.array(cameraToLocal.GetPosition())
-
-        camRays = []
-        rays = np.array(self.imageManager.queue.getCameraFrustumBounds(self.cameraName))
-        for i in xrange(4):
-            ray = np.array(cameraToLocal.TransformVector(rays[i*3:i*3+3]))
-            ray /= np.linalg.norm(ray)
-            camRays.append(ray)
-
-        return cameraPos, camRays
-
-    def getCameraFrustumGeometry(self, rayLength, cameraToLocal):
-
-        camPos, rays = self.getCameraFrustumRays(cameraToLocal)
-
-        rays = [rayLength*r for r in rays]
-
-        d = DebugData()
-        d.addLine(camPos, camPos+rays[0])
-        d.addLine(camPos, camPos+rays[1])
-        d.addLine(camPos, camPos+rays[2])
-        d.addLine(camPos, camPos+rays[3])
-        d.addLine(camPos+rays[0], camPos+rays[1])
-        d.addLine(camPos+rays[1], camPos+rays[2])
-        d.addLine(camPos+rays[2], camPos+rays[3])
-        d.addLine(camPos+rays[3], camPos+rays[0])
-        return d.getPolyData()
-
-    def update(self, frame):
-        obj = om.findObjectByName(self.name, parent=self.visFolder)
-        frameToLocal = self.frame.transform
-
-        if obj and not obj.getProperty('Visible'):
-            return
-
-        cameraFrustrumGeometry = self.getCameraFrustumGeometry(self.rayLength, frameToLocal)
-        vis.updatePolyData(cameraFrustrumGeometry, self.name, parent=self.visFolder, visible=False)

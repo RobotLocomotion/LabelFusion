@@ -69,10 +69,12 @@ def test(globalsDict):
 
 
 
-    CorlUtils.setupKukaMountedCameraCallback(globalsDict['robotSystem'])
+    CorlUtils.setupKukaMountedCameraCallback(robotSystem)
+    CorlUtils.initRobotTeleopCameraFrame(robotSystem)
     dataCollectionHelper = datacollection.DataCollectionHelper(robotSystem, openniDepthPointCloud)
     globalsDict['dch'] = dataCollectionHelper
 
     dataCollection = datacollection.DataCollection(robotSystem, openniDepthPointCloud, measurementPanel, imageManager)
 
     globalsDict['dc'] = dataCollection
+    dataCollection.testCameraFrustrum()

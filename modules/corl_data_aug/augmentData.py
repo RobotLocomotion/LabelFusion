@@ -1,13 +1,15 @@
 """
 This class implements some data augmentation techniques for SegNet training
+
 TODO: do resizing at the same time as augmentation
+TODO: store labels and images in separate directories so you dont have to do this before putting the data trhough Keras data augmentation
 
 Keras library trasnfromations
 can do all the data transformations at once! More info at - https://keras.io/preprocessing/image/   https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 
 dependancies= PIL, TensorFlow, Keras
 
-seems its also possible to do augmentation on the fly with custom Caffe Training data layer- have not tested it though  https://github.com/NVIDIA/DIGITS/issues/1034
+seems its also possible to do augmentation on the fly with custom Caffe Training data layer- have not tested it though https://github.com/NVIDIA/DIGITS/issues/1034
 
 
 Other basic PIL library transformations to try
@@ -41,8 +43,7 @@ class DataAugmentation(object):
         self.target_size = img_target_size
         self.data_gen_args = params
 
-    #TODO:find workaround for having to move files to 2 tmp directories
-    #figure out naming scheme with keras generator
+   
     def augmentWithKeras(self,log_folder):
         d = CorlUtil.getFilenames(log_folder)
         path_to_img = d["images"]
@@ -59,7 +60,7 @@ class DataAugmentation(object):
             shutil.copy2(label, lab_dir_full_path)
             shutil.copy2(pic, img_dir_full_path)
 
-        self.generateAugmentedImages(img_dir,lab_dir,path_to_img) #note overwrites aug-prefixed pictures in folder
+        self.generateAugmentedImages(img_dir,lab_dir,path_to_img) #note overwrites aug-prefixed images in folder
         shutil.rmtree(lab_dir)
         shutil.rmtree(img_dir)
 
@@ -72,7 +73,7 @@ class DataAugmentation(object):
         # mask_datagen.fit(masks, augment=True, seed=seed)
 
         """
-        typically used as generator for model training in keras. Instead you can hack the generator by iterating over batches and using the save_to_dir param to save augmented_images.
+        next 2 blocks of code are typically used as generator for model training in keras. Instead you can hack the generator by iterating over batches and using the save_to_dir param to save augmented_images.
         """
         i = 0
         num_batches = 20

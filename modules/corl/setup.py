@@ -61,13 +61,11 @@ def testStartup(robotSystem, affordanceManager, openniDepthPointCloud, logFolder
     for objectName, data in objectData.iteritems():
         CorlUtils.loadObjectMesh(affordanceManager, objectName, visName=objectName)
 
-def test(globalsDict):
+def setupDataCollection(globalsDict):
     robotSystem = globalsDict['robotSystem']
     openniDepthPointCloud = globalsDict['openniDepthPointCloud']
     measurementPanel = globalsDict['measurementPanel']
     imageManager = globalsDict['imageManager']
-
-
 
     CorlUtils.setupKukaMountedCameraCallback(robotSystem)
     CorlUtils.initRobotTeleopCameraFrame(robotSystem)
@@ -77,4 +75,5 @@ def test(globalsDict):
     dataCollection = datacollection.DataCollection(robotSystem, openniDepthPointCloud, measurementPanel, imageManager)
 
     globalsDict['dc'] = dataCollection
-    dataCollection.testCameraFrustrum()
+
+

@@ -9,15 +9,18 @@ from director import objectmodel as om
 class CameraFrustumVisualizer(object):
 
     def __init__(self, imageManager, cameraName, frame,
-                 visFolder=None, name=None):
+                 visFolder=None, name=None, verbose=False):
         self.cameraName = cameraName
         self.imageManager = imageManager
         self.rayLength = 2.0
         self.frame = frame
+        self.verbose = verbose
 
+        self.visFolder = visFolder
         if visFolder is None:
             self.visFolder = om.getOrCreateContainer('camera frustrum')
 
+        self.name = name
         if name is None:
             self.name = self.frame.getProperty('Name') + ' camera frustrum'
 
@@ -62,6 +65,9 @@ class CameraFrustumVisualizer(object):
         return d.getPolyData()
 
     def update(self, frame):
+        if self.verbose:
+            print self.name + " modified "
+
         obj = om.findObjectByName(self.name, parent=self.visFolder)
         frameToLocal = self.frame.transform
 

@@ -38,7 +38,7 @@ def initRobotTeleopCameraFrame(robotSystem):
     frameObj = vis.updateFrame(endEffectorToWorld, 'iiwa_link_ee_teleop', parent='debug', scale=0.15, visible=False)
     cameraToEE = getCameraToKukaEndEffectorFrame()
     cameraToWorld = transformUtils.concatenateTransforms([cameraToEE, endEffectorToWorld])
-    obj = vis.updateFrame(cameraToWorld, 'camera frame Teleop', parent=frameObj, scale=0.15, visible=False)
+    obj = vis.updateFrame(cameraToWorld, 'camera frame teleop', parent=frameObj, scale=0.15, visible=False)
     frameObj.getFrameSync().addFrame(obj, ignoreIncoming=True)
 
 

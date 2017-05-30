@@ -9,11 +9,21 @@ from director import filterUtils
 from director import vtkAll as vtk
 from director.debugVis import DebugData
 from director import segmentation
+from director import lcmUtils
+from director import lcmframe
 
-def initRobotKinematicsCameraFrame():
+
+def getCameraToKukaEndEffectorFrame():
+    return transformUtils.frameFromPositionAndRPY([0.1, 0, 0.0], [-90, -22.5, -90])
+
+def setCameraToWorld(cameraToWorld):
+    cameraToWorldMsg = lcmframe.rigidTransformMessageFromFrame(cameraToWorld)
+    lcmUtils.publish('OPENNI_FRAME_LEFT_TO_LOCAL', cameraToWorldMsg)
+
+def initRobotKinematicsCameraFrame(robotSystem):
     endEffectorToWorld = robotSystem.robotStateModel.getLinkFrame('iiwa_link_ee')
     frameObj = vis.updateFrame(endEffectorToWorld, 'iiwa_link_ee', parent='debug', scale=0.15, visible=False)
-    cameraToEE = transformUtils.frameFromPositionAndRPY([0.1,0,0.0], [-90,-22.5,-90])
+    cameraToEE = getCameraToKukaEndEffectorFrame()
     cameraToWorld = transformUtils.concatenateTransforms([cameraToEE, endEffectorToWorld])
     obj = vis.updateFrame(cameraToWorld, 'camera frame', parent=frameObj, scale=0.15)
     frameObj.getFrameSync().addFrame(obj, ignoreIncoming=True)
@@ -22,6 +32,22 @@ def initRobotKinematicsCameraFrame():
         setCameraToWorld(f.transform)
 
     obj.connectFrameModified(onCameraFrameModified)
+
+def initRobotTeleopCameraFrame(robotSystem):
+    endEffectorToWorld = robotSystem.teleopRobotModel.getLinkFrame('iiwa_link_ee')
+    frameObj = vis.updateFrame(endEffectorToWorld, 'iiwa_link_ee_teleop', parent='debug', scale=0.15, visible=False)
+    cameraToEE = getCameraToKukaEndEffectorFrame()
+    cameraToWorld = transformUtils.concatenateTransforms([cameraToEE, endEffectorToWorld])
+    obj = vis.updateFrame(cameraToWorld, 'camera frame teleop', parent=frameObj, scale=0.15, visible=False)
+    frameObj.getFrameSync().addFrame(obj, ignoreIncoming=True)
+
+
+    def updateFrame(model):
+        EEToWorld = model.getLinkFrame('iiwa_link_ee')
+        frameObj = vis.updateFrame(EEToWorld, 'iiwa_link_ee_teleop', parent='debug', scale=0.15, visible=False)
+
+    # setup the callback so it updates when we move the teleop model
+    robotSystem.teleopRobotModel.connectModelChanged(updateFrame)
 
 
 def updateCameraPoseFromRobotKinematics(model):
@@ -181,7 +207,7 @@ def getResultsConfig():
     return evalFileAsString(filename)
 
 
-def loadElasticFustionReconstruction(filename, transform=None):
+def loadElasticFusionReconstruction(filename, transform=None):
     """
     Loads reconstructed pointcloud into director view
     :param filename:
@@ -240,6 +266,10 @@ def initCameraUpdateCallback(obj, publishCameraPoseFunction, filename):
             obj.actor.SetUserTransform(t)
 
     obj.timer.callback = myUpdate
+
+def setupKukaMountedCameraCallback(robotSystem):
+    initRobotKinematicsCameraFrame(robotSystem)
+    robotSystem.robotStateModel.connectModelChanged(updateCameraPoseFromRobotKinematics)
 
 def getFirstFrameToWorldTransform(transformsFile):
     if os.path.isfile(transformsFile):
@@ -343,3 +373,6 @@ def loadCube(subdivisions=30):
 
     print "voxel number of points ", sampledPolyData.GetNumberOfPoints()
     return (visObj, visObj2)
+
+
+

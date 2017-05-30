@@ -18,6 +18,20 @@ In second terminal, :code:`use_spartan` and then:
 
 Your data should now be saved as :code:`lcmlog-*`
 
+Automated Collection with Kuka Arm
+----------------------------------
+Same as above but we will use the kuka arm to move the xtion around. Set :code:`useCorlDev = True` in :code:`iiwaManipApp.py`. This launches director with :code:`dc = DataCollection` object constructed.
+
+- Spawning a table frame. With the measurement panel activated make three clicks in openni point cloud. First on front edge of table, second in middle of table in a direction perpendicular to the front edge, the third should be above the able. Then :code:`dc.spawnTableFrame()`.
+
+- Next make the target frames for the planner. The relevant parameters are in :code:`config/data_collection.yaml`. Use :code:`dc.makeTargetCameraFrames()`.
+
+- Construct a :code:`DataCollectionPlanRunner` object by using `planRunner = dc.makePlanRunner()`.
+
+- Start your lcm log.
+
+- :code:`planRunner.start()` to start the plan runner. It will make (and commit) plans to hit all the frames.
+
 2. Trim RGBD data and prepare for processing scripts.
 -----------------------------------------------------
 

@@ -681,6 +681,70 @@ class GlobalRegistrationUtils(object):
 
         return FieldContainer(points=pd, box=wireframe, frame=t, dims=edgeLengths, axes=axes)
 
+    @staticmethod
+    def segmentTable(scenePolyData=None, searchRadius=0.3, visualize=True,
+                     thickness=0.01, pointOnTable=None, pointAboveTable=None,
+                     computeAboveTablePolyData=False):
+        """
+        This requires two clicks using measurement panel. One on the table, one above the table on one of the objects. Call them point0, point1. Then we will attempt to fit a plane that passes through point0 with approximate normal point1 - point0
+        :param scenePolyData:
+        :param searchRadius:
+        :return:
+        """
+
+        if scenePolyData is None:
+            scenePolyData = om.findObjectByName('reconstruction').polyData
+
+
+        assert scenePolyData is not None
+        assert pointOnTable is not None
+        assert pointAboveTable is not None
+
+
+        expectedNormal= pointAboveTable - pointOnTable
+        expectedNormal = expectedNormal/np.linalg.norm(expectedNormal)
+
+        polyData, normal = segmentation.applyPlaneFit(scenePolyData, searchOrigin=pointOnTable, searchRadius=searchRadius, expectedNormal=expectedNormal)
+
+
+        # get points above plane
+        abovePolyData = None
+        belowPolyData = None
+        if computeAboveTablePolyData:
+            abovePolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [thickness / 2.0, np.inf])
+            belowPolyData = filterUtils.thresholdPoints(polyData, 'dist_to_plane', [-np.inf, -thickness / 2.0])
+
+
+        # some debugging visualization
+        if visualize:
+            visFolder = om.getOrCreateContainer('debug')
+
+            if abovePolyData is not None:
+                vis.showPolyData(abovePolyData, 'above table segmentation', color=[0, 1, 0],
+                             parent=visFolder)
+            arrowLength = 0.3
+            headRadius = 0.02
+            d = DebugData()
+            visFolder = om.getOrCreateContainer('debug')
+            d.addArrow(pointOnTable, pointOnTable + arrowLength*expectedNormal,
+                       headRadius=headRadius)
+            vis.showPolyData(d.getPolyData(), 'expected normal', color=[1, 0, 0],
+                             parent=visFolder)
+
+            d = DebugData()
+            d.addArrow(pointOnTable, pointOnTable + arrowLength * normal,
+                       headRadius=headRadius)
+            vis.showPolyData(d.getPolyData(), 'computed normal', color=[0, 1, 0],
+                             parent=visFolder)
+
+
+        returnData = dict()
+        returnData['abovePolyData'] = abovePolyData
+        returnData['polyData'] = polyData
+        returnData['normal'] = normal
+        returnData['pointOnTable'] = pointOnTable
+        return returnData
+
 
 
 class Super4PCS(object):

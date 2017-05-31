@@ -5,6 +5,7 @@ echo "Creating training images from alignment..."
 current_dir=${PWD##*/}
 cd ..
 up_dir=${PWD##*/}
+cd $current_dir
 
 echo "First extracting images..."
 

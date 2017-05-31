@@ -13,6 +13,7 @@ from director import objectmodel as om
 
 from corl import utils as cutils
 import scipy.misc
+import matplotlib.cm as cm
 
 
 class RenderTrainingImages(object):
@@ -25,6 +26,7 @@ class RenderTrainingImages(object):
         self.viewOptions = viewOptions
         self.pathDict = pathDict
         self.storedColors = {}
+        self.colors = cm.nipy_spectral(np.linspace(0, 1, 12))
         self.objectToWorld = dict()
         self.initialize()
 
@@ -145,6 +147,9 @@ class RenderTrainingImages(object):
         (pos, quat) = self.poses[idx]
         return transformUtils.transformFromPose(pos, quat)
 
+    def getColorFromIndex(self, objName):
+        objLabel = cutils.getObjectLabel(objName)
+        return self.colors[objLabel][:3]
 
     def loadObjectMeshes(self):
         stream = file(self.pathDict['registrationResult'])
@@ -160,7 +165,7 @@ class RenderTrainingImages(object):
                 filename = os.path.join(cutils.getCorlDataDir(), filename)
 
             polyData = ioUtils.readPolyData(filename)
-            color = vis.getRandomColor()
+            color = self.getColorFromIndex(objName)
             obj = vis.showPolyData(polyData, name=objName, parent=folder, color=color)
             self.storedColors[objName] = color
 

@@ -35,6 +35,9 @@ class DataCollectionHelper(object):
     def loadData(self):
         logFolder = 'logs_test/moving-camera'
         self.pathDict = CorlUtils.getFilenames(logFolder)
+        if self.pathDict is None:
+            return
+
         self.cameraPoses = CameraPoses(self.pathDict['cameraPoses'])
 
 
@@ -82,6 +85,9 @@ class DataCollection(object):
         self.setupDevTools()
 
     def loadSavedData(self):
+        if not os.path.exists(self.savedTransformFilename):
+            return
+
         d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
         if 'table frame' not in d:
             return
@@ -232,9 +238,9 @@ class DataCollection(object):
         self.frustumVis['teleop'] = teleopCameraFrameFrustumVis
 
         self.testCameraFrustrum()
-        self.makeTargetCameraFrames()
+        # self.makeTargetCameraFrames()
     def runIK(self, targetFrame, startPose=None, graspToHandLinkFrame=None,
-              makePlan=True, positionTolerance=0.0, angleToleranceInDegrees=0.0,
+              makePlan=True, positionTolerance=0.0, angleToleranceInDegrees=5.0,
               maxDegreesPerSecond=60):
         """
         Sets the cameraFrame to the targetFrame using IK
@@ -317,7 +323,7 @@ class DataCollectionPlanRunner(object):
     def __init__(self, dataCollection, robotSystem, targetFrames, configFilename=None):
         self.robotSystem = robotSystem
         self.dataCollection = dataCollection
-        self.timer = TimerCallback(targetFps=2)
+        self.timer = TimerCallback(targetFps=5)
         self.timer.callback = self.callback
         self.targetFrames = targetFrames
         self.counter = 0
@@ -379,7 +385,7 @@ class DataCollectionPlanRunner(object):
         print "committed a new plan"
         self.robotSystem.manipPlanner.commitManipPlan(self.planData['plan'])
         planDuration = self.planData['plan'].plan[-1].utime
-        self.planData['endUTime'] = self.getUtime() + 1.2*planDuration
+        self.planData['endUTime'] = self.getUtime() + 1.1*planDuration
         self.counter += 1
 
 

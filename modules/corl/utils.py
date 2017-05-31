@@ -292,6 +292,9 @@ def getFilenames(logFolder):
     d = dict()
     d['info'] = os.path.join(getCorlDataDir(), logFolder, "info.yaml")
 
+    if not os.path.exists(d['info']):
+        return None
+
     stream = file(d['info'])
     infoYaml = yaml.load(stream)
 

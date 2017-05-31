@@ -48,7 +48,7 @@ os.system("mv " + lcmlog_filename + ".posegraph posegraph.posegraph")
 # install ply if do not already have it
 path_to_ply = path_to_spartan + "/src/CorlDev/src/ply"
 if not (os.path.isdir(path_to_ply)):
- 	os.system("cd " + path_to_ply + "../ && mkdir src && cd src && git clone https://github.com/peteflorence/ply.git")	
+ 	os.system("cd " + path_to_spartan + "/src/CorlDev && mkdir src && cd src && git clone https://github.com/peteflorence/ply.git")	
  	os.system("cd " + path_to_ply + " && make")	
 
 ply_binary_filename = lcmlog_filename + ".ply"

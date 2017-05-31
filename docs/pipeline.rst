@@ -20,6 +20,14 @@ Your data should now be saved as :code:`lcmlog-*`
 
 Automated Collection with Kuka Arm
 ----------------------------------
+
+Automated arm setup
+
+- :code:`kuka_iiwa_procman`
+- Ctrl+R on vision-drivers --> openni-driver (unplug-replug if not working)
+- double click on kuka-driver and edit command to be: :code:`kuka_driver -fri_port 30201` (or different port) 
+- start :code:`iiwa-drivers` group
+
 Same as above but we will use the kuka arm to move the xtion around. Set :code:`useCorlDev = True` in :code:`iiwaManipApp.py`. This launches director with :code:`dc = DataCollection` object constructed.
 
 - Spawning a table frame. With the measurement panel activated make three clicks in openni point cloud. First on front edge of table, second in middle of table in a direction perpendicular to the front edge, the third should be above the able. Then :code:`dc.spawnTableFrame()`.

@@ -35,11 +35,19 @@ labelToCount = dict(zip(labels, counts))
 print 'num unique labels:', len(labels)
 print 'labels:', labels
 
+num_pixels_per_class = np.array([])
+
 for i in xrange(0, img.max()+1):
-    print 'class %d: %d pixels' % (i, labelToCount.get(i, 0))
+	num_pixels = labelToCount.get(i, 0)
+	print 'class %d: %d pixels' % (i, num_pixels)
+	num_pixels_per_class = np.append(num_pixels_per_class, num_pixels)
 
+print 'median frequency labeling:'
+median_frequency = np.median(num_pixels_per_class)
+for i in xrange(0, img.max()+1):
+	print 'class_weighting:', median_frequency/num_pixels_per_class[i]
 
-execfile(os.environ['PYTHONSTARTUP'])
+#execfile(os.environ['PYTHONSTARTUP'])
 
 
 # plot

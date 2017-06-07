@@ -27,7 +27,7 @@ the scripts.
 Director
 --------
 
-Checkout the branch :code:`corl-master` from the repository :code:`github.com/manuelli/director.git`. This will serve as our internal director branch. The idea is that these changes will make their way back to director/master eventually, but that process shouldn't slow down our workflow.
+Checkout the branch :code:`pf/corl-master` from the repository :code:`github.com/peteflorence/director.git`. This will serve as our internal director branch. The idea is that these changes will make their way back to director/master eventually, but that process shouldn't slow down our workflow.
 
 
 ElasticFusion

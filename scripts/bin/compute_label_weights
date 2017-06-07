@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Call this script from within /train directory
+
+echo "Computing label weights..."
+
+python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/computeLabelWeights.py
+
+echo "Done."

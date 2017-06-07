@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('-debugCorl', action='store_true')
     args = parser.parse_args()
 
-    app = mainwindowapp.construct()
+    app = mainwindowapp.construct(disable_anti_alias=True)
     app.view.setParent(None)
     app.view.show()
 

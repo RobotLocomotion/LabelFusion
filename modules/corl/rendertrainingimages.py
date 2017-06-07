@@ -195,19 +195,22 @@ class RenderTrainingImages(object):
         cameraPose = om.findObjectByName('camera pose')
         cameraPose.setProperty('Visible', False)
 
+        self.view.renderWindow().SetMultiSamples(0)
         self.loadBackgroundImage(imageFilename)
 
+        self.view.renderWindow().SetMultiSamples(0)
         self.view.forceRender() # render it again
+        self.view.renderWindow().SetMultiSamples(0)
 
         if saveLabeledImages:
             self.saveImages(baseName)
 
         if savePoses:
-            self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"))
+            self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"), cameraToCameraStart)
 
         return True
 
-    def saveObjectPoses(self, imageFilename):
+    def saveObjectPoses(self, imageFilename, cameraToCameraStart):
         # count pixels
         img = scipy.misc.imread(imageFilename)
         assert img.dtype == np.uint8
@@ -228,6 +231,23 @@ class RenderTrainingImages(object):
             num_pixels_per_class = np.append(num_pixels_per_class, num_pixels)
 
         # iterate through each class with 1 or more pixel and save pose...
+        for index, val in enumerate(num_pixels_per_class):
+            if index == 0:
+                # don't save for background class
+                continue 
+            if val > 0:
+                print index, "has some pixels"
+
+                cameraStartToCamera = cameraToCameraStart.GetLinearInverse()
+
+                objectName = cutils.getObjectName(index)
+
+                print self.objectToWorld
+
+                objToCameraStart = self.objectToWorld[objectName]
+
+                objToCamera = transformUtils.concatenateTransforms([objToCameraStart, cameraStartToCamera])
+ 
 
 
     def renderAndSaveLabeledImages(self):

@@ -51,13 +51,13 @@ After running through all scripts, the following files and directories will be c
 			info.yaml
 			original_log.lcmlog
 			trimmed_log.lcmlog         # if trimmed
-			images/
+			images/                    
 				..._rgb.png
 				..._color_labels.png
 				..._labels.png
 				..._utime.txt
 				..._poses.yaml
-			resized_images/
+			resized_images/            # downsized to 480 x 360 for training
 				..._rgb.png
 				..._labels.png
 			above_table_pointcloud.vtp
@@ -83,7 +83,7 @@ The :code:`dataset_update_status` script will look for the existence of the foll
 	run_prep           - check for reconstructed_pointcloud.vtp
 	run_alignment_tool - check for registration_result.yaml
 	run_create_data    - check for images/0000000001_color_labels.png
-	run_resize`        - check for resize_images/0000000001_labels.png
+	run_resize         - check for resize_images/0000000001_labels.png
 
 The script creates :code:`dataset_status.csv` and will :code:`cat` the output in terminal, for example:
 

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Running resize of images..."
+
+python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/resizeImages.py
+
+echo "Done."

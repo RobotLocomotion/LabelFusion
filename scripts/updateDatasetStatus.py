@@ -14,7 +14,7 @@ path_to_data     = path_to_spartan + "/src/CorlDev/data"
 path_to_output   = path_to_spartan + "/src/CorlDev/data/dataset_status.csv"
 
 # folders in /data/logs to track
-folders = ["logs_test", "logs_labeled"]
+folders = ["logs_test", "logs_stable", "logs_archive"]
 
 # record objects?
 record_objects = False
@@ -63,6 +63,12 @@ def checkIfExistsAndAppend(row, fullpath, file_to_check):
     if file_to_check == "images":
         if os.path.isfile(os.path.join(fullpath, "images/0000000001_color_labels.png")):
             row.append("x")
+        else:
+            row.append("_")
+        return
+    if file_to_check == "resized_images":
+        if os.path.isfile(os.path.join(fullpath, "resized_images/0000000001_labels.png")):
+            row.append("x")
             row.append("imgs")
             n = countNumberColorLabels(os.path.join(fullpath, "images"))
             nstr = '%05d' % n
@@ -95,6 +101,7 @@ for folder in folders:
             checkIfExistsAndAppend(row, fullpath, "reconstructed_pointcloud.vtp")
             checkIfExistsAndAppend(row, fullpath, "registration_result.yaml")
             checkIfExistsAndAppend(row, fullpath, "images")
+            checkIfExistsAndAppend(row, fullpath, "resized_images")
             
             row.append(readComment(fullpath))
 
@@ -113,6 +120,6 @@ with open(path_to_output, 'wb') as csvfile:
     for row in rows:
         spamwriter.writerow(row)
 
-    spamwriter.writerow(["You have " + str(total_labeled_imgs) + " total labeled imgs"])
+    spamwriter.writerow(["You have " + str(total_labeled_imgs) + " total labeled imgs ready for training"])
 
 os.system("cat " + path_to_output)

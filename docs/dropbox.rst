@@ -85,6 +85,12 @@ The :code:`dataset_update_status` script will look for the existence of the foll
 	run_create_data    - check for images/0000000001_color_labels.png
 	run_resize         - check for resize_images/0000000001_labels.png
 
+
+Note:
+
+- The script checks for each of these and writes a :code:`x` or :code:`_` for each of these 5 steps.
+- The number of images is also counted and displayed.
+
 The script creates :code:`dataset_status.csv` and will :code:`cat` the output in terminal, for example:
 
 :code:`dataset_update_status`
@@ -118,3 +124,4 @@ Passing the :code:`-o` arg will check for the existence of objects in each log:
 	logs_test/2017-05-04-07 x x x _ imgs ----- |                         | |['phone', 'robot']|
 	logs_test/2017-05-25-00 _ _ _ _ imgs ----- |                         | []
 	logs_test/2017-05-25-01 x x x _ imgs ----- |ready for alignment      | |['oil_bottle', 'phone']|
+

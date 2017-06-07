@@ -206,11 +206,11 @@ class RenderTrainingImages(object):
             self.saveImages(baseName)
 
         if savePoses:
-            self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"), cameraToCameraStart)
+            self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"), cameraToCameraStart, baseName)
 
         return True
 
-    def saveObjectPoses(self, imageFilename, cameraToCameraStart):
+    def saveObjectPoses(self, imageFilename, cameraToCameraStart, baseName):
         # count pixels
         img = scipy.misc.imread(imageFilename)
         assert img.dtype == np.uint8
@@ -230,26 +230,30 @@ class RenderTrainingImages(object):
             print 'class %d: %d pixels' % (i, num_pixels)
             num_pixels_per_class = np.append(num_pixels_per_class, num_pixels)
 
+        pose_file_name = baseName + "_poses.yaml"
+        target = open(pose_file_name, 'w')
+
         # iterate through each class with 1 or more pixel and save pose...
         for index, val in enumerate(num_pixels_per_class):
             if index == 0:
                 # don't save for background class
                 continue 
             if val > 0:
-                print index, "has some pixels"
-
                 cameraStartToCamera = cameraToCameraStart.GetLinearInverse()
-
                 objectName = cutils.getObjectName(index)
-
-                print self.objectToWorld
-
+                target.write(objectName + ":")
+                target.write("\n")
+                target.write("  num_pixels: " + str(val))
+                target.write("\n")
                 objToCameraStart = self.objectToWorld[objectName]
-
                 objToCamera = transformUtils.concatenateTransforms([objToCameraStart, cameraStartToCamera])
- 
+                pose = transformUtils.poseFromTransform(objToCamera)
+                poseAsList = [pose[0].tolist(), pose[1].tolist()]
+                target.write("  pose: " + str(poseAsList))
+                target.write("\n")
 
-
+        target.close()
+                
     def renderAndSaveLabeledImages(self):
         imageNumber = 1
         while(self.setupImage(imageNumber, saveLabeledImages=True, savePoses=True)):

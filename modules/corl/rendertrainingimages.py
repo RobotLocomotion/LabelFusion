@@ -173,7 +173,7 @@ class RenderTrainingImages(object):
             self.objectToWorld[objName] = objToWorld
             obj.actor.SetUserTransform(objToWorld)
 
-    def setupImage(self, imageNumber, saveLabeledImages=False):
+    def setupImage(self, imageNumber, saveLabeledImages=False, savePoses=False):
         """
         Loads the given imageNumber as background.
         Also updates the poses of the objects to match the image
@@ -196,17 +196,43 @@ class RenderTrainingImages(object):
         cameraPose.setProperty('Visible', False)
 
         self.loadBackgroundImage(imageFilename)
+
         self.view.forceRender() # render it again
 
         if saveLabeledImages:
             self.saveImages(baseName)
 
+        if savePoses:
+            self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"))
+
         return True
+
+    def saveObjectPoses(self, imageFilename):
+        # count pixels
+        img = scipy.misc.imread(imageFilename)
+        assert img.dtype == np.uint8
+        
+        if img.ndim in  (3, 4):
+            img = img[:,:,0]
+        else:
+            assert img.ndim == 2
+
+        labels, counts = np.unique(img, return_counts=True)
+        labelToCount = dict(zip(labels, counts))
+
+        num_pixels_per_class = np.array([])
+
+        for i in xrange(0, img.max()+1):
+            num_pixels = labelToCount.get(i, 0)
+            print 'class %d: %d pixels' % (i, num_pixels)
+            num_pixels_per_class = np.append(num_pixels_per_class, num_pixels)
+
+        # iterate through each class with 1 or more pixel and save pose...
 
 
     def renderAndSaveLabeledImages(self):
         imageNumber = 1
-        while(self.setupImage(imageNumber, saveLabeledImages=True)):
+        while(self.setupImage(imageNumber, saveLabeledImages=True, savePoses=True)):
             imageNumber += 1
 
 

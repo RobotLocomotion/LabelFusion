@@ -186,13 +186,10 @@ def getObjectName(objectLabel):
     """
     for objectName in objectData:
         if objectData[objectName]['label'] == objectLabel:
-            print "returning objectName " + objectName + " for label " + str(objectLabel)
             return objectName
 
     raise ValueError('there is no data for objectLabel: ' + str(objectLabel))
     
-
-
 def convertImageIDToPaddedString(n, numCharacters=10):
     """
     Converts the integer n to a padded string with leading zeros

@@ -227,11 +227,11 @@ class RenderTrainingImages(object):
 
         for i in xrange(0, img.max()+1):
             num_pixels = labelToCount.get(i, 0)
-            print 'class %d: %d pixels' % (i, num_pixels)
             num_pixels_per_class = np.append(num_pixels_per_class, num_pixels)
 
         pose_file_name = baseName + "_poses.yaml"
         target = open(pose_file_name, 'w')
+        print 'writing:', pose_file_name
 
         # iterate through each class with 1 or more pixel and save pose...
         for index, val in enumerate(num_pixels_per_class):

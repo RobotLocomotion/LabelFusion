@@ -1,0 +1,19 @@
+#!/bin/bash
+
+num_logs=$(ls 2>/dev/null -Ub1 -- *lcmlog* | wc -l)
+
+echo "Found this many *lcmlogs: " $num_logs
+
+if (($num_logs > 1)); then
+	echo "I was only expecting 1 lcmlog to start.  I found " $num_logs " files in this folder. Quitting."
+	exit 1
+fi
+
+echo "Renaming to original_log.lcmlog"
+mv *lcmlog* original_log.lcmlog
+
+echo "creating info.yaml with original_log.lcmlog as lcmlog name"
+touch info.yaml
+echo "lcmlog: original_log.lcmlog" > info.yaml
+
+echo "Done."

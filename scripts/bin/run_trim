@@ -35,8 +35,6 @@ echo "creating info.yaml with trimmed_log.lcmlog as lcmlog name"
 touch info.yaml
 echo "lcmlog: trimmed_log.lcmlog" > info.yaml
 
-echo "remember to add which objects you're using to info.yaml"
-
 kill $p1
 kill $p2
 rm *.jlp

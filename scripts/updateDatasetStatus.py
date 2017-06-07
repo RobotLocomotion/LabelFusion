@@ -91,7 +91,7 @@ for folder in folders:
             print_name_length = 23
             row.append(path_after_data.ljust(print_name_length, "_")[:print_name_length]) # name
 
-            checkIfExistsAndAppend(row, fullpath, "trimmed_log.lcmlog")
+            checkIfExistsAndAppend(row, fullpath, "info.yaml")
             checkIfExistsAndAppend(row, fullpath, "reconstructed_pointcloud.vtp")
             checkIfExistsAndAppend(row, fullpath, "registration_result.yaml")
             checkIfExistsAndAppend(row, fullpath, "images")

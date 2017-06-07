@@ -24,7 +24,7 @@ if len(sys.argv) > 1:
 
 
 rows = []
-rows.append(["Name", "run_trim", "run_prep", "run_alignment_tool", "run_create_data"])
+rows.append(["Name", "run_trim", "run_prep", "run_alignment_tool", "run_create_data", "run_reszie"])
 total_labeled_imgs = 0
 color_labels_pattern = re.compile("color_labels.png")
 

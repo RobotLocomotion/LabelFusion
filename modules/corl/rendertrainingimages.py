@@ -243,6 +243,8 @@ class RenderTrainingImages(object):
                 objectName = cutils.getObjectName(index)
                 target.write(objectName + ":")
                 target.write("\n")
+                target.write("  label: " + str(index))
+                target.write("\n")
                 target.write("  num_pixels: " + str(val))
                 target.write("\n")
                 objToCameraStart = self.objectToWorld[objectName]

@@ -13,9 +13,17 @@ from director import drcargs
 from director import mainwindowapp
 import corl.utils
 from corl.rendertrainingimages import RenderTrainingImages
-
+import os
 
 if __name__ == '__main__':
+    print os.getcwd()
+    if os.path.isfile(os.path.join(os.getcwd(), "images/0000000001_labels.png")):
+        print ""
+        print "Already made labels? Skipping..."
+        print "To re-extract, either move or delete ./images/"
+        print ""
+        quit()
+
     parser = drcargs.getGlobalArgParser().getParser()
     parser.add_argument('--logFolder', type=str, dest='logFolder',
                         help='location of top level folder for this log, relative to CorlDev/data')

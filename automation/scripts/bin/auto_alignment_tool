@@ -1,41 +1,7 @@
 #!/bin/bash
 
-num_logs=$(ls 2>/dev/null -Ub1 -- *lcmlog* | wc -l)
+echo "Auto find what to run_alignment_tool on..."
 
-echo "Found this many *lcmlogs: " $num_logs
+python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoAlignmentTool.py
 
-if (($num_logs > 1)); then
-	echo "I was only expecting 1 lcmlog to start.  I found " $num_logs " files in this folder. Quitting."
-	exit 1
-fi
-
-echo "Renaming to original_log.lcmlog"
-mv *lcmlog* original_log.lcmlog
-
-echo "Opening log player..."
-lcm-logplayer-gui original_log.lcmlog & p1=$!
-
-echo "Opening viewer"
-cd $SPARTAN_SOURCE_DIR/apps/iiwa &&
-directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud & p2=$!
-
-sleep 1.0
-
-echo "Enter start of trim (in seconds): "
-read input_variable
-start=$input_variable
-echo "Enter end of trim (in seconds): "
-read input_variable
-end=$input_variable
-
-echo "trimming from " $start " to " $end
-bot-lcm-logfilter -s $start -e $end original_log.lcmlog trimmed_log.lcmlog
-
-echo "creating info.yaml with trimmed_log.lcmlog as lcmlog name"
-touch info.yaml
-echo "lcmlog: trimmed_log.lcmlog" > info.yaml
-
-kill $p1
-kill $p2
-rm *.jlp
 echo "Done."

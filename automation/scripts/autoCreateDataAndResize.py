@@ -20,9 +20,10 @@ path_to_job_folder = ""
 
 for folder in folders:
     path_to_folder = path_to_data + "/" + folder 
-    progress_file_fullpath = os.path.join(path_to_folder, "auto_alignment_tool_in_progress.txt")
+    progress_file_fullpath = os.path.join(path_to_folder, "auto_create_data_and_resize_in_progress.txt")
 
     if os.path.isfile(progress_file_fullpath):               # check wip condition
+        print "exit wip"
     	break
 
     for subdir, dirs, files in os.walk(path_to_folder):
@@ -30,10 +31,13 @@ for folder in folders:
           
             fullpath = os.path.join(subdir, dir)
 
-            if not os.path.isfile(os.path.join(fullpath,"reconstructed_pointcloud.vtp")):	 # check pre condition
-            	continue
+            if not os.path.isfile(os.path.join(fullpath, "registration_result.yaml")):	       # check pre condition
+            	print "exit pre"
+                print fullpath
+                continue
 
-            if os.path.isfile(os.path.join(fullpath, "registration_result.yaml")):      # check post condition
+            if os.path.isfile(os.path.join(fullpath, "resized_images/0000000001_labels.png")): # check post condition
+                print "exit post"
             	continue
 
             path_to_job_folder = fullpath
@@ -48,5 +52,6 @@ if path_to_job_folder == "":
 print "Found a job! in ", path_to_job_folder
 
 os.system("touch " + progress_file_fullpath)              # mark as wip
-os.system("cd " + path_to_job_folder + " && run_alignment_tool")
+os.system("cd " + path_to_job_folder + " && run_create_data")
+os.system("cd " + path_to_job_folder + " && run_resize")
 os.system("rm " + progress_file_fullpath)                 # delete wip

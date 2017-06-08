@@ -51,8 +51,8 @@ Options:
 	- deletes :code:`./auto_create_data_and_resize_in_progress.txt`
 
 
-3. Setting up cronjob
----------------------
+3. Setting up cronjobs
+----------------------
 
 To automatically run one of these scripts, set up a cronjob with
 

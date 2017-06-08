@@ -26,7 +26,7 @@ if len(sys.argv) > 1:
 rows = []
 rows.append(["Name", "run_trim", "run_prep", "run_alignment_tool", "run_create_data", "run_reszie"])
 total_labeled_imgs = 0
-color_labels_pattern = re.compile("color_labels.png")
+color_labels_pattern = re.compile("_labels.png")
 
 def countNumberColorLabels(fullpath):
     global total_labeled_imgs
@@ -70,7 +70,7 @@ def checkIfExistsAndAppend(row, fullpath, file_to_check):
         if os.path.isfile(os.path.join(fullpath, "resized_images/0000000001_labels.png")):
             row.append("x")
             row.append("imgs")
-            n = countNumberColorLabels(os.path.join(fullpath, "images"))
+            n = countNumberColorLabels(os.path.join(fullpath, "resized_images"))
             nstr = '%05d' % n
             row.append(nstr)
         else:

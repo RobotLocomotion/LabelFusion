@@ -27,25 +27,25 @@ Options:
 
 - :code:`auto_no_trim_prep`
 	- checks for any folders in :code:`logs_test` which meet:
-		- pre:  :code:`./log/*lcmlog*` exists
-		- wip:  :code:`./auto_no_trim_prep_in_progress.txt` doesn't exist
-		- done: :code:`./log/original_log.lcmlog` doesn't exist
+		- pre:  :code:`./logs_test/log/*lcmlog*` exists
+		- wip:  :code:`./logs_test/auto_no_trim_prep_in_progress.txt` doesn't exist
+		- done: :code:`./logs_test/log/original_log.lcmlog` doesn't exist
 	- creates :code:`./auto_no_trim_prep_in_progress.txt`
 	- does    :code:`run_no_trim` and :code:`run_prep` for the first log found that meets this condition
 	- deletes :code:`./auto_no_trim_prep_in_progress.txt`
 - :code:`auto_alignment_tool`
 	- checks for any folders in :code:`logs_test` which meet:
-		- pre: :code:`./log/reconstructed_pointcloud.vtp` exists
-		- wip: :code:`./auto_no_trim_prep_in_progress.txt` doesn't exist
-		- done: :code:`./log/registration_results.yaml` doesn't exist
+		- pre:  :code:`./logs_test/log/reconstructed_pointcloud.vtp` exists
+		- wip:  :code:`./logs_test/auto_no_trim_prep_in_progress.txt` doesn't exist
+		- done: :code:`./logs_test/log/registration_results.yaml` doesn't exist
 	- creates :code:`./auto_alignemnt_tool_in_progress.txt`
 	- opens   :code:`run_alignment_tool` for the first log found that meets this condition
 	- deletes :code:`./auto_alignemnt_tool_in_progress.txt`
 - :code:`auto_create_data_and_resize`
 	- checks for any folders in :code:`logs_test` which meet:
-		- pre: :code:`./log/registration_results.yaml` exists
-		- wip: :code:`./auto_create_data_and_resize_in_progress.txt` doesn't exist
-		- done: :code:`./log/resized_images` doesn't exist
+		- pre:  :code:`./logs_test/log/registration_results.yaml` exists
+		- wip:  :code:`./logs_test/auto_create_data_and_resize_in_progress.txt` doesn't exist
+		- done: :code:`./logs_test/log/resized_images` doesn't exist
 	- creates :code:`./auto_create_data_and_resize_in_progress.txt`
 	- does    :code:`run_create_data` and :code:`run_resize` for the first log found that meets this condition
 	- deletes :code:`./auto_create_data_and_resize_in_progress.txt`

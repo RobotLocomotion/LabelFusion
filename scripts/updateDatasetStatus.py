@@ -14,7 +14,7 @@ path_to_data     = path_to_spartan + "/src/CorlDev/data"
 path_to_output   = path_to_spartan + "/src/CorlDev/data/dataset_status.csv"
 
 # folders in /data/logs to track
-folders = ["logs_test", "logs_stable", "logs_archive"]
+folders = ["logs_test", "logs_stable", "logs_arch"]
 
 # record objects?
 record_objects = False

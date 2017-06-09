@@ -199,14 +199,9 @@ class RenderTrainingImages(object):
         cameraPose = om.findObjectByName('camera pose')
         cameraPose.setProperty('Visible', False)
 
-        self.view.renderWindow().SetMultiSamples(0)
-        self.loadBackgroundImage(imageFilename)
-
-        self.view.renderWindow().SetMultiSamples(0)
-        self.view.forceRender() # render it again
-        self.view.renderWindow().SetMultiSamples(0)
-
         if saveColorLabeledImages:
+            self.loadBackgroundImage(imageFilename)
+            self.view.forceRender() # render it again
             self.captureColorImage(baseName + '_color_labels.png')
 
         if saveLabeledImages:

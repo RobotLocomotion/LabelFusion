@@ -11,35 +11,35 @@ frames:
     rotateY:
       min: -30
       max: 30
-    translateZ: -0.9
+    translateZ: -1.0
     numFrames: 6
 
   - rotateX: -30
     rotateY:
       min: -30
       max: 30
-    translateZ: -0.9
+    translateZ: -1.0
     numFrames: 6
 
   - rotateX: -25
     rotateY:
       min: -30
       max: 30
-    translateZ: -0.9
+    translateZ: -1.0
     numFrames: 6
 
   - rotateX: -20
     rotateY:
       min: -30
       max: 30
-    translateZ: -0.9
+    translateZ: -1.0
     numFrames: 6
 
   - rotateX: -15
     rotateY:
       min: -30
       max: 30
-    translateZ: -0.8
+    translateZ: -0.9
     numFrames: 6
 
 

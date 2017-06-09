@@ -174,7 +174,7 @@ class RenderTrainingImages(object):
             self.objectToWorld[objName] = objToWorld
             obj.actor.SetUserTransform(objToWorld)
 
-    def setupImage(self, imageNumber, saveLabeledImages=False, savePoses=False):
+    def setupImage(self, imageNumber, saveColorLabeledImages=False, saveLabeledImages=False, savePoses=False):
         time1 = time.time()
 
 
@@ -206,8 +206,11 @@ class RenderTrainingImages(object):
         self.view.forceRender() # render it again
         self.view.renderWindow().SetMultiSamples(0)
 
+        if saveColorLabeledImages:
+            self.captureColorImage(baseName + '_color_labels.png')
+
         if saveLabeledImages:
-            self.saveImages(baseName)
+            self.captureLabelImage(baseName + '_labels.png')
 
         if savePoses:
             self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"), cameraToCameraStart, baseName)
@@ -264,8 +267,16 @@ class RenderTrainingImages(object):
                 
     def renderAndSaveLabeledImages(self):
         imageNumber = 1
-        while(self.setupImage(imageNumber, saveLabeledImages=True, savePoses=True)):
+        while(self.setupImage(imageNumber, saveColorLabeledImages=True, saveLabeledImages=False, savePoses=False)):
             imageNumber += 1
+            if imageNumber == 30:
+                break
+
+        imageNumber = 1
+        while(self.setupImage(imageNumber, saveColorLabeledImages=False, saveLabeledImages=True, savePoses=True)):
+            imageNumber += 1
+            if imageNumber == 30:
+                break
 
 
 def getCameraTransform(camera):

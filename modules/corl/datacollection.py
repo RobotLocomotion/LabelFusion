@@ -43,7 +43,7 @@ class DataCollectionHelper(object):
 
         # load the elastic fusion reconstruction if we already know where to
         # put it
-        self.savedTransformFilename = os.path.join(CorlUtils.getCorlDataDir(), 'sandbox', 'reconstruction_robot_frame.yaml')
+        self.savedTransformFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox', 'reconstruction_robot_frame.yaml')
         if os.path.exists(self.savedTransformFilename):
             firstFrameToWorld = CorlUtils.getFirstFrameToWorldTransform(self.savedTransformFilename)
             CorlUtils.loadElasticFusionReconstruction(self.pathDict['reconstruction'],
@@ -78,7 +78,7 @@ class DataCollection(object):
         self.imageManager = imageManager
         self.visFolder = om.getOrCreateContainer('data collection')
         self.cameraName = 'OPENNI_FRAME_LEFT'
-        self.savedTransformFilename = os.path.join(CorlUtils.getCorlDataDir(), 'sandbox',
+        self.savedTransformFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox',
                                                    'reconstruction_robot_frame.yaml')
         self.frustumVis = dict()
         self.loadSavedData()
@@ -222,7 +222,8 @@ class DataCollection(object):
 
 
     def saveTableFrame(self):
-        d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        # d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        d = dict()
         (pos, quat) = transformUtils.poseFromTransform(self.tableFrame.transform)
         d['table frame'] = [pos.tolist(), quat.tolist()]
         CorlUtils.saveDictToYaml(d, self.savedTransformFilename)

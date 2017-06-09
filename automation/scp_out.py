@@ -5,7 +5,8 @@ import sys
 source = sys.argv[1]
 destination_user = sys.argv[2]
 
-scp_config_file = "scp_config.yaml"
+path_to_spartan = os.environ['SPARTAN_SOURCE_DIR']
+scp_config_file = path_to_spartan + "/src/CorlDev/automation/scp_config.yaml"
 with open(scp_config_file, 'r') as stream:
     try:
         config = yaml.load(stream)

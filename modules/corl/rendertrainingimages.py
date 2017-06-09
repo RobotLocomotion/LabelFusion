@@ -201,7 +201,7 @@ class RenderTrainingImages(object):
 
         if saveColorLabeledImages:
             self.loadBackgroundImage(imageFilename)
-            self.view.forceRender() # render it again
+            #self.view.forceRender() # render it again
             self.captureColorImage(baseName + '_color_labels.png')
 
         if saveLabeledImages:
@@ -264,14 +264,10 @@ class RenderTrainingImages(object):
         imageNumber = 1
         while(self.setupImage(imageNumber, saveColorLabeledImages=True, saveLabeledImages=False, savePoses=False)):
             imageNumber += 1
-            if imageNumber == 30:
-                break
 
         imageNumber = 1
         while(self.setupImage(imageNumber, saveColorLabeledImages=False, saveLabeledImages=True, savePoses=True)):
             imageNumber += 1
-            if imageNumber == 30:
-                break
 
 
 def getCameraTransform(camera):

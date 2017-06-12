@@ -15,8 +15,6 @@ from corl import utils as cutils
 import scipy.misc
 import matplotlib.cm as cm
 
-import time
-
 class RenderTrainingImages(object):
 
     def __init__(self, view, viewOptions, pathDict):
@@ -175,8 +173,6 @@ class RenderTrainingImages(object):
             obj.actor.SetUserTransform(objToWorld)
 
     def setupImage(self, imageNumber, saveColorLabeledImages=False, saveLabeledImages=False, savePoses=False):
-        time1 = time.time()
-
 
         """
         Loads the given imageNumber as background.
@@ -210,8 +206,6 @@ class RenderTrainingImages(object):
         if savePoses:
             self.saveObjectPoses(imageFilename.replace("_rgb.png", "_labels.png"), cameraToCameraStart, baseName)
 
-        time2 = time.time()
-        print '%s function took %0.3f ms' % ("setupImage", (time2-time1)*1000.0)
         return True
 
     def saveObjectPoses(self, imageFilename, cameraToCameraStart, baseName):

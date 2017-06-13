@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Auto start data collect..."
+
+python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoStartDataCollect.py
+
+echo "Done."

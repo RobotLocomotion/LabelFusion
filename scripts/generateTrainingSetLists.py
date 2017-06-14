@@ -9,7 +9,11 @@
 import os
 import yaml
 
-OBJECTS_TO_FILTER = ['drill']
+OBJECTS_TO_FILTER         = ['drill']
+MAX_PER_SCENE             = 5
+DOWNSAMPLE_RATE           = 100    # specify in Hz, 30 Hz is sensor rate
+
+TEST_SET_ONLY = []
 
 # ------------------------------
 path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
@@ -37,6 +41,8 @@ def WritePairToFile(rgb_file_name, labels_file_name, target):
 	target.write("\n")
 
 def addToDatasetList(fullpath_resized_images, target):
+    num_added_this_scene = 0
+
     rgb_match = ""
     labels_match = ""
 
@@ -55,6 +61,9 @@ def addToDatasetList(fullpath_resized_images, target):
                     WritePairToFile(os.path.join(root, rgb_match), os.path.join(root, labels_match), target)
                     rgb_match = ""
                     labels_match = ""
+                    num_added_this_scene += 1
+                    if num_added_this_scene > MAX_PER_SCENE:
+                        return
 
 
 def crawlDirectories(path_to_data, path_to_output):

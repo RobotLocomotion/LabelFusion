@@ -10,7 +10,7 @@ import os
 import yaml
 
 OBJECTS_TO_FILTER         = ['drill']
-MAX_PER_SCENE             = 5
+MAX_PER_SCENE             = 3
 DOWNSAMPLE_RATE           = 100    # specify in Hz, 30 Hz is sensor rate
 
 TEST_SET_ONLY = []
@@ -47,14 +47,23 @@ def addToDatasetList(fullpath_resized_images, target):
     labels_match = ""
 
     for root, dirs, files in os.walk(fullpath_resized_images):
+        downsampler = 0
         for filename in sorted(files):
-            
-            if filename.endswith("rgb.png"):
-                rgb_match = filename
-
             if filename.endswith("labels.png") and not filename.endswith("color_labels.png"):
                 labels_match = filename
+                downsampler += 1
+                print downsampler
+                continue
 
+            if downsampler < DOWNSAMPLE_RATE:
+                continue
+
+            print "GOT THROUGH ", filename
+            downsampler = 0
+
+            if filename.endswith("rgb.png"):
+                rgb_match = filename
+                
             if rgb_match.split("_")[0] == labels_match.split("_")[0]:
                 rgb_split = rgb_match.split("_")
                 if len(rgb_split)>1 and rgb_split[1] == "rgb.png":
@@ -62,7 +71,7 @@ def addToDatasetList(fullpath_resized_images, target):
                     rgb_match = ""
                     labels_match = ""
                     num_added_this_scene += 1
-                    if num_added_this_scene > MAX_PER_SCENE:
+                    if num_added_this_scene >= MAX_PER_SCENE:
                         return
 
 

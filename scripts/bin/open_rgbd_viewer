@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd $SPARTAN_SOURCE_DIR/apps/iiwa
+directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud

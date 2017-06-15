@@ -9,20 +9,21 @@
 import os
 import yaml
 
-OBJECTS_TO_FILTER         = ['drill']
-MAX_PER_SCENE             = 3
-DOWNSAMPLE_RATE           = 100    # specify in Hz, 30 Hz is sensor rate
+OBJECTS_TO_FILTER         = ['oil_bottle']
+MAX_PER_SCENE             = 50
+DOWNSAMPLE_RATE           = 20    # specify in Hz, 30 Hz is sensor rate
 
 TEST_SET_ONLY = []
 
 # ------------------------------
 path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
 path_to_data     = path_to_spartan + "/src/CorlDev/data"
-path_to_output   = path_to_spartan + "/src/CorlDev/traintest.txt"
+path_to_output   = os.getcwd() + "/training_set_list.txt"
 
 # folders in /data/logs to track
 folders = ["logs_test", "logs_stable"]
 
+global_counter = 0
 
 def recordObjects(fullpath):
     list_of_objects = []
@@ -41,6 +42,7 @@ def WritePairToFile(rgb_file_name, labels_file_name, target):
 	target.write("\n")
 
 def addToDatasetList(fullpath_resized_images, target):
+    global global_counter
     num_added_this_scene = 0
 
     rgb_match = ""
@@ -52,13 +54,11 @@ def addToDatasetList(fullpath_resized_images, target):
             if filename.endswith("labels.png") and not filename.endswith("color_labels.png"):
                 labels_match = filename
                 downsampler += 1
-                print downsampler
                 continue
 
             if downsampler < DOWNSAMPLE_RATE:
                 continue
 
-            print "GOT THROUGH ", filename
             downsampler = 0
 
             if filename.endswith("rgb.png"):
@@ -68,6 +68,7 @@ def addToDatasetList(fullpath_resized_images, target):
                 rgb_split = rgb_match.split("_")
                 if len(rgb_split)>1 and rgb_split[1] == "rgb.png":
                     WritePairToFile(os.path.join(root, rgb_match), os.path.join(root, labels_match), target)
+                    global_counter += 1
                     rgb_match = ""
                     labels_match = ""
                     num_added_this_scene += 1
@@ -96,5 +97,6 @@ def crawlDirectories(path_to_data, path_to_output):
     target.close()
 
 
-print "Opening the training set descriptor file..."
 crawlDirectories(path_to_data, path_to_output)
+
+print "Made a list of ", global_counter, " training set pairs"

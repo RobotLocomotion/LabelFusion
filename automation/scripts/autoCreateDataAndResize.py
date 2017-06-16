@@ -20,11 +20,11 @@ path_to_job_folder = ""
 
 for folder in folders:
     path_to_folder = path_to_data + "/" + folder 
-    progress_file_fullpath = os.path.join(path_to_folder, "auto_create_data_and_resize_in_progress.txt")
+    # progress_file_fullpath = os.path.join(path_to_folder, "auto_create_data_and_resize_in_progress.txt")
 
-    if os.path.isfile(progress_file_fullpath):               # check wip condition
-        print "exit wip"
-    	break
+    # if os.path.isfile(progress_file_fullpath):               # check wip condition
+    #     print "exit wip"
+    # 	break
 
     for subdir, dirs, files in os.walk(path_to_folder):
         for dir in sorted(dirs):
@@ -36,6 +36,10 @@ for folder in folders:
                 print fullpath
                 continue
 
+            if os.path.isfile(os.path.join(fullpath, "images/0000000001_rgb.png")):            # check wip
+                print "exit in progress"
+                continue
+                
             if os.path.isfile(os.path.join(fullpath, "resized_images/0000000001_labels.png")): # check post condition
                 print "exit post"
             	continue

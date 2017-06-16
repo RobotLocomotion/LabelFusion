@@ -52,7 +52,18 @@ tissue_box:
 blue_funnel:
   label: 6
   mesh: object-meshes/blue_funnel.stl
-
 drill:
   label: 7
   mesh: object-meshes/handheld-scanner/drill_decimated_mesh.vtp
+cracker_box:
+  label: 8
+  mesh: object-meshes/ycb_models/003_cracker_box/textured.obj
+tomato_soup:
+  label: 9
+  mesh: object-meshes/ycb_models/005_tomato_soup_can/textured.obj
+spam:
+  label: 10
+  mesh: object-meshes/ycb_models/010_potted_meat_can/textured.obj
+mug:
+  label: 11
+  mesh: object-meshes/ycb_models/025_mug/textured.obj

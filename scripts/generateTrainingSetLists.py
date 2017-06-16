@@ -9,9 +9,10 @@
 import os
 import yaml
 
-OBJECTS_TO_FILTER         = ['oil_bottle']
-MAX_PER_SCENE             = 50
-DOWNSAMPLE_RATE           = 20    # specify in Hz, 30 Hz is sensor rate
+
+OBJECTS_TO_FILTER         = ['drill']
+MAX_PER_SCENE             = 10
+DOWNSAMPLE_RATE           = 100    # specify in Hz, 30 Hz is sensor rate
 
 TEST_SET_ONLY = []
 

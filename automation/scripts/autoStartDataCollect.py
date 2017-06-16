@@ -4,7 +4,7 @@ import os
 # Run this script from anywhere
 
 # set the amount of time you want to collect data
-collection_time_seconds = 35
+collection_time_seconds = 135
 
 # ------------------------------
 
@@ -40,15 +40,19 @@ new_scene_number = highest_scene_number + 1
 new_dir = basename + "-" + str(new_scene_number).zfill(2)
 
 
+def printAndSay(something):
+    os.system("say " + something)
+    print something
+
 ##############################
 # -- starting gun
 
-os.system("say 'beginning data collection in'")
+printAndSay('beginning data collection in')
 seconds_to_count = 5
 for i in range(seconds_to_count, 0, -1):
-    os.system("say " + str(i))
+    printAndSay(str(i))
     sleep(1)
-os.system("say begin")
+printAndSay("begin")
 
 ##############################
 # -- collect data
@@ -80,10 +84,10 @@ for index, val in enumerate(sleep_periods):
     warn = str(warnings_for_seconds_left[index])
     print warn
     if val > 5:
-        os.system("say " + warn)
-        os.system("say 'seconds left'")
+        printAndSay(warn)
+        printAndSay('seconds left')
     else:
-        os.system("say " + str(warnings_for_seconds_left[index]))
+        printAndSay(str(warnings_for_seconds_left[index]))
 
 sleep(warnings_for_seconds_left[-1])
-os.system("say 'finished data collection'")
+printAndSay('finished data collection')

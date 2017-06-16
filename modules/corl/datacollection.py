@@ -342,6 +342,7 @@ class DataCollectionPlanRunner(object):
     def start(self):
         print "starting data collection plan runner"
         self.timer.start()
+        os.system("cd /home/robot-lab/newdata && sleep 4 && auto_start_data_collect &")
 
     def stop(self):
         print "stopping data collection plan runner"

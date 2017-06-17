@@ -14,9 +14,9 @@ path_to_data     = path_to_spartan + "/src/CorlDev/data"
 # folders in /data to track
 folders = ["logs_test"]
 
-path_to_job_folder = ""
 
 while(True):
+    path_to_job_folder = ""
     for folder in folders:
         path_to_folder = path_to_data + "/" + folder 
         # progress_file_fullpath = os.path.join(path_to_folder, "auto_create_data_and_resize_in_progress.txt")

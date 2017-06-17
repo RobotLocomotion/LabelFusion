@@ -8,18 +8,32 @@
 
 import os
 import yaml
+import sys
 
 
 OBJECTS_TO_FILTER         = ['drill']
 MAX_PER_SCENE             = 10
 DOWNSAMPLE_RATE           = 100    # specify in Hz, 30 Hz is sensor rate
 
-TEST_SET_ONLY = []
+
+list_specific = None
 
 # ------------------------------
 path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
 path_to_data     = path_to_spartan + "/src/CorlDev/data"
 path_to_output   = os.getcwd() + "/training_set_list.txt"
+
+
+# parse argument for list_specific
+if len(sys.argv) > 1:
+    list_specific = []
+    path_to_output = os.getcwd() + "/" + sys.argv[1] + ".imglist.txt"
+    with open(sys.argv[1]) as f:
+        content = f.readlines()
+    content = [x.strip() for x in content]
+    for index, scene in enumerate(content):
+        list_specific.append(scene)
+
 
 # folders in /data/logs to track
 folders = ["logs_test", "logs_stable"]
@@ -84,13 +98,18 @@ def crawlDirectories(path_to_data, path_to_output):
         path_to_folder = path_to_data + "/" + folder 
         for subdir, dirs, files in os.walk(path_to_folder):
             for dir in sorted(dirs):
+                if list_specific is not None:
+                    print "I have a certain list"
+                    if dir not in list_specific:
+                        continue
                 fullpath = os.path.join(subdir, dir)
                 path_after_data =  os.path.relpath(fullpath, path_to_data)
                 objects = recordObjects(os.path.join(fullpath, "registration_result.yaml"))
                 
                 for object_to_filer in OBJECTS_TO_FILTER:
                     if object_to_filer in objects:
-                        print "found", object_to_filer, "in", fullpath
+                        #print "found", object_to_filer, "in", fullpath
+                        print dir
                         addToDatasetList(fullpath+"/resized_images/", target)
 
             break # don't want recursive walk

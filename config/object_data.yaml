@@ -48,7 +48,7 @@ toothpaste:
   mesh: object-meshes/toothpaste_aligned.vtp
 tissue_box:
   label: 5
-  mesh: object-meshes/tissue_box_subdivision.vtp
+  mesh: object-meshes/tissue_box_subdivision_colors.vtp
 blue_funnel:
   label: 6
   mesh: object-meshes/blue_funnel.stl

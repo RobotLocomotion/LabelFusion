@@ -379,7 +379,15 @@ def loadCube(subdivisions=30):
     center = np.array([0,0,0])
     d.addCube(dim, center, subdivisions=subdivisions)
     polyData = d.getPolyData()
-    visObj = vis.showPolyData(polyData, 'tissue_box_subdivision')
+
+    # set vertex colors of top face to green
+    points = vnp.getNumpyFromVtk(polyData, 'Points')
+    colors = vnp.getNumpyFromVtk(polyData, 'RGB255')
+    maxZ = points[:,2].max()
+    inds = points[:,2] > (maxZ - 0.0001)
+    colors[inds] = [0, 255, 0]
+
+    visObj = vis.showPolyData(polyData, 'tissue_box_subdivision', colorByName='RGB255')
     print "number of points = ", polyData.GetNumberOfPoints()
 
     sampledPolyData = segmentation.applyVoxelGrid(polyData, leafSize=0.0001)

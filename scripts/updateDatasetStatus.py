@@ -61,7 +61,7 @@ def recordObjects(fullpath):
 
 def checkIfExistsAndAppend(row, fullpath, file_to_check):
     if file_to_check == "images":
-        if os.path.isfile(os.path.join(fullpath, "images/0000000001_color_labels.png")):
+        if os.path.isfile(os.path.join(fullpath, "images/0000000001_rgb.png")):
             row.append("x")
         else:
             row.append("_")

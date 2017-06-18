@@ -300,15 +300,10 @@ class GlobalRegistration(object):
 
 
             visObj = om.findObjectByName(objectName)
-            if visObj is not None:
-                # this means object already being visualized
-                visObj.getChildFrame().copyFrame(modelToWorld)
-            else:
-                # object not being visualized, we need to load it
-                pose = transformUtils.poseFromTransform(modelToWorld)
-                CorlUtils.loadObjectMesh(self.affordanceManager, objectName,
-                                         visName=objectName, pose=pose)
-
+            om.removeFromObjectModel(visObj)
+            pose = transformUtils.poseFromTransform(modelToWorld)
+            CorlUtils.loadObjectMesh(self.affordanceManager, objectName,
+                                     visName=objectName, pose=pose)
             print "cropping and running ICP"
             self.ICPWithCropBasedOnModel(objectName=objectName)
 

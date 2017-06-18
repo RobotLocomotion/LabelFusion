@@ -375,7 +375,7 @@ def saveObject(visObj, filename=None, overwrite=False, pathToDir='handheld-scann
 
 def loadCube(subdivisions=30):
     d = DebugData()
-    dim = np.array([0.11,0.11,0.12])
+    dim = np.array([0.11,0.11,0.13])
     center = np.array([0,0,0])
     d.addCube(dim, center, subdivisions=subdivisions)
     polyData = d.getPolyData()

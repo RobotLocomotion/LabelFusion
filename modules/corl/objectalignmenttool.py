@@ -107,8 +107,13 @@ class ObjectAlignmentTool(object):
 
         # viewer for the object
         self.view = PythonQt.dd.ddQVTKWidgetView()
+
+        # add some special logic to show colors if they exist
+        colorByName = 'RGB255'
+        if not self.modelPolyData.GetPointData().GetArray(colorByName):
+            colorByName = None
         vis.showPolyData(self.modelPolyData, 'object poly data', view=self.view,
-                         parent=self.parent)
+                         parent=self.parent, colorByName=colorByName)
 
         self.imageFitter = ImageFitter(self, pointCloud)
 

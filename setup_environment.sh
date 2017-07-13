@@ -1,12 +1,19 @@
-export PYTHONPATH=$PYTHONPATH:$SPARTAN_SOURCE_DIR/src/CorlDev/modules
+if [ -z $LABELFUSION_SOURCE_DIR ]; then
+  echo "You must set LABELFUSION_SOURCE_DIR before sourcing this file."
+  return
+fi
 
-export FGR_BASE_DIR="/home/manuelli/software_tools/FastGlobalRegistration"
-export GOICP_BASE_DIR="/home/manuelli/software_tools/GoICP_V1.3"
-export SUPER4PCS_BASE_DIR="/home/manuelli/software_tools/nmellado-Super4PCS-c77cc4a"
+if [ -z $DIRECTOR_INSTALL_DIR ]; then
+  echo "You must set DIRECTOR_INSTALL_DIR before sourcing this file."
+  return
+fi
 
-export ELASTIC_FUSION_EXECUTABLE="/home/peteflo/ElasticFusion/GUI/build/ElasticFusion"
+export PYTHONPATH=$PYTHONPATH:$LABELFUSION_SOURCE_DIR/modules
+export PATH=$LABELFUSION_SOURCE_DIR/scripts/bin:$LABELFUSION_SOURCE_DIR/automation/scripts/bin:$DIRECTOR_INSTALL_DIR/bin:$PATH
+export ELASTIC_FUSION_EXECUTABLE=$DIRECTOR_INSTALL_DIR/bin/ElasticFusion
 
-export PATH=$SPARTAN_SOURCE_DIR/src/CorlDev/scripts/bin:$PATH
-export PATH=$SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/bin:$PATH
+export FGR_BASE_DIR=$HOME/software_tools/FastGlobalRegistration
+export GOICP_BASE_DIR=$HOME/software_tools/GoICP_V1.3
+export SUPER4PCS_BASE_DIR=$HOME/software_tools/nmellado-Super4PCS-c77cc4a
 
-alias cdcorl='cd $SPARTAN_SOURCE_DIR/src/CorlDev'
+alias cdlf='cd $LABELFUSION_SOURCE_DIR'

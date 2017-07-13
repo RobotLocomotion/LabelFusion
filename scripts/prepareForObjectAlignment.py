@@ -5,7 +5,7 @@ import yaml
 # Run this script from the log folder from which you want to process data
 
 # ------------------------------
-path_to_spartan = os.environ['SPARTAN_SOURCE_DIR']
+path_to_labelfusion = os.environ['LABELFUSION_SOURCE_DIR']
 
 # Check if needs to run
 if os.path.isfile("./reconstructed_pointcloud.vtp"):
@@ -23,7 +23,7 @@ if os.path.isfile("./reconstructed_pointcloud.vtp"):
 # for now, just need to specify ElasticFusion executable location
 path_to_ElasticFusion_executable = os.environ['ELASTIC_FUSION_EXECUTABLE']
 if not (os.path.isfile(path_to_ElasticFusion_executable)):
-	print "You need to install ElasticFusion and change the path to the executable in CorlDev/setup_environment.sh"
+	print "You need to install ElasticFusion and set the path to the executable in setup_environment.sh"
 	quit()
 
 
@@ -46,9 +46,9 @@ os.system("mv " + lcmlog_filename + ".posegraph posegraph.posegraph")
 ###################################################
 
 # install ply if do not already have it
-path_to_ply = path_to_spartan + "/src/CorlDev/src/ply"
+path_to_ply = path_to_labelfusion + "/src/ply"
 if not (os.path.isdir(path_to_ply)):
- 	os.system("cd " + path_to_spartan + "/src/CorlDev && mkdir src && cd src && git clone https://github.com/peteflorence/ply.git")	
+ 	os.system("cd " + path_to_labelfusion + " && mkdir src && cd src && git clone https://github.com/peteflorence/ply.git")	
  	os.system("cd " + path_to_ply + " && make")	
 
 ply_binary_filename = lcmlog_filename + ".ply"
@@ -67,7 +67,7 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
             if counter == 3:
                 line_elements_vertex = line
                 break
-    with open(path_to_spartan + "/src/CorlDev/scripts/correct_ply_header.txt") as infile:
+    with open(path_to_labelfusion + "/scripts/correct_ply_header.txt") as infile:
         counter = 0
         for line in infile:
             counter += 1
@@ -85,7 +85,7 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
     		outfile.write(line)
 
 # convert to vtp
-os.system("directorPython " + path_to_spartan + "/src/CorlDev/scripts/convertPlyToVtp.py " +  "./converted_to_ascii_modified_header.ply")
+os.system("directorPython " + path_to_labelfusion + "/scripts/convertPlyToVtp.py " +  "./converted_to_ascii_modified_header.ply")
 
 # clean up and rename
 # os.system("rm *.ply *.freiburg")

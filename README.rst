@@ -1,14 +1,12 @@
-==================
-Under Construction
-==================
-
-This standalone version of the LabelFusion code was launched very recently and we're still fixing up some remaining issues. Some parts are working but the full pipeline is not completely functional in this new layout. Please check back in a few days to see if this warning has been removed.
-
 =====
 Setup
 =====
 
-For first-time use, go to:  Setup_Instructions_.
+Recommended setup is through our Docker_.
+
+.. _Docker: https://hub.docker.com/r/robotlocomotion/labelfusion/
+
+If instead you'd prefer a native install, go to:  Setup_Instructions_.
 
 .. _Setup_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
 

@@ -48,6 +48,7 @@ build_elasticfusion()
   cd $root_dir
   git clone https://github.com/peteflorence/ElasticFusion.git
   cd ElasticFusion
+  git checkout pf-lm-debug-jpeg
 
   git clone https://github.com/stevenlovegrove/Pangolin.git
   cd Pangolin

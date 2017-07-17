@@ -27,6 +27,7 @@ class RenderTrainingImages(object):
         self.pathDict = pathDict
         self.storedColors = {}
         self.colors = cm.nipy_spectral(np.linspace(0, 1, 12))
+        self.colors = np.append(self.colors, [[0.5, 0.5, 0.5, 1.0]], axis=0)
         self.objectToWorld = dict()
         self.initialize()
 

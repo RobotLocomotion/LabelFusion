@@ -67,3 +67,6 @@ spam:
 mug:
   label: 11
   mesh: object-meshes/ycb_models/025_mug/textured.obj
+bowl:
+  label: 12
+  mesh: object-meshes/ycb_models/024_bowl/textured.obj

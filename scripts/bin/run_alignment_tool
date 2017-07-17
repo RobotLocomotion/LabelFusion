@@ -6,6 +6,6 @@ current_dir=${PWD##*/}
 cd ..
 up_dir=${PWD##*/}
 
-directorPython $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/corlApp.py --logFolder $up_dir/$current_dir --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+directorPython $LABELFUSION_SOURCE_DIR/scripts/corlApp.py --logFolder $up_dir/$current_dir --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg
 
 echo "Done."

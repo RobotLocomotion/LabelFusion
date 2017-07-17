@@ -1,3 +1,7 @@
+import numpy as np
+import PythonQt
+from PythonQt import QtGui, QtCore
+
 from director import objectmodel as om
 from director import ioUtils
 from director import visualization as vis
@@ -13,14 +17,9 @@ from director import viewbehaviors
 from director import vtkAll as vtk
 from director import vtkNumpy as vnp
 from director.shallowCopy import shallowCopy
-import numpy as np
-
 from director.tasks.taskuserpanel import ImageBasedAffordanceFit
 
-import PythonQt
-from PythonQt import QtGui, QtCore
-
-from corl import utils as CorlUtils
+from . import utils
 
 
 distanceToMeshThreshold = 0.2
@@ -252,17 +251,17 @@ def main(robotSystem, cameraView):
 
 class ObjectAlignmentToolWrapper(object):
     """
-    Wrapper with some convenience methods for interfacing with CorlData
+    Wrapper with some convenience methods for interfacing with LabelFusion data
     """
 
     @staticmethod
     def makeAlignmentTool(cameraView, pathDict, objectName='phone'):
         # check if we have already figured out a transform for this or not
-        firstFrameToWorldTransform = CorlUtils.getFirstFrameToWorldTransform(pathDict['transforms'])
+        firstFrameToWorldTransform = utils.getFirstFrameToWorldTransform(pathDict['transforms'])
 
         pointCloud = ioUtils.readPolyData(pathDict['reconstruction'])
         pointCloud = filterUtils.transformPolyData(pointCloud, firstFrameToWorldTransform)
-        objectMeshFilename = CorlUtils.getObjectMeshFilename(objectName)
+        objectMeshFilename = utils.getObjectMeshFilename(objectName)
         objectMesh = ioUtils.readPolyData(objectMeshFilename)
 
         alignmentTool = ObjectAlignmentTool(cameraView, modelPolyData=objectMesh, pointCloud=pointCloud)

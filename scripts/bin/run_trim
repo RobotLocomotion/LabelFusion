@@ -16,8 +16,7 @@ echo "Opening log player..."
 lcm-logplayer-gui original_log.lcmlog & p1=$!
 
 echo "Opening viewer"
-cd $SPARTAN_SOURCE_DIR/apps/iiwa &&
-directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud & p2=$!
+directorPython -m director.imageviewapp --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --channel OPENNI_FRAME --rgbd --pointcloud & p2=$!
 
 sleep 1.0
 

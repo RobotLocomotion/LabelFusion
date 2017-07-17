@@ -2,6 +2,6 @@
 
 echo "Auto run_create_data and run_resize..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoCreateDataAndResize.py
+python $LABELFUSION_SOURCE_DIR/automation/scripts/autoCreateDataAndResize.py
 
 echo "Done."

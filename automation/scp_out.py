@@ -5,8 +5,9 @@ import sys
 source = sys.argv[1]
 destination_user = sys.argv[2]
 
-path_to_spartan = os.environ['SPARTAN_SOURCE_DIR']
-scp_config_file = path_to_spartan + "/src/CorlDev/automation/scp_config.yaml"
+path_to_labelfusion  = os.environ['LABELFUSION_SOURCE_DIR']
+scp_config_file = os.path.join(path_to_labelfusion, 'automation/scp_config.yaml')
+
 with open(scp_config_file, 'r') as stream:
     try:
         config = yaml.load(stream)

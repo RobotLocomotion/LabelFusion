@@ -2,7 +2,6 @@
 This class consumes and lcmlog, extracts the images and saves them
 to png
 """
-import utils as CorlUtil
 import os
 
 # director imports
@@ -10,10 +9,9 @@ import director.vtkAll as vtk
 from director import filterUtils
 from director import lcmUtils
 from director import cameraview
-
-# lcm imports
 import bot_core as lcmbotcore
 
+from . import utils
 
 
 class ImageCapture(object):
@@ -35,7 +33,7 @@ class ImageCapture(object):
 
     def saveImage(self, extension="rgb.png"):
         # construct filename where this image will be saved
-        baseFilename = CorlUtil.convertImageIDToPaddedString(self.counter) + "_"
+        baseFilename = utils.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)
         rgbFilename = baseFilename + extension
         utimeFilename = baseFilename + "utime.txt"
@@ -114,8 +112,8 @@ class ImageCapture(object):
         return
 
 def captureImages(logFolder):
-    corlPaths = CorlUtil.getFilenames(logFolder)
-    ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'])
+    paths = utils.getFilenames(logFolder)
+    ImageCapture.readFromLogFile(paths['lcmlog'], paths['images'])
 
 
 def test():

@@ -2,6 +2,6 @@
 
 echo "Auto run_no_trim and run_prep..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoNoTrimPrep.py
+python $LABELFUSION_SOURCE_DIR/automation/scripts/autoNoTrimPrep.py
 
 echo "Done."

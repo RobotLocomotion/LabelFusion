@@ -2,6 +2,6 @@
 
 echo "Auto start data collect..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoStartDataCollect.py
+python $LABELFUSION_SOURCE_DIR/automation/scripts/autoStartDataCollect.py
 
 echo "Done."

@@ -1,16 +1,13 @@
 '''
 Usage:
 
-directorPython scripts/extractImagesFromLog.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+directorPython scripts/extractImagesFromLog.py --logFolder logs/moving-camera --bot-config $LABELFUSION_SOURCE_DIR/config/bot_config.cfg
 '''
 
 import os
 import argparse
-
 from director import drcargs
-
-import corl.utils as CorlUtils
-import corl.imagecapture
+import labelfusion.imagecapture
 
 if __name__ == '__main__':
 
@@ -23,8 +20,8 @@ if __name__ == '__main__':
 		quit()
 
 	parser = drcargs.getGlobalArgParser().getParser()
-	parser.add_argument('--logFolder', type=str, dest='logFolder', help='location of top level folder for this log, relative to CorlDev/data')
+	parser.add_argument('--logFolder', type=str, dest='logFolder', help='location of top level folder for this log, relative to LabelFusion/data')
 	args = parser.parse_args()
 	print "logFolder = ", args.logFolder
-	corl.imagecapture.captureImages(args.logFolder)
+	labelfusion.imagecapture.captureImages(args.logFolder)
 

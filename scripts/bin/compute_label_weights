@@ -4,6 +4,6 @@
 
 echo "Computing label weights..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/computeLabelWeights.py
+python $LABELFUSION_SOURCE_DIR/scripts/computeLabelWeights.py
 
 echo "Done."

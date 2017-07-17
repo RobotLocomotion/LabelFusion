@@ -17,11 +17,10 @@ from director.timercallback import TimerCallback
 from director.ikparameters import IkParameters
 
 
-
-from corl import utils as CorlUtils
-from corl.cameraposes import CameraPoses
-from corl.registration import GlobalRegistrationUtils as GRUtils
-from corl.camerafrustumvisualizer import CameraFrustumVisualizer
+from . import utils
+from .cameraposes import CameraPoses
+from .registration import GlobalRegistrationUtils
+from .camerafrustumvisualizer import CameraFrustumVisualizer
 
 
 class DataCollectionHelper(object):
@@ -34,38 +33,38 @@ class DataCollectionHelper(object):
 
     def loadData(self):
         logFolder = 'logs_test/moving-camera'
-        self.pathDict = CorlUtils.getFilenames(logFolder)
+        self.pathDict = utils.getFilenames(logFolder)
         if self.pathDict is None:
             return
 
-        self.cameraPoses = CameraPoses(self.pathDict['cameraPoses'])
+        self.cameraposes = CameraPoses(self.pathDict['cameraposes'])
 
 
         # load the elastic fusion reconstruction if we already know where to
         # put it
-        self.savedTransformFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox', 'reconstruction_robot_frame.yaml')
+        self.savedTransformFilename = os.path.join(utils.getLabelFusionBaseDir(), 'sandbox', 'reconstruction_robot_frame.yaml')
         if os.path.exists(self.savedTransformFilename):
-            firstFrameToWorld = CorlUtils.getFirstFrameToWorldTransform(self.savedTransformFilename)
-            CorlUtils.loadElasticFusionReconstruction(self.pathDict['reconstruction'],
+            firstFrameToWorld = utils.getFirstFrameToWorldTransform(self.savedTransformFilename)
+            utils.loadElasticFusionReconstruction(self.pathDict['reconstruction'],
                                                       transform=firstFrameToWorld)
 
 
     def loadReconstructedPointCloud(self):
         utime = self.openniDepthPointCloud.lastUtime
-        cameraToFirstFrame = self.cameraPoses.getCameraPoseAtUTime(utime)
+        cameraToFirstFrame = self.cameraposes.getCameraPoseAtUTime(utime)
         cameraToWorld = om.findObjectByName('camera frame').transform
         firstFrameToCamera = cameraToFirstFrame.GetLinearInverse()
         firstFrameToWorld = transformUtils.concatenateTransforms([firstFrameToCamera, cameraToWorld])
 
         self.firstFrameToWorld = firstFrameToWorld
-        CorlUtils.loadElasticFusionReconstruction(self.pathDict['reconstruction'],
+        utils.loadElasticFusionReconstruction(self.pathDict['reconstruction'],
                                                   transform=firstFrameToWorld)
 
     def saveTransform(self):
         (pos, quat) = transformUtils.poseFromTransform(self.firstFrameToWorld)
         d = dict()
         d['firstFrameToWorld'] = [pos.tolist(), quat.tolist()]
-        CorlUtils.saveDictToYaml(d, self.savedTransformFilename)
+        utils.saveDictToYaml(d, self.savedTransformFilename)
 
 
 class DataCollection(object):
@@ -78,7 +77,7 @@ class DataCollection(object):
         self.imageManager = imageManager
         self.visFolder = om.getOrCreateContainer('data collection')
         self.cameraName = 'OPENNI_FRAME_LEFT'
-        self.savedTransformFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox',
+        self.savedTransformFilename = os.path.join(utils.getLabelFusionBaseDir(), 'sandbox',
                                                    'reconstruction_robot_frame.yaml')
         self.frustumVis = dict()
         self.loadSavedData()
@@ -88,7 +87,7 @@ class DataCollection(object):
         if not os.path.exists(self.savedTransformFilename):
             return
 
-        d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        d = utils.getDictFromYamlFilename(self.savedTransformFilename)
         if 'table frame' not in d:
             return
         (pos, quat) = d['table frame']
@@ -101,7 +100,7 @@ class DataCollection(object):
         pointOnTable = self.measurementPanel.pickPoints[1]
         pointAboveTable = self.measurementPanel.pickPoints[2]
         scenePolyData = self.openniDepthPointCloud.polyData
-        d = GRUtils.segmentTable(scenePolyData=scenePolyData, searchRadius=0.3, visualize=False, thickness=0.01, pointOnTable=pointOnTable, pointAboveTable=pointAboveTable)
+        d = GlobalRegistrationUtils.segmentTable(scenePolyData=scenePolyData, searchRadius=0.3, visualize=False, thickness=0.01, pointOnTable=pointOnTable, pointAboveTable=pointAboveTable)
 
 
         origin = d['pointOnTable']
@@ -152,9 +151,9 @@ class DataCollection(object):
         if filename is None:
             filename = 'data_collection.yaml'
 
-        fullFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'config', filename)
-        frameData = CorlUtils.getDictFromYamlFilename(fullFilename)['frames']
-        graspToHandLinkFrame = CorlUtils.getCameraToKukaEndEffectorFrame()
+        fullFilename = os.path.join(utils.getLabelFusionBaseDir(), 'config', filename)
+        frameData = utils.getDictFromYamlFilename(fullFilename)['frames']
+        graspToHandLinkFrame = utils.getCameraToKukaEndEffectorFrame()
 
         # d = dict()
         # d['rotateX'] = -40
@@ -222,11 +221,11 @@ class DataCollection(object):
 
 
     def saveTableFrame(self):
-        # d = CorlUtils.getDictFromYamlFilename(self.savedTransformFilename)
+        # d = utils.getDictFromYamlFilename(self.savedTransformFilename)
         d = dict()
         (pos, quat) = transformUtils.poseFromTransform(self.tableFrame.transform)
         d['table frame'] = [pos.tolist(), quat.tolist()]
-        CorlUtils.saveDictToYaml(d, self.savedTransformFilename)
+        utils.saveDictToYaml(d, self.savedTransformFilename)
 
 
     def setupDevTools(self):
@@ -294,12 +293,12 @@ class DataCollection(object):
 
     def testRunIK(self):
         targetFrame = self.targetCameraFrame.transform
-        graspToHandLinkFrame = CorlUtils.getCameraToKukaEndEffectorFrame()
+        graspToHandLinkFrame = utils.getCameraToKukaEndEffectorFrame()
         return self.runIK(targetFrame, graspToHandLinkFrame=graspToHandLinkFrame)
 
     def reachToTargetFrame(self, frameNum):
         targetFrame = self.targetFrames[frameNum].transform
-        graspToHandLinkFrame = CorlUtils.getCameraToKukaEndEffectorFrame()
+        graspToHandLinkFrame = utils.getCameraToKukaEndEffectorFrame()
         return self.runIK(targetFrame, graspToHandLinkFrame=graspToHandLinkFrame)
 
     def spawnTargetFrame(self):
@@ -336,8 +335,8 @@ class DataCollectionPlanRunner(object):
         if configFilename is None:
             configFilename = 'data_collection.yaml'
 
-        fullFilename = os.path.join(CorlUtils.getCorlBaseDir(), 'config', configFilename)
-        self.config = CorlUtils.getDictFromYamlFilename(fullFilename)
+        fullFilename = os.path.join(utils.getLabelFusionBaseDir(), 'config', configFilename)
+        self.config = utils.getDictFromYamlFilename(fullFilename)
 
     def start(self):
         print "starting data collection plan runner"
@@ -375,7 +374,7 @@ class DataCollectionPlanRunner(object):
 
     def makeNextPlan(self):
         targetFrame = self.targetFrames[self.counter].transform
-        graspToHandLinkFrame = CorlUtils.getCameraToKukaEndEffectorFrame()
+        graspToHandLinkFrame = utils.getCameraToKukaEndEffectorFrame()
         maxDegreesPerSecond = self.config['planning']['maxDegreesPerSecond']
         self.planData =  self.dataCollection.runIK(targetFrame, graspToHandLinkFrame=graspToHandLinkFrame, maxDegreesPerSecond=maxDegreesPerSecond)
         return self.planData

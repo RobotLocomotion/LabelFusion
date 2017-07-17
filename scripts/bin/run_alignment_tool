@@ -6,6 +6,6 @@ current_dir=${PWD##*/}
 cd ..
 up_dir=${PWD##*/}
 
-directorPython $LABELFUSION_SOURCE_DIR/scripts/corlApp.py --logFolder $up_dir/$current_dir --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg
+directorPython $LABELFUSION_SOURCE_DIR/scripts/labelFusionApp.py --logFolder $up_dir/$current_dir --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg
 
 echo "Done."

@@ -97,11 +97,11 @@ def loadObjectMeshes(affordanceManager, registrationResultFilename,
     registrationResult = yaml.load(stream)
 
     for objName, data in registrationResult.iteritems():
-        objectMeshFilename = data['filename'] # should be relative to getCorlDataDir()
+        objectMeshFilename = data['filename'] # should be relative to getLabelFusionDataDir()
         if len(objectMeshFilename) == 0:
             objectMeshFilename = getObjectMeshFilename(objName)
         else:
-            objectMeshFilename = os.path.join(getCorlDataDir(), objectMeshFilename)
+            objectMeshFilename = os.path.join(getLabelFusionDataDir(), objectMeshFilename)
 
         # figure out object pose in world frame
         # we have stored object pose in first camera frame
@@ -116,17 +116,17 @@ def loadObjectMeshes(affordanceManager, registrationResultFilename,
             pose=pose)
 
 
-def getCorlBaseDir():
-    return os.path.join(os.environ['SPARTAN_SOURCE_DIR'], 'src/CorlDev')
+def getLabelFusionBaseDir():
+    return os.path.abspath(os.environ['LABELFUSION_SOURCE_DIR'])
 
-def getCorlRelativePath(path):
-    return os.path.join(getCorlBaseDir(), path)
+def getLabelFusionRelativePath(path):
+    return os.path.join(getLabelFusionBaseDir(), path)
 
-def getCorlDataRelativePath(path):
-    return os.path.join(getCorlDataDir(), path)
+def getLabelFusionDataRelativePath(path):
+    return os.path.join(getLabelFusionDataDir(), path)
 
-def getCorlDataDir():
-    return getCorlRelativePath('data')
+def getLabelFusionDataDir():
+    return getLabelFusionRelativePath('data')
 
 def getSuper4PCSBaseDir():
     return os.getenv("SUPER4PCS_BASE_DIR")
@@ -138,7 +138,7 @@ def getGRBaseDir():
     return os.getenv('FGR_BASE_DIR')
 
 def getObjectDataFilename():
-    return os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
+    return os.path.join(getLabelFusionBaseDir(), 'config/object_data.yaml')
 
 def getObjectDataYamlFile():
     stream = file(getObjectDataFilename())
@@ -148,19 +148,19 @@ def getDictFromYamlFilename(filename):
     stream = file(filename)
     return yaml.load(stream)
 
-objectDataFilename = os.path.join(getCorlBaseDir(), 'config/object_data.yaml')
+objectDataFilename = os.path.join(getLabelFusionBaseDir(), 'config/object_data.yaml')
 objectData = yaml.load(file(objectDataFilename))
 
 def getObjectMeshFilename(objectName):
     """
     Returns the filename of mesh corresponding to this object.
-    Filename is relative to getCorlDataDir()
+    Filename is relative to getLabelFusionDataDir()
     """
 
     if objectName not in objectData:
         raise ValueError('there is no data for ' + objectName)
 
-    return os.path.join(getCorlDataDir(), objectData[objectName]['mesh'])
+    return os.path.join(getLabelFusionDataDir(), objectData[objectName]['mesh'])
 
 def getObjectPolyData(objectName):
     filename = getObjectMeshFilename(objectName)
@@ -214,7 +214,7 @@ def evalFileAsString(filename):
 
 
 def getResultsConfig():
-    filename = getCorlRelativePath('config/registration_result.py')
+    filename = getLabelFusionRelativePath('config/registration_result.py')
     return evalFileAsString(filename)
 
 
@@ -301,7 +301,7 @@ def getFilenames(logFolder):
     :return:
     """
     d = dict()
-    d['info'] = os.path.join(getCorlDataDir(), logFolder, "info.yaml")
+    d['info'] = os.path.join(getLabelFusionDataDir(), logFolder, "info.yaml")
 
     if not os.path.exists(d['info']):
         return None
@@ -309,14 +309,14 @@ def getFilenames(logFolder):
     stream = file(d['info'])
     infoYaml = yaml.load(stream)
 
-    d['lcmlog'] = os.path.join(getCorlDataDir(), logFolder, infoYaml['lcmlog'])
-    d['cameraPoses'] = os.path.join(getCorlDataDir(), logFolder, "posegraph.posegraph")
-    d['registrationResult'] = os.path.join(getCorlDataDir(), logFolder, "registration_result.yaml")
-    d['reconstruction'] = os.path.join(getCorlDataDir(), logFolder, "reconstructed_pointcloud.vtp")
-    d['aboveTablePointcloud'] = os.path.join(getCorlDataDir(), logFolder, "above_table_pointcloud.vtp")
-    d['images'] = os.path.join(getCorlDataDir(), logFolder, "images")
-    d['topLevelFolder'] = os.path.join(getCorlDataDir(), logFolder)
-    d['transforms'] = os.path.join(getCorlDataDir(), logFolder, 'transforms.yaml')
+    d['lcmlog'] = os.path.join(getLabelFusionDataDir(), logFolder, infoYaml['lcmlog'])
+    d['cameraposes'] = os.path.join(getLabelFusionDataDir(), logFolder, "posegraph.posegraph")
+    d['registrationResult'] = os.path.join(getLabelFusionDataDir(), logFolder, "registration_result.yaml")
+    d['reconstruction'] = os.path.join(getLabelFusionDataDir(), logFolder, "reconstructed_pointcloud.vtp")
+    d['aboveTablePointcloud'] = os.path.join(getLabelFusionDataDir(), logFolder, "above_table_pointcloud.vtp")
+    d['images'] = os.path.join(getLabelFusionDataDir(), logFolder, "images")
+    d['topLevelFolder'] = os.path.join(getLabelFusionDataDir(), logFolder)
+    d['transforms'] = os.path.join(getLabelFusionDataDir(), logFolder, 'transforms.yaml')
     return d
 
 def saveDictToYaml(data, filename):
@@ -325,12 +325,12 @@ def saveDictToYaml(data, filename):
 
 def saveObjectPolyData(objectName):
     visObj = om.findObjectByName(objectName)
-    filename = os.path.join(getCorlDataDir(),'object-meshes',objectName + '_aligned.vtp')
+    filename = os.path.join(getLabelFusionDataDir(),'object-meshes',objectName + '_aligned.vtp')
     polyData = filterUtils.transformPolyData(visObj.polyData, visObj.actor.GetUserTransform())
     ioUtils.writePolyData(polyData, filename)
 
 def loadHandheldScannerMesh(affordanceManager, filename='oil_bottle.obj', name='oil_bottle', scaleDown=True):
-    filename = os.path.join(getCorlDataDir(),'object-meshes/handheld-scanner', filename)
+    filename = os.path.join(getLabelFusionDataDir(),'object-meshes/handheld-scanner', filename)
     print filename
     pose = [[0,0,0],[1,0,0,0]]
     visObj = loadAffordanceModel(affordanceManager, name, filename, pose)
@@ -359,7 +359,7 @@ def saveObject(visObj, filename=None, overwrite=False, pathToDir='handheld-scann
     if filename is None:
         filename = visObj.getProperty('Name') + '.vtp'
 
-    filename = os.path.join(getCorlDataDir(),'object-meshes', pathToDir, filename)
+    filename = os.path.join(getLabelFusionDataDir(),'object-meshes', pathToDir, filename)
     polyData = visObj.polyData
 
     if not overwrite:

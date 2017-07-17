@@ -1,4 +1,3 @@
 #!/bin/bash
 
-cd $SPARTAN_SOURCE_DIR/apps/iiwa
-directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud
+directorPython -m director.imageviewapp --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --channel OPENNI_FRAME --rgbd --pointcloud

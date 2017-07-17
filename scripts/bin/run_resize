@@ -2,6 +2,6 @@
 
 echo "Running resize of images..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/resizeImages.py
+python $LABELFUSION_SOURCE_DIR/scripts/resizeImages.py
 
 echo "Done."

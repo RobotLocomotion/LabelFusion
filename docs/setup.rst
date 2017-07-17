@@ -5,23 +5,23 @@ Setup
 Data folder
 -----------
 
-Create a symlink from the shared MIT Dropbox `CORL217` folder to `spartan/src/CorlDev/data`.
+Create a symlink from your data folder to `LabelFusion/data`.
 For example.  (Make sure that ./data doesn't exist before calling this command, or the linking will be nested)::
 
-    ln -s $HOME/Dropbox/CORL2017 ./data
+    ln -s /path/to/data ./data
 
-If Dropbox is hosted on another computer, you can use sshfs to mount the data from the remote computer::
+If the data is hosted on another computer, you can use sshfs to mount the data from the remote computer::
 
     mkdir -p ./data  # create mount point
-    sshfs user@hostname:Dropbox/CORL2017 ./data
+    sshfs user@hostname:path/to/data ./data
 
 
 Environment
 -----------
 
-Source the `setup_environment.sh` file.  This file appends CorlDev/modules
-to the `PYTHONPATH` so that Python scripts can import the corl module.
-The corl module contains reusable functions and utilities that are used by
+Source the `setup_environment.sh` file.  This file appends LabelFusion/modules
+to the `PYTHONPATH` so that Python scripts can import the labelfusion module.
+The labelfusion module contains reusable functions and utilities that are used by
 the scripts.
 
 Director

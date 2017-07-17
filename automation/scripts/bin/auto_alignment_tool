@@ -2,6 +2,6 @@
 
 echo "Auto find what to run_alignment_tool on..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/automation/scripts/autoAlignmentTool.py
+python $LABELFUSION_SOURCE_DIR/automation/scripts/autoAlignmentTool.py
 
 echo "Done."

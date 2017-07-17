@@ -1,19 +1,20 @@
 import os
 import numpy as np
+import scipy.misc
+import matplotlib.cm as cm
 import yaml
 
 from director import vtkNumpy as vnp
 from director import ioUtils
-import director.vtkAll as vtk
+from director import vtkAll as vtk
 from director import actionhandlers
 from director import screengrabberpanel as sgp
 from director import transformUtils
 from director import visualization as vis
 from director import objectmodel as om
 
-from corl import utils as cutils
-import scipy.misc
-import matplotlib.cm as cm
+from . import utils
+
 
 class RenderTrainingImages(object):
 
@@ -30,10 +31,10 @@ class RenderTrainingImages(object):
         self.initialize()
 
     def initialize(self):
-        self.loadCameraPoses()
+        self.loadcameraposes()
         self.loadObjectMeshes()
 
-        backgroundImageFilename = cutils.getImageBasenameFromImageNumber(1, self.pathDict) + "_rgb.png"
+        backgroundImageFilename = utils.getImageBasenameFromImageNumber(1, self.pathDict) + "_rgb.png"
 
         self.loadBackgroundImage(backgroundImageFilename)
         om.findObjectByName('grid').setProperty('Visible', False)
@@ -41,7 +42,7 @@ class RenderTrainingImages(object):
         view = self.view
         view.setFixedSize(640, 480)
         setCameraInstrinsicsAsus(view)
-        # cameraToWorld = cutils.getDefaultCameraToWorld()
+        # cameraToWorld = utils.getDefaultCameraToWorld()
         # setCameraTransform(view.camera(), cameraToWorld)
         setCameraTransform(view.camera(), vtk.vtkTransform())
         view.forceRender()
@@ -60,7 +61,7 @@ class RenderTrainingImages(object):
 
         for obj in om.findObjectByName('data files').children():
             objName = obj.getProperty('Name')
-            objLabel = cutils.getObjectLabel(objName)
+            objLabel = utils.getObjectLabel(objName)
             obj.actor.GetProperty().LightingOff()
             self.storedColors[obj.getProperty('Name')] = list(obj.getProperty('Color'))
             obj.setProperty('Color', [objLabel / 255.0] * 3)
@@ -116,7 +117,7 @@ class RenderTrainingImages(object):
 
 
     def saveImagesTest(self):
-        baseName = cutils.getImageBasenameFromImageNumber(1, self.pathDict)
+        baseName = utils.getImageBasenameFromImageNumber(1, self.pathDict)
         self.saveImages(baseName)
         self.enableLighting()
 
@@ -129,8 +130,8 @@ class RenderTrainingImages(object):
         view.renderer().SetBackgroundTexture(tex)
         view.renderer().TexturedBackgroundOn()
 
-    def loadCameraPoses(self):
-        data = np.loadtxt(self.pathDict['cameraPoses'])
+    def loadcameraposes(self):
+        data = np.loadtxt(self.pathDict['cameraposes'])
         self.poseTimes = np.array(data[:,0]*1e6, dtype=int)
         self.poses = []
         for pose in data[:,1:]:
@@ -147,7 +148,7 @@ class RenderTrainingImages(object):
         return transformUtils.transformFromPose(pos, quat)
 
     def getColorFromIndex(self, objName):
-        objLabel = cutils.getObjectLabel(objName)
+        objLabel = utils.getObjectLabel(objName)
         return self.colors[objLabel][:3]
 
     def loadObjectMeshes(self):
@@ -159,9 +160,9 @@ class RenderTrainingImages(object):
 
             filename = data['filename']
             if len(filename) == 0:
-                filename = cutils.getObjectMeshFilename(objName)
+                filename = utils.getObjectMeshFilename(objName)
             else:
-                filename = os.path.join(cutils.getCorlDataDir(), filename)
+                filename = os.path.join(utils.getLabelFusionDataDir(), filename)
 
             polyData = ioUtils.readPolyData(filename)
             color = self.getColorFromIndex(objName)
@@ -178,7 +179,7 @@ class RenderTrainingImages(object):
         Loads the given imageNumber as background.
         Also updates the poses of the objects to match the image
         """
-        baseName = cutils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
+        baseName = utils.getImageBasenameFromImageNumber(imageNumber, self.pathDict)
         imageFilename = baseName + "_rgb.png"
         if not os.path.exists(imageFilename):
             return False
@@ -238,7 +239,7 @@ class RenderTrainingImages(object):
                 continue 
             if val > 0:
                 cameraStartToCamera = cameraToCameraStart.GetLinearInverse()
-                objectName = cutils.getObjectName(index)
+                objectName = utils.getObjectName(index)
                 target.write(objectName + ":")
                 target.write("\n")
                 target.write("  label: " + str(index))

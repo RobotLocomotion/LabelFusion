@@ -21,7 +21,7 @@ Other basic PIL library transformations to try
 6.lighting noise
 """
 
-from corl import utils as CorlUtil
+from labelfusion import utils as LabelFusionUtils
 import os
 import random
 import keras
@@ -45,7 +45,7 @@ class DataAugmentation(object):
 
    
     def augmentWithKeras(self,log_folder):
-        d = CorlUtil.getFilenames(log_folder)
+        d = LabelFusionUtils.getFilenames(log_folder)
         path_to_img = d["images"]
         labels = glob.iglob(os.path.join(path_to_img, "*labels.png"))
         images = glob.iglob(os.path.join(path_to_img, "*rgb.png"))
@@ -122,7 +122,7 @@ class DataAugmentation(object):
 
  
     def generateFileNames():
-        baseFilename = CorlUtil.convertImageIDToPaddedString(self.counter) + "_"
+        baseFilename = LabelFusionUtils.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)
         rgbFilename = baseFilename + "rbg.png"
         labelFilename = baseFilename + "label.png"

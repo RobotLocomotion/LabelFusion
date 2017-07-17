@@ -2,6 +2,6 @@
 
 echo "Running pre-processing stage..."
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/prepareForObjectAlignment.py
+python $LABELFUSION_SOURCE_DIR/scripts/prepareForObjectAlignment.py
 
 echo "Done."

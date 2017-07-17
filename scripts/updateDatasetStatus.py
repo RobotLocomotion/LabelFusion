@@ -9,9 +9,9 @@ import sys
 # Use "-o" as an arg to record objects in each dataset
 
 # ------------------------------
-path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
-path_to_data     = path_to_spartan + "/src/CorlDev/data"
-path_to_output   = path_to_spartan + "/src/CorlDev/data/dataset_status.csv"
+path_to_labelfusion  = os.environ['LABELFUSION_SOURCE_DIR']
+path_to_data     = os.path.join(path_to_labelfusion, "data")
+path_to_output   = os.path.join(path_to_labelfusion, "data/dataset_status.csv")
 
 # folders in /data/logs to track
 folders = ["logs_test", "logs_stable", "logs_arch"]

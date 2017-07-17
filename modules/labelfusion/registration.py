@@ -18,11 +18,10 @@ from director.debugVis import DebugData
 from director.shallowCopy import shallowCopy
 from director.fieldcontainer import FieldContainer
 
+# labelfusion imports
+from . import utils
+from .objectalignmenttool import ObjectAlignmentTool
 
-#corl imports
-from corl import utils as CorlUtils
-from corl import objectalignmenttool
-from objectalignmenttool import ObjectAlignmentTool
 
 class GlobalRegistration(object):
 
@@ -48,8 +47,8 @@ class GlobalRegistration(object):
         if self.logFolder is None:
             self.logFolder = "logs/scratch"
 
-        self.pathDict = CorlUtils.getFilenames(self.logFolder)
-        self.objectData = CorlUtils.getObjectDataYamlFile()
+        self.pathDict = utils.getFilenames(self.logFolder)
+        self.objectData = utils.getObjectDataYamlFile()
         self.objectAlignmentResults = dict() # stores results of object alignment tool
         self.objectAlignmentTool = None
 
@@ -73,11 +72,11 @@ class GlobalRegistration(object):
         registrationResult = yaml.load(stream)
 
         for objName, data in registrationResult.iteritems():
-            objectMeshFilename = data['filename']  # should be relative to getCorlDataDir()
+            objectMeshFilename = data['filename']  # should be relative to getLabelFusionDataDir()
             if len(objectMeshFilename) == 0:
-                objectMeshFilename = CorlUtils.getObjectMeshFilename(objName)
+                objectMeshFilename = utils.getObjectMeshFilename(objName)
             else:
-                objectMeshFilename = os.path.join(CorlUtils.getCorlDataDir(), objectMeshFilename)
+                objectMeshFilename = os.path.join(utils.getLabelFusionDataDir(), objectMeshFilename)
 
             objectToFirstFrame = transformUtils.transformFromPose(data['pose'][0], data['pose'][1])
             objectToWorld = transformUtils.concatenateTransforms([objectToFirstFrame, self.firstFrameToWorldTransform])
@@ -99,7 +98,7 @@ class GlobalRegistration(object):
 
         if objectPolyData is None:
             if filename is None:
-                filename = CorlUtils.getObjectMeshFilename(objectName)
+                filename = utils.getObjectMeshFilename(objectName)
 
             objectPolyData = ioUtils.readPolyData(filename)
 
@@ -242,7 +241,7 @@ class GlobalRegistration(object):
             (pos, quat) = transformUtils.poseFromTransform(pointCloudToWorldTransform)
             d = dict()
             d['firstFrameToWorld'] = [pos.tolist(), quat.tolist()]
-            CorlUtils.saveDictToYaml(d, filename)
+            utils.saveDictToYaml(d, filename)
 
         return pointCloudToWorldTransform
 
@@ -282,7 +281,7 @@ class GlobalRegistration(object):
 
         pointCloud = self.aboveTablePolyData
         # pointCloud = om.findObjectByName('reconstruction').polyData
-        objectPolyData = CorlUtils.getObjectPolyData(objectName)
+        objectPolyData = utils.getObjectPolyData(objectName)
         resultsDict = dict()
         self.objectAlignmentResults[objectName] = resultsDict
         parent = om.getOrCreateContainer('global registration')
@@ -302,7 +301,7 @@ class GlobalRegistration(object):
             visObj = om.findObjectByName(objectName)
             om.removeFromObjectModel(visObj)
             pose = transformUtils.poseFromTransform(modelToWorld)
-            CorlUtils.loadObjectMesh(self.affordanceManager, objectName,
+            utils.loadObjectMesh(self.affordanceManager, objectName,
                                      visName=objectName, pose=pose)
             print "cropping and running ICP"
             self.ICPWithCropBasedOnModel(objectName=objectName)
@@ -338,11 +337,11 @@ class GlobalRegistration(object):
         :param distanceThreshold:
         :return: cropped pointcloud
         """
-        GRUtils = GlobalRegistrationUtils
+        registration = GlobalRegistrationUtils
         pointCloud = GlobalRegistration.cropPointCloudToModelBoundingBox(pointCloud, objectPointCloud, scaleFactor=1.5)
         arrayName = 'distance_to_mesh'
         print "computing point to point distance"
-        dists = GRUtils.computePointToPointDistance(pointCloud, objectPointCloud)
+        dists = registration.computePointToPointDistance(pointCloud, objectPointCloud)
         vnp.addNumpyToVtk(pointCloud, dists, arrayName)
         polyData = filterUtils.thresholdPoints(pointCloud, arrayName, [0.0, distanceThreshold])
 
@@ -388,7 +387,7 @@ class GlobalRegistration(object):
     def saveRegistrationResults(self, filename=None):
         registrationResultDict = dict()
         if os.path.isfile(self.pathDict['registrationResult']):
-            registrationResultDict = CorlUtils.getDictFromYamlFilename(self.pathDict['registrationResult'])
+            registrationResultDict = utils.getDictFromYamlFilename(self.pathDict['registrationResult'])
 
         affordanceFolder = om.getOrCreateContainer('affordances')
         affordanceList = affordanceFolder.children()
@@ -401,7 +400,7 @@ class GlobalRegistration(object):
             poseAsList = [pose[0].tolist(), pose[1].tolist()]
             d = dict()
             meshFilename = affordance.getProperty('Filename')
-            relPathToDataDir = os.path.relpath(meshFilename, CorlUtils.getCorlDataDir())
+            relPathToDataDir = os.path.relpath(meshFilename, utils.getLabelFusionDataDir())
 
             d['filename'] = relPathToDataDir
             d['pose'] = poseAsList
@@ -410,7 +409,7 @@ class GlobalRegistration(object):
         if filename is None:
             filename = self.pathDict['registrationResult']
 
-        CorlUtils.saveDictToYaml(registrationResultDict, filename)
+        utils.saveDictToYaml(registrationResultDict, filename)
 
     def ICPWithCropBasedOnModel(self, objectName='oil_bottle', scenePointCloud=None):
         if scenePointCloud is None:
@@ -442,7 +441,7 @@ class GlobalRegistration(object):
         croppedPointCloud = self.cropPointCloud(radius=0.08)
 
         if useStoredPointcloud:
-            filename = os.path.join(CorlUtils.getCorlDataDir(),
+            filename = os.path.join(utils.getLabelFusionDataDir(),
                                     'sandbox/phone_crop_no_table.vtp')
             croppedPointCloud = ioUtils.readPolyData(filename)
 
@@ -458,7 +457,7 @@ class GlobalRegistration(object):
 
         assert algorithm in ["GoICP", "Super4PCS"]
 
-        baseName = os.path.join(CorlUtils.getCorlDataDir(),
+        baseName = os.path.join(utils.getLabelFusionDataDir(),
                                 'registration-output/robot-scene')
         pointCloudFile = os.path.join(baseName, 'robot_mesh.vtp')
         robotMeshFile = os.path.join(baseName, 'robot_mesh.vtp')
@@ -592,7 +591,7 @@ class GlobalRegistrationUtils(object):
 
     @staticmethod
     def getSandboxDir():
-        return os.path.join(CorlUtils.getCorlBaseDir(), 'sandbox')
+        return os.path.join(utils.getLabelFusionBaseDir(), 'sandbox')
 
     @staticmethod
     def removeFile(filename):
@@ -762,9 +761,9 @@ class Super4PCS(object):
         ioUtils.writePolyData(modelPointCloud, modelFile)
         ioUtils.writePolyData(scenePointCloud, sceneFile)
 
-        super4PCSBaseDir = CorlUtils.getSuper4PCSBaseDir()
+        super4PCSBaseDir = utils.getSuper4PCSBaseDir()
         registrationBin = os.path.join(super4PCSBaseDir, 'build/Super4PCS')
-        outputFile = os.path.join(CorlUtils.getCorlBaseDir(),
+        outputFile = os.path.join(utils.getLabelFusionBaseDir(),
                                   'sandbox/pcs4_mat_output.txt')
 
         print "number of scene points = ", scenePointCloud.GetNumberOfPoints()
@@ -826,12 +825,12 @@ class GoICP(object):
 
 
         # transform the data a bit
-        GRUtils = GlobalRegistrationUtils
+        registration = GlobalRegistrationUtils
         # use this if your point cloud contains invalid points with 0.0 range
-        scenePointCloud = GRUtils.removeOriginPoints(scenePointCloud)
-        scenePointCloud = GRUtils.shiftPointsToOrigin(scenePointCloud)
-        modelPointCloud = GRUtils.shiftPointsToOrigin(modelPointCloud)
-        scaleFactor = GRUtils.rescalePolyData([scenePointCloud, modelPointCloud])
+        scenePointCloud = registration.removeOriginPoints(scenePointCloud)
+        scenePointCloud = registration.shiftPointsToOrigin(scenePointCloud)
+        modelPointCloud = registration.shiftPointsToOrigin(modelPointCloud)
+        scaleFactor = registration.rescalePolyData([scenePointCloud, modelPointCloud])
 
         numDownsampledPoints = min(numDownsampledPoints, scenePointCloud.GetNumberOfPoints)
 
@@ -841,19 +840,19 @@ class GoICP(object):
         print "number of model points = ", modelPointCloud.GetNumberOfPoints()
 
         # files where temporary output will be stored
-        baseName = GRUtils.getSandboxDir()
+        baseName = registration.getSandboxDir()
         modelPointCloudFile = os.path.join(baseName, 'model_data.txt')
         scenePointCloudFile = os.path.join(baseName, 'scene_data.txt')
         outputFile = os.path.join(baseName, 'goicp_output.txt')
 
 
         # write the polyData to a file so that
-        GRUtils.writePointsFile(modelPointCloud, modelPointCloudFile)
-        GRUtils.writePointsFile(scenePointCloud, scenePointCloudFile)
+        registration.writePointsFile(modelPointCloud, modelPointCloudFile)
+        registration.writePointsFile(scenePointCloud, scenePointCloudFile)
 
-        goICPBaseDir = CorlUtils.getGoICPBaseDir()
+        goICPBaseDir = utils.getGoICPBaseDir()
         # goICPConfigFile = os.path.join(goICPBaseDir, 'demo/config.txt')
-        goICPConfigFile = os.path.join(CorlUtils.getCorlBaseDir(),
+        goICPConfigFile = os.path.join(utils.getLabelFusionBaseDir(),
                                        'config/go_icp_config.txt')
         goICPBin = os.path.join(goICPBaseDir, 'build/GoICP')
 
@@ -910,17 +909,17 @@ class FastGlobalRegistration(object):
 
     @staticmethod
     def run(scenePointCloud, modelPointCloud):
-        GRUtils = GlobalRegistrationUtils
-        GRUtils.removeFile('model_features.bin')
-        GRUtils.removeFile('scene_features.bin')
-        GRUtils.removeFile('features.bin')
+        registration = GlobalRegistrationUtils
+        registration.removeFile('model_features.bin')
+        registration.removeFile('scene_features.bin')
+        registration.removeFile('features.bin')
 
         FGR = FastGlobalRegistration
         FGR.computeFeatures(scenePointCloud, 'scene')
         FGR.computeFeatures(modelPointCloud, 'model')
 
         print 'run registration...'
-        FGRBaseDir = CorlUtils.getGRBaseDir()
+        FGRBaseDir = utils.getGRBaseDir()
         FGRBin = os.path.join(FGRBaseDir, 'build/FastGlobalRegistration/FastGlobalRegistration')
 
         goICPArgs = [

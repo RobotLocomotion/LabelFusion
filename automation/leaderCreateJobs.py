@@ -11,9 +11,10 @@ import sys
 # Run this script from anywhere
 
 # ------------------------------
-path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
-path_to_automation = path_to_spartan + "/src/CorlDev/automation" 
-path_to_data     = path_to_spartan + "/src/CorlDev/data"
+path_to_labelfusion  = os.environ['LABELFUSION_SOURCE_DIR']
+path_to_data     = os.path.join(path_to_labelfusion, 'data')
+path_to_automation = os.path.join(path_to_labelfusion, 'automation')
+
 
 config_file = path_to_automation + "/configuration.yaml"
 

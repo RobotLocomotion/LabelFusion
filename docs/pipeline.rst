@@ -1,3 +1,13 @@
+==================
+Under Construction
+==================
+
+The documentation in this file has not been updated to reflect the new code layout.
+The LabelFusion source code was previously a subdirectory in the Spartan git repository,
+and the documentation in this file assumes the old layout.  Please do not attempt to
+use this documentation until it has been updated.
+
+
 ========
 Pipeline
 ========
@@ -46,7 +56,7 @@ Same as above but we will use the kuka arm to move the xtion around. Set :code:`
 In one terminal, open a viewer for the data::
 
 	cds && cd apps/iiwa
-	directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud
+	directorPython -m director.imageviewapp --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --channel OPENNI_FRAME --rgbd --pointcloud
 
 In another terminal, play the log with a GUI. (Replace :code:`mylog.lcmlog` with name of log)::
 
@@ -199,10 +209,10 @@ The :code:`--logFolder` option specifies which logFolder to use relative to Corl
 Visualizing RGBD Data
 ---------------------
 
-You can launch director with imageviewapp. You need to pass the :code:`-c` flag to director along with the config file::
+You can launch director with imageviewapp. You need to pass the :code:`--bot-config` flag to director along with the config file::
 	
 	cds && cd apps/iiwa
-	directorPython -m director.imageviewapp -c iiwaManip.cfg --channel OPENNI_FRAME --rgbd --pointcloud
+	directorPython -m director.imageviewapp --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --channel OPENNI_FRAME --rgbd --pointcloud
 	
 	
 	

@@ -2,8 +2,8 @@
 Usage:
     drake-visualizer --script testRegistration.py
 """
-import corl.registration
-from corl.registration import GlobalRegistration
+
+from labelfusion.registration import GlobalRegistration
 
 
 globalRegistration = GlobalRegistration(view, measurementPanel)

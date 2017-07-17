@@ -5,6 +5,6 @@ echo "Updating dataset status..."
 
 echo $1
 
-python $SPARTAN_SOURCE_DIR/src/CorlDev/scripts/updateDatasetStatus.py $1
+python $LABELFUSION_SOURCE_DIR/scripts/updateDatasetStatus.py $1
 
 echo "Done."

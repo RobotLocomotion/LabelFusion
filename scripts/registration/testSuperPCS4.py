@@ -12,8 +12,8 @@ import computeDistance
 from director.shallowCopy import shallowCopy
 from director import segmentation
 
-# corl imports
-import corl.utils as CorlUtils
+# labelfusion imports
+import labelfusion.utils
 
 def applySubdivision(polyData, subdivisions=3):
     f = vtk.vtkLoopSubdivisionFilter()
@@ -103,7 +103,7 @@ def runSuperPCS4(modelName, sceneName):
     modelPointCloud = om.findObjectByName(modelName).polyData
     scenePointCloud = om.findObjectByName(sceneName).polyData
 
-    baseName = os.path.join(CorlUtils.getCorlDataDir(),
+    baseName = os.path.join(labelfusion.utils.getLabelFusionDataDir(),
                             'registration-output/robot-scene')
     modelFile = os.path.join(baseName, 'model_data_for_pcs4.ply')
     sceneFile = os.path.join(baseName, 'scene_data_for_pcs4.ply')
@@ -111,9 +111,9 @@ def runSuperPCS4(modelName, sceneName):
     ioUtils.writePolyData(modelPointCloud, modelFile)
     ioUtils.writePolyData(scenePointCloud, sceneFile)
 
-    super4PCSBaseDir = CorlUtils.getSuper4PCSBaseDir()
+    super4PCSBaseDir = labelfusion.utils.getSuper4PCSBaseDir()
     registrationBin = os.path.join(super4PCSBaseDir, 'build/Super4PCS')
-    outputFile = os.path.join(CorlUtils.getCorlBaseDir(),
+    outputFile = os.path.join(labelfusion.utils.getLabelFusionBaseDir(),
                               'sandbox/pcs4_mat_output.txt')
     overlap = 0.9
     distance = 0.02
@@ -165,7 +165,7 @@ def computeAlignmentScore(objA, objB, distanceThreshold=0.02):
     print 'LCP percent (%s):' % objA, lcpScore
 
 
-baseName = os.path.join(CorlUtils.getCorlDataDir(),
+baseName = os.path.join(labelfusion.utils.getLabelFusionDataDir(),
                             'registration-output/robot-scene')
 pointCloudFile = os.path.join(baseName, 'robot_mesh.vtp')
 robotMeshFile = os.path.join(baseName, 'robot_mesh.vtp')

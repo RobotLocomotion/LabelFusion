@@ -10,13 +10,15 @@ Setup
 
 For first-time use, go to:  Setup_Instructions_.
 
-.. _Setup_Instructions: https://github.com/RobotLocomotion/spartan/blob/master/src/CorlDev/docs/setup.rst
+.. _Setup_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
 
-For every-time use:
+For every-time use, add the following lines (with paths adjusted) to your ~/.bashrc
 
 ::
 
-	source setup_environment.sh
+    LABELFUSION_SOURCE_DIR=/path/to/LabelFusion
+	DIRECTOR_INSTALL_DIR=/path/to/Director/install
+	source $LABELFUSION_SOURCE_DIR/setup_environment.sh
 
 ===========================
 Quick Pipeline Instructions
@@ -24,12 +26,12 @@ Quick Pipeline Instructions
 
 This is the quick version.  If you'd prefer to go step-by-step manually, see Pipeline_Instructions_.
 
-.. _Pipeline_Instructions: https://github.com/RobotLocomotion/spartan/blob/master/src/CorlDev/docs/pipeline.rst
+.. _Pipeline_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/pipeline.rst
 
 Collect raw data from Xtion
 ---------------------------
 
-First, :code:`cdcorl && cd data/logs`, then make a new directory for your data.  In one terminal, run:  
+First, :code:`cdlf && cd data/logs`, then make a new directory for your data.  In one terminal, run:
 
 ::
 
@@ -100,9 +102,3 @@ To train SegNet::
 	cd /
 	./SegNet/caffe-segnet/build/tools/caffe train -gpu 0 -solver /SegNet/Models/moving_camera_solver.prototxt
 
-
-
-
-	
-	
-	

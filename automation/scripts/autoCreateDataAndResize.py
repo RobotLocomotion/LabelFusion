@@ -8,8 +8,8 @@ import sys
 # Run this script from anywhere
 
 # ------------------------------
-path_to_spartan  = os.environ['SPARTAN_SOURCE_DIR']
-path_to_data     = path_to_spartan + "/src/CorlDev/data"
+path_to_labelfusion  = os.environ['LABELFUSION_SOURCE_DIR']
+path_to_data     = os.path.join(path_to_labelfusion, 'data')
 
 # folders in /data to track
 folders = ["logs_test"]

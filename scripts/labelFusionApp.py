@@ -10,8 +10,8 @@ import bot_core as lcmbotcore
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-import corl.setup
-import corl.utils
+import labelfusion.setup
+import labelfusion.utils
 
 def initImageManager():
     imageManager = cameraview.ImageManager()
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # parse args first
     parser = drcargs.getGlobalArgParser().getParser()
     parser.add_argument('--logFolder', type=str, dest='logFolder',
-                          help='location of top level folder for this log, relative to CorlDev/data')
+                          help='location of top level folder for this log, relative to LabelFusion/data')
 
     args = parser.parse_args()
     print 'log folder:', args.logFolder
@@ -66,7 +66,6 @@ if __name__ == '__main__':
     myObjects['openniDepthPointCloud'] = openniDepthPointCloud
     myObjects['cameraView'] = cameraView
     myObjects['affordanceManager'] = affordanceManager
-    myObjects['CorlUtils'] = corl.utils
 
     # these lines are used to update the globals for the interactive python console
     fields.globalsDict.update(**dict(fields))
@@ -74,13 +73,13 @@ if __name__ == '__main__':
     globals().update(**myObjects)
 
     # # add custom code here
-    corl.setup.setupCorlDirector(affordanceManager,
+    labelfusion.setup.setupLabelFusionDirector(affordanceManager,
                                  openniDepthPointCloud,
                                  logFolder=args.logFolder,
                                  globalsDict=globals())
 
 
-    # corl.setup.testStartup(affordanceManager,
+    # labelfusion.setup.testStartup(affordanceManager,
     #                              openniDepthPointCloud,
     #                              logFolder=args.logFolder,
     #                              globalsDict=globals())

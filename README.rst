@@ -1,9 +1,3 @@
-==================
-Under Construction
-==================
-
-This standalone version of the LabelFusion code was launched very recently and we're still fixing up some remaining issues. Some parts are working but the full pipeline is not completely functional in this new layout. Please check back in a few days to see if this warning has been removed.
-
 =====
 Setup
 =====

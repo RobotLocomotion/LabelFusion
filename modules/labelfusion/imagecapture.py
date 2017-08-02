@@ -33,7 +33,7 @@ class ImageCapture(object):
 
     def saveImage(self, saveDepth=False, saveUtime=True, extension="rgb.png"):
         # construct filename where this image will be saved
-        baseFilename = CorlUtil.convertImageIDToPaddedString(self.counter) + "_"
+        baseFilename = utils.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)
         imageFilename = baseFilename + extension
         self.counter += 1
@@ -119,7 +119,7 @@ class ImageCapture(object):
         return
 
 def captureImages(logFolder):
-    corlPaths = CorlUtil.getFilenames(logFolder)
+    corlPaths = utils.getFilenames(logFolder)
     ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
     ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_LEFT")
 

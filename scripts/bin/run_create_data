@@ -21,8 +21,6 @@ directorPython $LABELFUSION_SOURCE_DIR/scripts/extractImagesFromLog.py --bot-con
 
 echo "Now rendering training images"
 
-exit 1
-
 directorPython $LABELFUSION_SOURCE_DIR/scripts/renderTrainingImages.py --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --logFolder $up_dir/$current_dir
 
 echo "Done."

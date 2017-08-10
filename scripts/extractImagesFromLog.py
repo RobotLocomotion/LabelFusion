@@ -21,7 +21,15 @@ if __name__ == '__main__':
 
 	parser = drcargs.getGlobalArgParser().getParser()
 	parser.add_argument('--logFolder', type=str, dest='logFolder', help='location of top level folder for this log, relative to LabelFusion/data')
+	parser.add_argument('--saveDepth', type=str, dest='saveDepth', help='string (True or False) whether or not to extract depth images from log')
 	args = parser.parse_args()
 	print "logFolder = ", args.logFolder
-	labelfusion.imagecapture.captureImages(args.logFolder)
+
+	if args.saveDepth=="True":
+		saveDepth=True
+	else:
+		saveDepth=False
+	print saveDepth
+
+	labelfusion.imagecapture.captureImages(args.logFolder, saveDepth)
 

@@ -17,7 +17,7 @@ from . import utils
 class ImageCapture(object):
 
     def __init__(self, imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False):
+                 cameraName="OPENNI_FRAME_LEFT", setupCallback=False):
         self.imageManager = imageManager
         self.fileSaveLocation = fileSaveLocation
         self.cameraName = cameraName
@@ -31,27 +31,28 @@ class ImageCapture(object):
         lcmUtils.addSubscriber("OPENNI_FRAME", lcmbotcore.images_t(),
                                self.onImageMessage)
 
-    def saveImage(self, extension="rgb.png"):
+    def saveImage(self, saveUtime=True, extension="rgb.png"):
         # construct filename where this image will be saved
         baseFilename = utils.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)
-        rgbFilename = baseFilename + extension
-        utimeFilename = baseFilename + "utime.txt"
+        imageFilename = baseFilename + extension
         self.counter += 1
 
         # get the image and it's utime
         self.imageManager.updateImages()
         image = self.imageManager.getImage(self.cameraName)
-        utime = self.imageManager.getUtime(self.cameraName)
         image = filterUtils.flipImage(image)
-        print 'writing:', rgbFilename
-        ImageCapture.writeImage(image, rgbFilename)
+        print 'writing:', imageFilename
+        ImageCapture.writeImage(image, imageFilename)
 
-        # now save the utime
-        print 'writing:', utimeFilename
-        text_file = open(utimeFilename, "w")
-        text_file.write(str(utime))
-        text_file.close()
+        if saveUtime:
+            utime = self.imageManager.getUtime(self.cameraName)
+            utimeFilename = baseFilename + "utime.txt"
+            # now save the utime
+            print 'writing:', utimeFilename
+            text_file = open(utimeFilename, "w")
+            text_file.write(str(utime))
+            text_file.close()
 
     @staticmethod
     def writeImage(image, filename):
@@ -80,8 +81,7 @@ class ImageCapture(object):
 
 
     @staticmethod
-    def readFromLogFile(lcmLogFilename, fileSaveLocation, channelName="OPENNI_FRAME",
-                        cameraName="OPENNI_FRAME_LEFT"):
+    def readFromLogFile(lcmLogFilename, fileSaveLocation, channelName="OPENNI_FRAME", cameraName="OPENNI_FRAME_LEFT", saveDepth=False):
         """
         Reads from lcmlog located at filename. Goes through each
         images_t() message on OPENNI_FRAME channel and saves it
@@ -94,26 +94,37 @@ class ImageCapture(object):
         if not os.path.isdir(fileSaveLocation):
             os.makedirs(fileSaveLocation)
 
-        # first construct imageManager object
+
+        # construct imageManager object
         imageManager = cameraview.ImageManager()
-        imageManager.queue.addCameraStream(channelName, cameraName, lcmbotcore.images_t.LEFT)
+        if saveDepth:
+            imageManager.queue.addCameraStream(channelName, cameraName, lcmbotcore.images_t.DEPTH_MM_ZIPPED)
+        else:
+            imageManager.queue.addCameraStream(channelName, cameraName, lcmbotcore.images_t.LEFT)
         imageManager.addImage(cameraName)
 
         # open the lcm log
         imageManager.queue.openLCMFile(lcmLogFilename)
 
         imageCapture = ImageCapture(imageManager, fileSaveLocation,
-                 cameraName = "OPENNI_FRAME_LEFT", setupCallback=False)
+                 cameraName=cameraName, setupCallback=False)
 
         while imageManager.queue.readNextImagesMessage():
-            imageCapture.saveImage()
+            if saveDepth:
+                imageCapture.saveImage(saveUtime=False, extension="depth.png")
+            else:
+                imageCapture.saveImage(extension="rgb.png")
 
         print "reached end of lcm log"
         return
 
-def captureImages(logFolder):
-    paths = utils.getFilenames(logFolder)
-    ImageCapture.readFromLogFile(paths['lcmlog'], paths['images'])
+def captureImages(logFolder, saveDepth):
+    corlPaths = utils.getFilenames(logFolder)
+    
+    if saveDepth:
+        ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
+
+    ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_LEFT")
 
 
 def test():

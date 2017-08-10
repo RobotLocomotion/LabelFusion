@@ -7,11 +7,21 @@ cd ..
 up_dir=${PWD##*/}
 cd $current_dir
 
+if [ $# -eq 0 ] || [ $1 != "-d" ]; then
+    echo "Not extracting depth images.  Use -d to extract them."
+	saveDepth="False"
+elif [ $1 = "-d" ]; then
+	echo "-d: Extracting depth images as well"
+	saveDepth="True"
+fi
+
 echo "First extracting images..."
 
-directorPython $LABELFUSION_SOURCE_DIR/scripts/extractImagesFromLog.py --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --logFolder $up_dir/$current_dir
+directorPython $LABELFUSION_SOURCE_DIR/scripts/extractImagesFromLog.py --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --logFolder $up_dir/$current_dir --saveDepth $saveDepth
 
 echo "Now rendering training images"
+
+exit 1
 
 directorPython $LABELFUSION_SOURCE_DIR/scripts/renderTrainingImages.py --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --logFolder $up_dir/$current_dir
 

@@ -118,9 +118,12 @@ class ImageCapture(object):
         print "reached end of lcm log"
         return
 
-def captureImages(logFolder):
+def captureImages(logFolder, saveDepth):
     corlPaths = utils.getFilenames(logFolder)
-    ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
+    
+    if saveDepth:
+        ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
+
     ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_LEFT")
 
 

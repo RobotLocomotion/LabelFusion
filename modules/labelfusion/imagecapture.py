@@ -31,7 +31,7 @@ class ImageCapture(object):
         lcmUtils.addSubscriber("OPENNI_FRAME", lcmbotcore.images_t(),
                                self.onImageMessage)
 
-    def saveImage(self, saveDepth=False, saveUtime=True, extension="rgb.png"):
+    def saveImage(self, saveUtime=True, extension="rgb.png"):
         # construct filename where this image will be saved
         baseFilename = utils.convertImageIDToPaddedString(self.counter) + "_"
         baseFilename = os.path.join(self.fileSaveLocation, baseFilename)
@@ -111,9 +111,9 @@ class ImageCapture(object):
 
         while imageManager.queue.readNextImagesMessage():
             if saveDepth:
-                imageCapture.saveImage(saveDepth=True, saveUtime=False, extension="depth.png")
+                imageCapture.saveImage(saveUtime=False, extension="depth.png")
             else:
-                imageCapture.saveImage(saveDepth=False, extension="rgb.png")
+                imageCapture.saveImage(extension="rgb.png")
 
         print "reached end of lcm log"
         return

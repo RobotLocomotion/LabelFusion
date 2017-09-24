@@ -132,7 +132,12 @@ class RenderTrainingImages(object):
         view.renderer().TexturedBackgroundOn()
 
     def loadcameraposes(self):
-        data = np.loadtxt(self.pathDict['cameraposes'])
+        filename = self.pathDict['cameraposes_smoothed']
+        assert os.path.isfile(filename)
+        if not os.path.isfile(filename):
+            filename = self.pathDict['cameraposes']
+        print 'reading:', filename
+        data = np.loadtxt(filename)
         self.poseTimes = np.array(data[:,0]*1e6, dtype=int)
         self.poses = []
         for pose in data[:,1:]:

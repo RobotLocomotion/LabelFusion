@@ -58,7 +58,7 @@ def setupLabelFusionDirector(affordanceManager, openniDepthPointCloud, logFolder
 
 
 def testStartup(robotSystem, affordanceManager, openniDepthPointCloud, logFolder="logs/moving-camera", globalsDict=None):
-    objectData = utils.getObjectDataYamlFile()
+    objectData = utils.loadObjectData()
 
     for objectName, data in objectData.iteritems():
         utils.loadObjectMesh(affordanceManager, objectName, visName=objectName)

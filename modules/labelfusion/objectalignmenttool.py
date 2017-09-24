@@ -261,8 +261,7 @@ class ObjectAlignmentToolWrapper(object):
 
         pointCloud = ioUtils.readPolyData(pathDict['reconstruction'])
         pointCloud = filterUtils.transformPolyData(pointCloud, firstFrameToWorldTransform)
-        objectMeshFilename = utils.getObjectMeshFilename(objectName)
-        objectMesh = ioUtils.readPolyData(objectMeshFilename)
+        objectMesh = utils.getObjectPolyData(utils.loadObjectData(), objectName)
 
         alignmentTool = ObjectAlignmentTool(cameraView, modelPolyData=objectMesh, pointCloud=pointCloud)
 

@@ -25,6 +25,7 @@ class RenderTrainingImages(object):
         self.view = view
         self.viewOptions = viewOptions
         self.pathDict = pathDict
+        self.objectData = utils.loadObjectData()
         self.storedColors = {}
         self.colors = cm.nipy_spectral(np.linspace(0, 1, 12))
         self.colors = np.append(self.colors, [[0.5, 0.5, 0.5, 1.0]], axis=0)
@@ -62,7 +63,7 @@ class RenderTrainingImages(object):
 
         for obj in om.findObjectByName('data files').children():
             objName = obj.getProperty('Name')
-            objLabel = utils.getObjectLabel(objName)
+            objLabel = utils.getObjectLabel(self.objectData, objName)
             obj.actor.GetProperty().LightingOff()
             self.storedColors[obj.getProperty('Name')] = list(obj.getProperty('Color'))
             obj.setProperty('Color', [objLabel / 255.0] * 3)
@@ -149,7 +150,7 @@ class RenderTrainingImages(object):
         return transformUtils.transformFromPose(pos, quat)
 
     def getColorFromIndex(self, objName):
-        objLabel = utils.getObjectLabel(objName)
+        objLabel = utils.getObjectLabel(self.objectData, objName)
         return self.colors[objLabel][:3]
 
     def loadObjectMeshes(self):
@@ -161,7 +162,7 @@ class RenderTrainingImages(object):
 
             filename = data['filename']
             if len(filename) == 0:
-                filename = utils.getObjectMeshFilename(objName)
+                filename = utils.getObjectMeshFilename(self.objectData, objName)
             else:
                 filename = os.path.join(utils.getLabelFusionDataDir(), filename)
 
@@ -240,7 +241,7 @@ class RenderTrainingImages(object):
                 continue 
             if val > 0:
                 cameraStartToCamera = cameraToCameraStart.GetLinearInverse()
-                objectName = utils.getObjectName(index)
+                objectName = utils.getObjectName(self.objectData, index)
                 target.write(objectName + ":")
                 target.write("\n")
                 target.write("  label: " + str(index))

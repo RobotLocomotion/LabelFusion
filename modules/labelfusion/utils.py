@@ -69,7 +69,7 @@ def printObjectPose(name):
 def loadObjectMesh(affordanceManager, objectName, visName=None, pose=None):
     if visName is None:
         visName = objectName + "_raw"
-    filename = getObjectMeshFilename(objectName)
+    filename = getObjectMeshFilename(loadObjectData(), objectName)
 
     if pose is None:
         pose = [[0,0,0],[1,0,0,0]]
@@ -99,7 +99,7 @@ def loadObjectMeshes(affordanceManager, registrationResultFilename,
     for objName, data in registrationResult.iteritems():
         objectMeshFilename = data['filename'] # should be relative to getLabelFusionDataDir()
         if len(objectMeshFilename) == 0:
-            objectMeshFilename = getObjectMeshFilename(objName)
+            objectMeshFilename = getObjectMeshFilename(loadObjectData(), objName)
         else:
             objectMeshFilename = os.path.join(getLabelFusionDataDir(), objectMeshFilename)
 
@@ -138,20 +138,16 @@ def getGRBaseDir():
     return os.getenv('FGR_BASE_DIR')
 
 def getObjectDataFilename():
-    return os.path.join(getLabelFusionBaseDir(), 'config/object_data.yaml')
+    return os.path.join(getLabelFusionDataDir(), 'object_data.yaml')
 
-def getObjectDataYamlFile():
-    stream = file(getObjectDataFilename())
-    return yaml.load(stream)
+def loadObjectData():
+    return getDictFromYamlFilename(getObjectDataFilename())
 
 def getDictFromYamlFilename(filename):
     stream = file(filename)
     return yaml.load(stream)
 
-objectDataFilename = os.path.join(getLabelFusionBaseDir(), 'config/object_data.yaml')
-objectData = yaml.load(file(objectDataFilename))
-
-def getObjectMeshFilename(objectName):
+def getObjectMeshFilename(objectData, objectName):
     """
     Returns the filename of mesh corresponding to this object.
     Filename is relative to getLabelFusionDataDir()
@@ -162,11 +158,13 @@ def getObjectMeshFilename(objectName):
 
     return os.path.join(getLabelFusionDataDir(), objectData[objectName]['mesh'])
 
-def getObjectPolyData(objectName):
-    filename = getObjectMeshFilename(objectName)
+
+def getObjectPolyData(objectData, objectName):
+    filename = getObjectMeshFilename(objectData, objectName)
     return ioUtils.readPolyData(filename)
 
-def getObjectLabel(objectName):
+
+def getObjectLabel(objectData, objectName):
     """
     Returns the object label specified in object_data.yaml
     :param objectName:
@@ -178,7 +176,7 @@ def getObjectLabel(objectName):
 
     return objectData[objectName]['label']
 
-def getObjectName(objectLabel):
+def getObjectName(objectData, objectLabel):
     """
     Returns the object label specified in object_data.yaml
     :param objectLabel:

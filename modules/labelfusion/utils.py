@@ -213,11 +213,6 @@ def evalFileAsString(filename):
     return eval(open(filename, 'r').read(), context)
 
 
-def getResultsConfig():
-    filename = getLabelFusionRelativePath('config/registration_result.py')
-    return evalFileAsString(filename)
-
-
 def loadElasticFusionReconstruction(filename, transform=None):
     """
     Loads reconstructed pointcloud into director view

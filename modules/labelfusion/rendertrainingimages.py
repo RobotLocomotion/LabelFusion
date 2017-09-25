@@ -133,9 +133,9 @@ class RenderTrainingImages(object):
 
     def loadcameraposes(self):
         filename = self.pathDict['cameraposes_smoothed']
-        assert os.path.isfile(filename)
         if not os.path.isfile(filename):
             filename = self.pathDict['cameraposes']
+        assert os.path.isfile(filename)
         print 'reading:', filename
         data = np.loadtxt(filename)
         self.poseTimes = np.array(data[:,0]*1e6, dtype=int)

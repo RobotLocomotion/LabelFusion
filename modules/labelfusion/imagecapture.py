@@ -119,12 +119,12 @@ class ImageCapture(object):
         return
 
 def captureImages(logFolder, saveDepth):
-    corlPaths = utils.getFilenames(logFolder)
+    dataPaths = utils.getFilenames(logFolder)
     
     if saveDepth:
-        ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
+        ImageCapture.readFromLogFile(dataPaths['lcmlog'], dataPaths['images'], cameraName="OPENNI_FRAME_DEPTH_MM_ZIPPED", saveDepth=True)
 
-    ImageCapture.readFromLogFile(corlPaths['lcmlog'], corlPaths['images'], cameraName="OPENNI_FRAME_LEFT")
+    ImageCapture.readFromLogFile(dataPaths['lcmlog'], dataPaths['images'], cameraName="OPENNI_FRAME_LEFT")
 
 
 def test():

@@ -311,6 +311,7 @@ def getFilenames(logFolder):
 
     d['lcmlog'] = os.path.join(getLabelFusionDataDir(), logFolder, infoYaml['lcmlog'])
     d['cameraposes'] = os.path.join(getLabelFusionDataDir(), logFolder, "posegraph.posegraph")
+    d['cameraposes_smoothed'] = os.path.join(getLabelFusionDataDir(), logFolder, "posegraph_smoothed.posegraph")
     d['registrationResult'] = os.path.join(getLabelFusionDataDir(), logFolder, "registration_result.yaml")
     d['reconstruction'] = os.path.join(getLabelFusionDataDir(), logFolder, "reconstructed_pointcloud.vtp")
     d['aboveTablePointcloud'] = os.path.join(getLabelFusionDataDir(), logFolder, "above_table_pointcloud.vtp")

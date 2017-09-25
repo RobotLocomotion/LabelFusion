@@ -38,7 +38,7 @@ Automated arm setup
 - double click on kuka-driver and edit command to be: :code:`kuka_driver -fri_port 30201` (or different port) 
 - start :code:`iiwa-drivers` group
 
-Same as above but we will use the kuka arm to move the xtion around. Set :code:`useCorlDev = True` in :code:`iiwaManipApp.py`. This launches director with :code:`dc = DataCollection` object constructed.
+Same as above but we will use the kuka arm to move the xtion around. Set :code:`useLabelFusionDev = True` in :code:`iiwaManipApp.py`. This launches director with :code:`dc = DataCollection` object constructed.
 
 - Spawning a table frame. With the measurement panel activated make three clicks in openni point cloud. First on front edge of table, second in middle of table in a direction perpendicular to the front edge, the third should be above the able. Then :code:`dc.spawnTableFrame()`.
 
@@ -117,9 +117,9 @@ Now rename::
 5. Global Object Pose Fitting
 -----------------------------
 
-The class that handles segmentation and registration is in :code:`modules/corl/registration.py` and :code:`modules/corl/objectalignmenttool.py`. Launch the standard :code:`corlApp` to run it::
+The class that handles segmentation and registration is in :code:`modules/labelfusion/registration.py` and :code:`modules/labelfusion/objectalignmenttool.py`. Launch the standard :code:`labelFusionApp` to run it::
 
-	directorPython scripts/corlApp.py --logFolder logs/test --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+	directorPython $LABELFUSION_SOURCE_DIR/scripts/labelFusionApp.py --bot-config $LABELFUSION_SOURCE_DIR/config/bot_frames.cfg --logFolder scenes/2017-06-15-70
 
 The :code:`GlobalRegistration` object is in the global namespace as :code:`globalRegistration`, or :code:`gr` for short. The first step is to align the reconstructed point cloud so it is right-side-up:
 
@@ -129,7 +129,7 @@ The :code:`GlobalRegistration` object is in the global namespace as :code:`globa
 
 	gr.rotateReconstructionToStandardOrientation()
 
-- Close the corlApp application (ctrl + c) and reopen
+- Close the labelFusionApp application (ctrl + c) and reopen
 
 The second step is to segment the pointcloud above the table
 
@@ -140,7 +140,7 @@ The second step is to segment the pointcloud above the table
 	gr.segmentTable()
 	gr.saveAboveTablePolyData()
 
-- Close the corlApp application (ctrl + c) and reopen
+- Close the labelFusionApp application (ctrl + c) and reopen
 
 Now, we are ready to align each object.  Press F8 in the app to open Director's Python terminal and run::
 
@@ -162,7 +162,7 @@ Issues:
 
 
 .. commented out below
-.. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/corl/registration.py`. To run an example::
+.. We need environment variables in order for the scripts to be able to find the binaries for these global fitting routines. Please fill in the variables like :code:`FGR_BASE_DIR` in :code:`setup_environment.sh` to point to your local binaries. The relevant python file is :code:`module/labelfusion/registration.py`. To run an example::
 
 .. 	drake-visualizer --script scripts/registration/testRegistration.py
 
@@ -178,7 +178,7 @@ Issues:
 
 6. Extract Images from LCM log
 ------------------------------
-The class that is used is is :code:`modules/corl/imagecapture.py`. To extract rgb images from the lcm log run::
+The class that is used is is :code:`modules/labelfusion/imagecapture.py`. To extract rgb images from the lcm log run::
 
 	directorPython scripts/extractImagesFromLog.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
@@ -188,7 +188,7 @@ This will save the images in :code:`data/logFolder`. The original images will be
 7. Generate Labeled Images
 --------------------------
 
-The class that is used to render labeled images is :code:`modules/corl/rendertrainingimages.py`. Usage::
+The class that is used to render labeled images is :code:`modules/labelfusion/rendertrainingimages.py`. Usage::
 
   directorPython scripts/renderTrainingImages.py --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg --logFolder logs/moving-camera
 
@@ -198,13 +198,13 @@ Optionally you can pass :code:`--logFolder <logFolder>` on the command line wher
 Misc
 ====
 
-Director with Corl Modules
+Director with LabelFusion Modules
 --------------------------
-There is a standalone app for launching a director with corl modules::
+There is a standalone app for launching a director with labelfusion modules::
 
-	directorPython scripts/corlApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
+	directorPython $LABELFUSION_SOURCE_DIR/scripts/labelFusionApp.py --logFolder logs/moving-camera --bot-config $SPARTAN_SOURCE_DIR/apps/iiwa/iiwaManip.cfg
 
-The :code:`--logFolder` option specifies which logFolder to use relative to Corl data directory.
+The :code:`--logFolder` option specifies which logFolder to use relative to LabelFusion data directory.
 
 Visualizing RGBD Data
 ---------------------

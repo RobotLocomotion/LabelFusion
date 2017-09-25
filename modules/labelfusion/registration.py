@@ -30,6 +30,7 @@ class GlobalRegistration(object):
                  firstFrameToWorldTransform=None):
         self.view = view
         self.cameraView = cameraView
+        self.objectData = utils.loadObjectData()
         self.objectToWorldTransform = dict()
         self.measurementPanel = measurementPanel
         self.affordanceManager = affordanceManager
@@ -48,7 +49,6 @@ class GlobalRegistration(object):
             self.logFolder = "logs/scratch"
 
         self.pathDict = utils.getFilenames(self.logFolder)
-        self.objectData = utils.getObjectDataYamlFile()
         self.objectAlignmentResults = dict() # stores results of object alignment tool
         self.objectAlignmentTool = None
 
@@ -74,7 +74,7 @@ class GlobalRegistration(object):
         for objName, data in registrationResult.iteritems():
             objectMeshFilename = data['filename']  # should be relative to getLabelFusionDataDir()
             if len(objectMeshFilename) == 0:
-                objectMeshFilename = utils.getObjectMeshFilename(objName)
+                objectMeshFilename = utils.getObjectMeshFilename(self.objectData, objName)
             else:
                 objectMeshFilename = os.path.join(utils.getLabelFusionDataDir(), objectMeshFilename)
 
@@ -98,7 +98,7 @@ class GlobalRegistration(object):
 
         if objectPolyData is None:
             if filename is None:
-                filename = utils.getObjectMeshFilename(objectName)
+                filename = utils.getObjectMeshFilename(self.objectData, objectName)
 
             objectPolyData = ioUtils.readPolyData(filename)
 
@@ -281,7 +281,7 @@ class GlobalRegistration(object):
 
         pointCloud = self.aboveTablePolyData
         # pointCloud = om.findObjectByName('reconstruction').polyData
-        objectPolyData = utils.getObjectPolyData(objectName)
+        objectPolyData = utils.getObjectPolyData(self.objectData, objectName)
         resultsDict = dict()
         self.objectAlignmentResults[objectName] = resultsDict
         parent = om.getOrCreateContainer('global registration')

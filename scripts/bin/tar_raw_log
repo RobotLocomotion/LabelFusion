@@ -1,0 +1,11 @@
+#!/bin/bash
+
+scene_dir=${PWD##*/}
+echo "Creating a tar.gz for only the raw logs (both trimmed and untrimmed) of this scene " $scene_dir
+
+cd ..
+tar -zcvf "$scene_dir"-log.tar.gz $scene_dir/*log*
+cd $scene_dir
+
+
+

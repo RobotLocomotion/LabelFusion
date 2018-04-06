@@ -16,4 +16,7 @@ export FGR_BASE_DIR=$HOME/software_tools/FastGlobalRegistration
 export GOICP_BASE_DIR=$HOME/software_tools/GoICP_V1.3
 export SUPER4PCS_BASE_DIR=$HOME/software_tools/nmellado-Super4PCS-c77cc4a
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIRECTOR_INSTALL_DIR/lib
+
+
 alias cdlf='cd $LABELFUSION_SOURCE_DIR'

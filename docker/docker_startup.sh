@@ -7,6 +7,5 @@ echo "sourcing ${BASH_SOURCE[0]}"
 
 export LABELFUSION_SOURCE_DIR=$(cd $(dirname ${BASH_SOURCE[0]})/.. && pwd)
 export DIRECTOR_INSTALL_DIR=/root/install
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/install/lib/
 
 source ${LABELFUSION_SOURCE_DIR}/setup_environment.sh

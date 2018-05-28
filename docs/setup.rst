@@ -2,6 +2,17 @@
 Setup
 =====
 
+Paths
+-----
+
+For every-time use, add the following lines (with paths adjusted) to your ~/.bashrc
+
+::
+
+    LABELFUSION_SOURCE_DIR=/path/to/LabelFusion
+	DIRECTOR_INSTALL_DIR=/path/to/Director/install
+	source $LABELFUSION_SOURCE_DIR/setup_environment.sh
+
 Data folder
 -----------
 

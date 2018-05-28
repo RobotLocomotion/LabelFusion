@@ -1,12 +1,12 @@
 =====
-Setup
+LabelFusion Setup
 =====
 
 Recommended setup is through our Docker_.
 
 .. _Docker: https://hub.docker.com/r/robotlocomotion/labelfusion/
 
-If instead you'd prefer a native install, go to:  Setup_Instructions_.
+If instead you'd prefer a native install, go to:  "Setup Instructions".
 
 .. _Setup_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
 

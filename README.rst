@@ -1,5 +1,13 @@
 =====
-LabelFusion Setup
+LabelFusion
+=====
+
+This readme is to document how to create your own data with LabelFusion.
+
+If you're looking to download the example LabelFusion dataset, go here: http://labelfusion.csail.mit.edu/#data
+
+=====
+Setup
 =====
 
 Recommended setup is through our Docker_.
@@ -9,14 +17,6 @@ Recommended setup is through our Docker_.
 If instead you'd prefer a native install, go to:  "Setup Instructions".
 
 .. _Setup_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
-
-For every-time use, add the following lines (with paths adjusted) to your ~/.bashrc
-
-::
-
-    LABELFUSION_SOURCE_DIR=/path/to/LabelFusion
-	DIRECTOR_INSTALL_DIR=/path/to/Director/install
-	source $LABELFUSION_SOURCE_DIR/setup_environment.sh
 
 ===========================
 Quick Pipeline Instructions
@@ -71,6 +71,13 @@ After the alignment outputs have been saved, we can create the labeled data:
 ::
 
 	run_create_data
+	
+By default, only RGB images and labels will be saved.  If you'd also like to save depth images, use the :code:`-d` flag:
+
+::
+
+	run_create_data -d
+
 
 
 Train SegNet on labeled data

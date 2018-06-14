@@ -65,17 +65,23 @@ Next, launch the object alignment tool and follow the three steps:
 
 	run_alignment_tool
 
-1. 	Align the reconstructed point cloud:
+1. 	Check available object types:
+
+    - In your data directory, open ``object_data.yaml`` and review the available objects, and add the objects / meshes that you need.
+
+      - If you need multiple instances of the same object, you will need to create separate copies of the object with unique names (e.g. ``drill-1``, ``drill-2``, ...). For networks that do object detection, ensure that you remove this distinction from your labels / classes.
+
+2. 	Align the reconstructed point cloud:
 
 	- Open measurement panel (View -> Measurement Panel), then check Enabled in measurement panel
-	- Use (shift + click) and click two points: first on the surface of the table, then on a point above the table
+	- Use ``shift + click`` and click two points: first on the surface of the table, then on a point above the table
 	- Open Director terminal with F8 and run::
 
 		gr.rotateReconstructionToStandardOrientation()
 
 	- Close the ``run_alignment_tool`` application (ctrl + c) and rerun.
 
-2. 	Segment the pointcloud above the table
+3. 	Segment the pointcloud above the table
 
 	- Same as above, use ``shift + click`` and click two points: first on the
 	surface of the table, then on a point above the table
@@ -86,7 +92,7 @@ Next, launch the object alignment tool and follow the three steps:
 
 	- Close the ``run_alignment_tool`` application (ctrl + c) and rerun.
 
-3. 	Align each object and crop point clouds.
+4. 	Align each object and crop point clouds.
 
 	- Assign the current object you're aligning, e.g.::
 	

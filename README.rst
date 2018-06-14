@@ -59,12 +59,50 @@ Next, we prepare for object pose fitting, by running ElasticFusion and formattin
 
 	run_prep
 
-Next, launch the object alignment tool.  See Pipeline_Instructions_ for how to use the alignment tool:
+Next, launch the object alignment tool and follow the three steps:
 
 ::
 
 	run_alignment_tool
 
+1. 	Align the reconstructed point cloud:
+
+	- Open measurement panel (View -> Measurement Panel), then check Enabled in measurement panel
+	- Use (shift + click) and click two points: first on the surface of the table, then on a point above the table
+	- Open Director terminal with F8 and run::
+
+		gr.rotateReconstructionToStandardOrientation()
+
+	- Close the ``run_alignment_tool`` application (ctrl + c) and rerun.
+
+2. 	Segment the pointcloud above the table
+
+	- Same as above, use ``shift + click`` and click two points: first on the
+	surface of the table, then on a point above the table
+	- Open Director terminal with F8 and run::
+
+		gr.segmentTable()
+		gr.saveAboveTablePolyData()
+
+	- Close the ``run_alignment_tool`` application (ctrl + c) and rerun.
+
+3. 	Align each object and crop point clouds.
+
+	- Assign the current object you're aligning, e.g.::
+	
+		objectName = "drill"
+
+	- Launch point cloud alignment::
+
+	    gr.launchObjectAlignment(objectName)
+
+	  This launches a new window. Click the same three points in model and on pointcloud. Using ``shift + click`` to do this. After you do this the affordance should appear in main window using the transform that was just computed.
+
+	  -	If the results are inaccurate, you can rerun the above command, or you  can double-click on each affordance and move it with an interactive marker: ``left-click`` to translate along an axis, ``right-click`` to rotate along an axis.
+
+	- When you are done with an object's registration (or just wish to save intermediate poses), run::
+
+		gr.saveRegistrationResults()
 
 After the alignment outputs have been saved, we can create the labeled data:
 

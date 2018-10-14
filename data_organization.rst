@@ -1,13 +1,13 @@
 ====================
-DropBox Organization
+LabelFusion Data Organization
 ====================
 
 This is for internal-only use, to describe the organization of our DropBox folder.
 
-1. Data organization
+1. Highest level directory structure
 --------------------
 
-Here are the top-level files and directories inside :code:`CORL2017` and their uses:
+Here are the top-level files and directories inside :code:`LabelFusion_public_full` and their uses:
 
 - :code:`logs*` - A number of logs folders, described in the next section
 - :code:`dataset_status.csv` - Overall status script, described in Section 4.

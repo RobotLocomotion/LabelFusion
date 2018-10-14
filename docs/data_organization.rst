@@ -11,16 +11,15 @@ Here are the top-level files and directories inside :code:`LabelFusion_public_fu
 - :code:`logs*` - A number of logs folders, described in the next section
 - :code:`dataset_status.csv` - Overall status script, described in Section 4.
 - :code:`object-meshses` - Contains the meshes for all objects across all datasets
-- :code:`segnet_examples` - Contains samples of SegNet performance.  Each subdirectory has an :code:`index.html` which can be viewed with a web browser.
+- :code:`object_data.yaml` - Critical file which is a dictionary of all objects in the database, their pixel label (i.e. "1" is the oil_bottle), and the mesh (.vtp or .obj, etc) that is used for this object.
 
 2. Log high-level organization
 ------------------------------
 
 The purpose of each of the :code:`logs*` directories are:
 
-- :code:`logs_test` - These logs are WIP (work in progress).  All initial syncing should happen here.
-- :code:`logs_stable` - These logs have been looked over to see that the training images look good.
-- :code:`logs_archive` - These logs are imperfect (not right set of objects, too shaky for ElasticFusion, etc.) but we don't want to delete yet.
+- :code:`logs_test` - These are where all of our logs are.  It's a bit of a misnomer, but it's there for historical reasons.
+- :code:`logs_arch` - These logs are imperfect (not right set of objects, too shaky for ElasticFusion, etc.) but we don't want to delete yet.
 
 3. Each log organization
 ------------------------

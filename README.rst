@@ -38,11 +38,22 @@ Inspecting Data from LabelFusion
 
 If you've downloaded some of LabelFusion data and would like to inspect some of it, we recommend the following:
 
-1. run our docker image (instructions here: https://hub.docker.com/r/robotlocomotion/labelfusion/)
-2. inside the docker image navigate to a log directory: (:code:`cd ~/labelfusion/data/logs_test/2017-06-16-57`)
-3. run the alignment tool -- even though the data has already been labeled, you can inspect the results (:code:`run_alignment_tool`)
-4. inspect labeled images (:code:`cd path-to-labelfusion-data/logs_test/2017-06-16-57/images` and browse the images)
-5. run a script to print out the overall status of the dataset: :code:`dataset_update_status -o`
+1. Run our docker image (instructions here: https://hub.docker.com/r/robotlocomotion/labelfusion/)
+2. Inside the docker image navigate to a log directory and run the alignment tool. Even though the data has already been labeled, you can inspect the results:
+
+::
+
+	cd ~/labelfusion/data/logs_test/2017-06-16-20
+	run_alignment_tool
+
+You should see a GUI like the following:
+
+
+.. image:: docs/labelfusion_screenshot.png
+
+
+4. Inspect labeled images (:code:`cd path-to-labelfusion-data/logs_test/2017-06-16-20/images` and browse the images)
+5. Run a script to print out the overall status of the dataset (note this may take ~10-20 seconds to run for the full dataset): :code:`dataset_update_status -o`
 
 
 Training on Object Detection, Segmentation, and/or Pose data

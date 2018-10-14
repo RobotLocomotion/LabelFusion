@@ -7,9 +7,9 @@ LabelFusion
 
 This repo holds the code for LabelFusion.
 
-paper: https://ieeexplore.ieee.org/abstract/document/8460950
-arxiv preprinet: https://arxiv.org/abs/1707.04796
-video: https://www.youtube.com/watch?v=nc65CF1W9B0
+- paper: https://ieeexplore.ieee.org/abstract/document/8460950
+- arxiv preprint: https://arxiv.org/abs/1707.04796
+- video: https://www.youtube.com/watch?v=nc65CF1W9B0
 
 ====
 Quick Links
@@ -41,8 +41,8 @@ If you've downloaded some of LabelFusion data and would like to inspect some of 
 1. run our docker image (instructions here: https://hub.docker.com/r/robotlocomotion/labelfusion/)
 2. inside the docker image navigate to a log directory: (:code:`cd ~/labelfusion/data/logs_test/2017-06-16-57`)
 3. run the alignment tool -- even though the data has already been labeled, you can inspect the results (:code:`run_alignment_tool`)
-4. inspect labeled images (:code: `cd path-to-labelfusion-data/logs_test/2017-06-16-57/images`)
-5. run a script to print out the overall status of the dataset: `dataset_update_status -o`
+4. inspect labeled images (:code:`cd path-to-labelfusion-data/logs_test/2017-06-16-57/images` and browse the images)
+5. run a script to print out the overall status of the dataset: :code:`dataset_update_status -o`
 
 
 Training on Object Detection, Segmentation, and/or Pose data
@@ -68,7 +68,7 @@ At the time of publication for LabelFusion, we used this repo to train segmentat
 
 
 ===========================
-Quick Pipeline Instructions for Making New Data
+Quick Pipeline Instructions for Making New Labeled Data with LabelFusion
 ===========================
 
 This is the quick version.  If you'd prefer to go step-by-step manually, see Pipeline_Instructions_.
@@ -172,9 +172,9 @@ By default, only RGB images and labels will be saved.  If you'd also like to sav
 	run_create_data -d
 
 
-===
+==================
 Citing LabelFusion
-===
+==================
 
 If you find LabelFusion useful in your work, please consider citing:
 

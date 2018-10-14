@@ -7,6 +7,9 @@ LabelFusion
 
 This repo holds the code for LabelFusion.
 
+paper: https://ieeexplore.ieee.org/abstract/document/8460950
+arxiv preprinet: https://arxiv.org/abs/1707.04796
+video: https://www.youtube.com/watch?v=nc65CF1W9B0
 
 ====
 Quick Links
@@ -169,4 +172,19 @@ By default, only RGB images and labels will be saved.  If you'd also like to sav
 	run_create_data -d
 
 
+===
+Citing LabelFusion
+===
 
+If you find LabelFusion useful in your work, please consider citing:
+
+::
+
+	@inproceedings{marion2018label,
+	  title={Label Fusion: A Pipeline for Generating Ground Truth Labels for Real RGBD Data of Cluttered Scenes},
+	  author={Marion, Pat and Florence, Peter R and Manuelli, Lucas and Tedrake, Russ},
+	  booktitle={2018 IEEE International Conference on Robotics and Automation (ICRA)},
+	  pages={3325--3242},
+	  year={2018},
+	  organization={IEEE}
+	}

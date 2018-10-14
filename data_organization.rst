@@ -2,7 +2,6 @@
 LabelFusion Data Organization
 ====================
 
-This is for internal-only use, to describe the organization of our DropBox folder.
 
 1. Highest level directory structure
 --------------------

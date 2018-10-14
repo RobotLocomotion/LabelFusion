@@ -3,7 +3,25 @@ LabelFusion Data Organization
 ====================
 
 
-1. Highest level directory structure
+Introduction
+------------
+This document overviews the organization of the data in LabelFusion
+
+
+Mounting into docker
+--------------------
+
+If you use our provided docker image, the LabelFusion data folder is a directory that lives on your host machine. When you launch the `docker` container with
+
+::
+
+	LabelFusion/docker/docker_run.sh /path/to/data-folder
+
+
+this directory gets mounted inside the docker to `/root/labelfusion/data`.
+
+
+Highest level directory structure
 --------------------
 
 Here are the top-level files and directories inside :code:`LabelFusion_public_full` and their uses:
@@ -13,7 +31,38 @@ Here are the top-level files and directories inside :code:`LabelFusion_public_fu
 - :code:`object-meshses` - Contains the meshes for all objects across all datasets
 - :code:`object_data.yaml` - Critical file which is a dictionary of all objects in the database, their pixel label (i.e. "1" is the oil_bottle), and the mesh (.vtp or .obj, etc) that is used for this object.
 
-2. Log high-level organization
+Object Meshes
+--------------
+
+LabelFusion requires object meshes to perform the model alignment and rendering of masks. The default location for `object-meshes` is 
+
+```
+data\
+  object-meshes\
+      drill_mesh.vtp
+````
+
+When running the alignment tool the software needs to know where to find the mesh for a specific object. In particular the call
+`gr.launchObjectAlignment(<objectName>)` will try to look up the mesh for `<objectName>`. It is assused that this information is contained in a file `object_data.yaml` which is in location
+
+```
+data\
+  object_data.yaml
+```
+
+Each entry in this yaml file is of the form
+
+```
+drill:
+  mesh: object-meshes/handheld-scanner/drill_decimated_mesh.vtp
+  label: 1
+```
+
+The `mesh` entry points to the mesh file location, relative to the top-level `data` directory. The `label` entry is the global label for this object. When the greyscale mask image gets rendered pixels with a value of `1` will correspond to the drill, in this case. Note that **`0` always represents the background so it cannot be used it as an object label**.
+
+
+
+Log high-level organization
 ------------------------------
 
 The purpose of each of the :code:`logs*` directories are:
@@ -21,7 +70,7 @@ The purpose of each of the :code:`logs*` directories are:
 - :code:`logs_test` - These are where all of our logs are.  It's a bit of a misnomer, but it's there for historical reasons.
 - :code:`logs_arch` - These logs are imperfect (not right set of objects, too shaky for ElasticFusion, etc.) but we don't want to delete yet.
 
-3. Each log organization
+Each log organization
 ------------------------
 
 Each log should have a unique name across all datasets.  Optionally this can be a unique date in the form:
@@ -66,7 +115,7 @@ After running through all scripts, the following files and directories will be c
 			registration_result.yaml
 			transforms.yaml
 
-4. Dataset status
+Script for viewing dataset status
 -----------------
 
 The :code:`dataset_update_status` script provides a way to keep track of status for each log.

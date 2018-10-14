@@ -1,25 +1,71 @@
-=====
+
 LabelFusion
+===========
+
+.. image:: docs/fusion_short.gif
+
+
+This repo holds the code for LabelFusion.
+
+
+====
+Quick Links
+====
+
+
+- Are you looking to get started making your own data?  **first go get our docker image:** https://hub.docker.com/r/robotlocomotion/labelfusion/
+- Are you looking to download the example dataset? **you can find links here to either download a 5 GB subset, or all ~500 GB of data** http://labelfusion.csail.mit.edu/#data
+- Are you trying to understand the organization of the data? **this documents the organization of the data**: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/data_organization.rst
+
+
+=====
+Getting Started
 =====
 
-This readme is to document how to create your own data with LabelFusion.
-
-If you're looking to download the example LabelFusion dataset, go here: http://labelfusion.csail.mit.edu/#data
-
-=====
-Setup
-=====
-
-Recommended setup is through our Docker_.
+First step is to download and set up our Docker_.
 
 .. _Docker: https://hub.docker.com/r/robotlocomotion/labelfusion/
 
-If instead you'd prefer a native install, go to:  "Setup Instructions".
+If alternatively you'd like to natively install, this document may be helpful: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
 
-.. _Setup_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/setup.rst
 
 ===========================
-Quick Pipeline Instructions
+Inspecting Data from LabelFusion
+===========================
+
+If you've downloaded some of LabelFusion data and would like to inspect some of it, we recommend the following:
+
+1. run our docker image (instructions here: https://hub.docker.com/r/robotlocomotion/labelfusion/)
+2. inside the docker image navigate to a log directory: (:code:`cd ~/labelfusion/data/logs_test/2017-06-16-57`)
+3. run the alignment tool -- even though the data has already been labeled, you can inspect the results (:code:`run_alignment_tool`)
+4. inspect labeled images (:code: `cd path-to-labelfusion-data/logs_test/2017-06-16-57/images`)
+5. run a script to print out the overall status of the dataset: `dataset_update_status -o`
+
+
+Training on Object Detection, Segmentation, and/or Pose data
+----------------------------
+
+
+.. image:: docs/color_masks.gif
+
+
+.. image:: docs/bbox_trim.gif
+
+LabelFusion provides training data which is able to train a variety of perception systems.  This includes:
+
+- semantic segmentation (pixelwise classification)
+- 2D object detection (bounding box + classification) -- note that we provide the segmentation masks, not the bounding boxes, but the bounding boxes could be computed from the masks
+- 6 DoF object poses
+- 3D object detection (bounding box + classidication) -- the 3D bounding box can be computed from the 6 DoF object poses together with their mesh.
+- 6 DoF camera pose - this is provided without any labeling, just through the use of the dense SLAM method we use, ElasticFusion
+
+Please see this document to better understand how the data is structured: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/data_organization.rst
+
+At the time of publication for LabelFusion, we used this repo to train segmentation networks: https://github.com/DrSleep/tensorflow-deeplab-resnet
+
+
+===========================
+Quick Pipeline Instructions for Making New Data
 ===========================
 
 This is the quick version.  If you'd prefer to go step-by-step manually, see Pipeline_Instructions_.
@@ -123,31 +169,4 @@ By default, only RGB images and labels will be saved.  If you'd also like to sav
 	run_create_data -d
 
 
-
-Train SegNet on labeled data
-----------------------------
-
-Navigate to :code:`/SegNet/MovingCamera/`
-
-Copy all the data you want to use (created by :code:`run_create_data` from different datasets) into :code:`./train`
-
-Use a different subdirectory inside :code:`/train/` for each log, i.e.:
-
-::
-
-        /train/log-1
-        /train/log-2
-
-Then resize all of the training images to a better size for training::
-
-	python resize_all_images.py
-
-Finally, create the description of image-label pairs needed as SegNet input::
-
-	python create_traiing_set_list.py
-
-To train SegNet::
-
-	cd /
-	./SegNet/caffe-segnet/build/tools/caffe train -gpu 0 -solver /SegNet/Models/moving_camera_solver.prototxt
 

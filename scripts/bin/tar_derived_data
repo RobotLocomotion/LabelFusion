@@ -1,0 +1,11 @@
+#!/bin/bash
+
+scene_dir=${PWD##*/}
+echo "Creating a tar.gz for only the derived data of this scene " $scene_dir
+
+cd ..
+tar --exclude='*resized_images*' --exclude='*log*' -zcvf "$scene_dir"-labeled.tar.gz $scene_dir
+cd $scene_dir
+
+
+

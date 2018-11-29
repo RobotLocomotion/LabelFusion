@@ -18,14 +18,10 @@ if os.path.isfile("./reconstructed_pointcloud.vtp"):
 # Run Elastic Fusion #
 ######################
 
-# later, I want to try automatically install ElasticFusion
-# or at least check for it
-# for now, just need to specify ElasticFusion executable location
 path_to_ElasticFusion_executable = os.environ['ELASTIC_FUSION_EXECUTABLE']
 if not (os.path.isfile(path_to_ElasticFusion_executable)):
 	print "You need to install ElasticFusion and set the path to the executable in setup_environment.sh"
 	quit()
-
 
 path = os.getcwd()
 yaml_path = path + "/info.yaml"
@@ -52,9 +48,11 @@ if not (os.path.isdir(path_to_ply)):
  	os.system("cd " + path_to_ply + " && make")	
 
 ply_binary_filename = lcmlog_filename + ".ply"
+desired_binary_filename = "binary.ply"
+os.system("mv " + ply_binary_filename + " " + desired_binary_filename)
 
 # call ply2ascii
-os.system(path_to_ply + "/ply2ascii <./" + ply_binary_filename + "> ./converted_to_ascii.ply")
+os.system(path_to_ply + "/ply2ascii <./" + desired_binary_filename + "> ./converted_to_ascii.ply")
 
 # change header to be compatible with Director
 # TODO: make so Director accepts other header?
@@ -88,5 +86,5 @@ with open("./converted_to_ascii_modified_header.ply", 'w') as outfile:
 os.system("directorPython " + path_to_labelfusion + "/scripts/convertPlyToVtp.py " +  "./converted_to_ascii_modified_header.ply")
 
 # clean up and rename
-# os.system("rm *.ply *.freiburg")
+os.system("rm *.freiburg *.jlp")
 os.system("mv converted_to_ascii_modified_header.vtp reconstructed_pointcloud.vtp")

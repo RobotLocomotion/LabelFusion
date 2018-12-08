@@ -86,6 +86,23 @@ This is the quick version.  If you'd prefer to go step-by-step manually, see Pip
 
 .. _Pipeline_Instructions: https://github.com/RobotLocomotion/LabelFusion/blob/master/docs/pipeline.rst
 
+Camera intrinsic calibration
+---------------------------
+
+For ElasticFusion calibration, create camera.cfg file into your lcm-log folder. camera.cfg is :code:`fx fy px py` in one line.
+
+For render training image, edit :code:`LabelFusion/modules/labelfusion/rendertrainingimages.py` "setCameraInstrinsicsAsus" fuction.
+
+.. code-block:: python
+	
+	def setCameraInstrinsicsAsus(view):
+      		principalX = 320.0
+      		principalY = 240.0
+      		focalLength = 617.0 # fx = fy = focalLength
+      		setCameraIntrinsics(view, principalX, principalY, focalLength)
+
+
+
 Collect raw data from Xtion
 ---------------------------
 
@@ -103,6 +120,64 @@ In another, run:
 
 Your data will be saved in current directory as :code:`lcmlog-*`.
 
+
+Collect raw data from Realsense
+---------------------------
+
+First, install `librealsense  <https://github.com/IntelRealSense/librealsense>`_
+, `intel_ros_relasense <https://github.com/intel-ros/realsense>`_
+and `rgbd_ros_to_lcm <https://github.com/MobileManipulation/rgbd_ros_to_lcm>`_
+
+Second, :code:`cdlf && cd data/logs`, then make a new directory for your data.  In one terminal, run:
+
+::
+
+	roscore
+
+In one, run:
+
+::
+
+	roslaunch realsense2_camera rs_rgbd.launch
+
+modify rgbd_ros_to_lcm topic:
+modify this file ~/catkin_ws/src/rgbd_ros_to_lcm/launch/lcm_republisher.launch to
+
+.. code-block:: 
+
+	<?xml version="1.0"?>
+	<launch>
+	  <node name="lcm_republisher" pkg="rgbd_ros_to_lcm" type="lcm_republisher" output="screen" respawn="false" >
+	    <rosparam subst_value="true">      
+	      # input parameters
+	      subscribe_point_cloud: false
+	      rgb_topic: /camera/color/image_raw
+	      depth_topic: /camera/aligned_depth_to_color/image_raw
+	      cloud_topic: /camera/depth_registered/points
+
+	      # output parameters
+	      output_lcm_channel: "OPENNI_FRAME"
+	      compress_rgb: true
+	      compress_depth: true
+
+	      debug_print_statements: true
+	    </rosparam>
+	  </node>
+	</launch>
+
+and run
+
+::
+
+    roslaunch rgbd_ros_to_lcm lcm_republisher.launch
+
+In another, run:
+
+::
+
+	lcm-logger
+
+Your data will be saved in current directory as :code:`lcmlog-*`.
 
 Process into labeled training data
 ----------------------------------

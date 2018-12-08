@@ -2,3 +2,4 @@ data/
 *pyc
 automation/scp_config.yaml
 src/ply
+docker/director-build/*

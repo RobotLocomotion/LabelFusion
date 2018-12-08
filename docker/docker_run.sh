@@ -2,17 +2,15 @@
 #
 # Usage:  ./docker_run.sh [/path/to/data]
 #
-# This script calls `nvidia-docker run` to start the labelfusion
-# container with an interactive bash session.  This script sets
-# the required environment variables and mounts the labelfusion
-# source directory as a volume in the docker container.  If the
-# path to a data directory is given then the data directory is
-# also mounted as a volume.
+# This script calls `docker` with `nvidia-docker2 runtime` to start the 
+# labelfusion container with an interactive bash session.  This script 
+# sets the required environment variables and mounts the labelfusion 
+# source directory as a volume in the docker container.  If the path 
+# to a data directory is given then the data directory is also mounted 
+# as a volume.
 #
 
-image_name=robotlocomotion/labelfusion:latest
-
-
+source ./config.sh
 source_dir=$(cd $(dirname $0)/.. && pwd)
 
 if [ ! -z "$1" ]; then
@@ -26,6 +24,15 @@ if [ ! -z "$1" ]; then
   data_mount_arg="-v $data_dir:/root/labelfusion/data"
 fi
 
-xhost +local:root;
-nvidia-docker run -it -e DISPLAY -e QT_X11_NO_MITSHM=1 -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $source_dir:/root/labelfusion $data_mount_arg --privileged -v /dev/bus/usb:/dev/bus/usb $image_name
-xhost -local:root;
+xhost +
+docker run -it \
+  --rm \
+  --runtime=nvidia \
+  -e DISPLAY \
+  --privileged \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  -v $source_dir:/root/labelfusion $data_mount_arg \
+  -v /dev/bus/usb:/dev/bus/usb \
+  $image_name
+xhost -

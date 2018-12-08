@@ -34,7 +34,10 @@ dataMap = yaml.safe_load(f)
 lcmlog_filename = dataMap["lcmlog"]
 
 # call ElasticFusion
-os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename)
+cameraConfig_arg = ""
+if os.path.isfile("camera.cfg"):
+    cameraConfig_arg += " -cal camera.cfg"
+os.system(path_to_ElasticFusion_executable + " -l ./" + lcmlog_filename + cameraConfig_arg)
 
 # rename posegraph
 # TODO: give error if multiple posegraph files

@@ -30,6 +30,7 @@ class RenderTrainingImages(object):
         self.colors = cm.nipy_spectral(np.linspace(0, 1, len(self.objectData.keys())))
         self.colors = np.append(self.colors, [[0.5, 0.5, 0.5, 1.0]], axis=0)
         self.objectToWorld = dict()
+        self.renderBoundingBox = True
         self.initialize()
 
     def initialize(self):
@@ -67,6 +68,8 @@ class RenderTrainingImages(object):
             obj.actor.GetProperty().LightingOff()
             self.storedColors[obj.getProperty('Name')] = list(obj.getProperty('Color'))
             obj.setProperty('Color', [objLabel / 255.0] * 3)
+            bbox = obj.findChild(objName + ' bbox')
+            bbox.setProperty('Visible', False)
         view.forceRender()
 
     def enableLighting(self):
@@ -83,6 +86,8 @@ class RenderTrainingImages(object):
         for obj in om.findObjectByName('data files').children():
             obj.actor.GetProperty().LightingOn()
             obj.setProperty('Color', self.storedColors[obj.getProperty('Name')])
+            bbox = obj.findChild(objName + ' bbox')
+            bbox.setProperty('Visible', self.renderBoundingBox)
         view.forceRender()
 
 
@@ -179,6 +184,16 @@ class RenderTrainingImages(object):
             objToWorld = transformUtils.transformFromPose(*data['pose'])
             self.objectToWorld[objName] = objToWorld
             obj.actor.SetUserTransform(objToWorld)
+
+            outlineFilter = vtk.vtkOutlineFilter()
+            outlineFilter.SetInput(polyData)
+            outlineFilter.Update()
+            bbox = vis.showPolyData(outlineFilter.GetOutput(), objName + ' bbox', parent=obj)
+            bbox.actor.GetProperty().SetLineWidth(1)
+            bbox.actor.SetUserTransform(objToWorld)
+            bbox.setProperty('Color', [1, 1, 1])
+            bbox.setProperty('Alpha', 0.8)
+            bbox.setProperty('Visible', False)
 
     def setupImage(self, imageNumber, saveColorLabeledImages=False, saveLabeledImages=False, savePoses=False):
 
